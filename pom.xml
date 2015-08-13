@@ -8,7 +8,7 @@
     <packaging>pom</packaging>
 
     <name>RAML Annotation Processor</name>
-    <description>An annottion processor that produces RAML files from JAX-RS and and other annotations</description>
+    <description>An annotation processor that produces RAML files from JAX-RS and other annotations</description>
 
     <scm>
         <developerConnection>scm:git:https://github.com/t1/raml-annotation-processor</developerConnection>
