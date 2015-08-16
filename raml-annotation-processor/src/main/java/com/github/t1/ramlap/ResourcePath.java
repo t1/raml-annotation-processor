@@ -2,10 +2,21 @@ package com.github.t1.ramlap;
 
 import java.util.Iterator;
 
+import javax.ws.rs.Path;
+
 import org.raml.model.*;
+
+import com.github.t1.exap.reflection.Type;
 
 // Immutable
 public class ResourcePath implements Iterable<ResourcePath> {
+    public static ResourcePath of(Type type) {
+        Path path = type.getAnnotation(Path.class);
+        if (path == null)
+            return null;
+        return ResourcePath.of(path.value());
+    }
+
     public static ResourcePath of(String path) {
         if (path.startsWith("/"))
             path = path.substring(1);
@@ -69,7 +80,7 @@ public class ResourcePath implements Iterable<ResourcePath> {
     public void setResource(Raml raml, Resource resource) {
         resource.setParentResource(parentResource(raml));
         resource.setRelativeUri(getName());
-        resource.setParentUri((parent == null) ? null : parent.toString());
+        resource.setParentUri((parent == null) ? "" : parent.toString());
         if (parent == null)
             raml.getResources().put(this.getName(), resource);
         else

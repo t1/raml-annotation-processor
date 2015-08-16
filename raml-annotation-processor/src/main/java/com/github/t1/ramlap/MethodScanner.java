@@ -1,5 +1,7 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.ramlap.StringTools.*;
+
 import javax.ws.rs.*;
 
 import org.raml.model.*;
@@ -27,6 +29,10 @@ public class MethodScanner {
             return;
         log.debug("scan {} method {}", actionType, method);
         Resource resource = resource();
+        if (resource.getAction(actionType) != null) {
+            method.warning("path not unique");
+            return;
+        }
         Action action = new Action();
         action.setResource(resource);
         action.setDisplayName(displayName());
@@ -35,7 +41,7 @@ public class MethodScanner {
         resource.getActions().put(actionType, action);
     }
 
-    public ActionType actionType() {
+    private ActionType actionType() {
         for (AnnotationType annotation : method.getAnnotationTypes())
             if (annotation.getAnnotation(HttpMethod.class) != null)
                 return ActionType.valueOf(annotation.getAnnotation(HttpMethod.class).value());
@@ -55,18 +61,8 @@ public class MethodScanner {
     private ResourcePath methodPath() {
         Path methodPath = method.getAnnotation(Path.class);
         if (methodPath == null)
-            return typePath();
-        return typePath().and(methodPath.value());
-    }
-
-    private ResourcePath typePath() {
-        Type type = method.getType();
-        Path path = type.getAnnotation(Path.class);
-        if (path == null) {
-            type.warning("missing annotation: " + Path.class.getName());
-            return null;
-        }
-        return ResourcePath.of(path.value());
+            return ResourcePath.of(method.getType());
+        return ResourcePath.of(method.getType()).and(methodPath.value());
     }
 
     private String displayName() {
@@ -77,17 +73,6 @@ public class MethodScanner {
         if (javaDoc != null)
             return javaDoc.summary();
         return camelCaseToWords(method.getSimpleName());
-    }
-
-    private String camelCaseToWords(String string) {
-        StringBuilder out = new StringBuilder();
-        for (int i = 0; i < string.length(); i++) {
-            char c = string.charAt(i);
-            if (Character.isUpperCase(c))
-                out.append(' ');
-            out.append(Character.toLowerCase(c));
-        }
-        return out.toString();
     }
 
     private String description() {

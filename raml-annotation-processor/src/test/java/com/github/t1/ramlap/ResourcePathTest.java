@@ -128,9 +128,10 @@ public class ResourcePathTest {
         assertThat(raml.getResources()).containsOnlyKeys("/");
         assertThat(resource.getResources()).isEmpty();
         then.assertThat(resource) //
+                .hasUri("/") //
                 .hasRelativeUri("/") //
                 .hasParentResource(null) //
-                .hasParentUri(null) //
+                .hasParentUri("") //
                 .isSameAs(raml.getResource("/")) //
                 ;
     }
@@ -149,8 +150,9 @@ public class ResourcePathTest {
         assertThat(old.getResources()).isEmpty();
         assertThat(resource.getResources()).isEmpty();
         then.assertThat(resource) //
+                .hasUri("/foo") //
                 .hasRelativeUri("/foo") //
-                .hasParentUri(null) //
+                .hasParentUri("") //
                 .hasParentResource(null) //
                 ;
         then.assertThat(raml.getResource("/foo")) //
@@ -174,11 +176,13 @@ public class ResourcePathTest {
         then.assertThat(foo) //
                 .as("newly created root resource") //
                 .isNotSameAs(bar) //
+                .hasUri("/foo") //
                 .hasRelativeUri("/foo") //
-                .hasParentUri(null) //
+                .hasParentUri("") //
                 .hasParentResource(null) //
                 ;
         then.assertThat(bar) //
+                .hasUri("/foo/bar") //
                 .hasRelativeUri("/bar") //
                 .hasParentUri("/foo") //
                 .hasParentResource(foo) //
@@ -200,6 +204,7 @@ public class ResourcePathTest {
         assertThat(foo.getResources()).containsOnlyKeys("/bar");
         assertThat(bar.getResources()).isEmpty();
         then.assertThat(bar) //
+                .hasUri("/foo/bar") //
                 .hasRelativeUri("/bar") //
                 .hasParentUri("/foo") //
                 .hasParentResource(foo) //
@@ -229,14 +234,16 @@ public class ResourcePathTest {
                 .as("newly created root resource") //
                 .isNotSameAs(bar) //
                 .isNotSameAs(baz) //
+                .hasUri("/foo") //
                 .hasRelativeUri("/foo") //
-                .hasParentUri(null) //
+                .hasParentUri("") //
                 .hasParentResource(null) //
                 ;
         then.assertThat(bar) //
                 .as("newly created intermediate resource") //
                 .isNotSameAs(foo) //
                 .isNotSameAs(baz) //
+                .hasUri("/foo/bar") //
                 .hasRelativeUri("/bar") //
                 .hasParentUri("/foo") //
                 .hasParentResource(foo) //
@@ -244,6 +251,7 @@ public class ResourcePathTest {
         then.assertThat(baz) //
                 .isNotSameAs(foo) //
                 .isNotSameAs(bar) //
+                .hasUri("/foo/bar/baz") //
                 .hasRelativeUri("/baz") //
                 .hasParentUri("/foo/bar") //
                 .hasParentResource(bar) //

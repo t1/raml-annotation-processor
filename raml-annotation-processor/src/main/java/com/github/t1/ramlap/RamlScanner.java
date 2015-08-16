@@ -1,11 +1,14 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.ramlap.StringTools.*;
+
 import java.util.regex.*;
 
 import org.raml.model.*;
 import org.raml.model.parameter.UriParameter;
 import org.slf4j.*;
 
+import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.*;
 
 import io.swagger.annotations.*;
@@ -131,6 +134,8 @@ public class RamlScanner {
     public RamlScanner scanJaxRsType(Type type) {
         log.debug("scan type {}", type);
 
+        scanBasic(type);
+
         type.accept(new TypeScanner() {
             @Override
             public void visit(Method method) {
@@ -140,6 +145,36 @@ public class RamlScanner {
 
         type.note("processed");
         return this;
+    }
+
+    private void scanBasic(Type type) {
+        Resource resource = resource(type);
+        resource.setDisplayName(displayName(type));
+        resource.setDescription(description(type));
+    }
+
+    private Resource resource(Type type) {
+        ResourcePath path = ResourcePath.of(type);
+        Resource resource = raml.getResource(path.toString());
+        if (resource == null) {
+            resource = new Resource();
+            path.setResource(raml, resource);
+        }
+        return resource;
+    }
+
+    private String displayName(Type type) {
+        JavaDoc javaDoc = type.getAnnotation(JavaDoc.class);
+        if (javaDoc != null)
+            return javaDoc.summary();
+        return camelCaseToWords(type.getSimpleName());
+    }
+
+    private String description(Type type) {
+        JavaDoc javaDoc = type.getAnnotation(JavaDoc.class);
+        if (javaDoc != null)
+            return javaDoc.value();
+        return null;
     }
 
     public Raml getResult() {

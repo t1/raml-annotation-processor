@@ -5,7 +5,7 @@ import javax.ws.rs.core.*;
 
 import io.swagger.annotations.*;
 
-/** class javadoc */
+/** api class. more info. */
 @Api
 @Path("/p")
 public class SwaggerApiClass {
