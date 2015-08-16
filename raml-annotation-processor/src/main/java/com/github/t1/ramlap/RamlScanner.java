@@ -1,59 +1,57 @@
 package com.github.t1.ramlap;
 
-import java.util.*;
+import java.util.regex.*;
 
-import org.raml.model.Raml;
+import org.raml.model.*;
+import org.raml.model.parameter.UriParameter;
 import org.slf4j.*;
 
 import com.github.t1.exap.reflection.*;
 
 import io.swagger.annotations.*;
+import io.swagger.annotations.SwaggerDefinition.Scheme;
 
 public class RamlScanner {
+    private static final Pattern VARS = Pattern.compile("\\{(.*?)\\}");
     private static final Logger log = LoggerFactory.getLogger(RamlScanner.class);
 
-    private final Raml raml = new Raml();
+    private final Raml raml = new XRaml();
 
-    public void addSwaggerDefinitions(List<Type> elements) {
-        Type swaggerDefinition = firstSwaggerDefinition(elements);
-        if (swaggerDefinition != null)
-            addSwaggerDefinition(swaggerDefinition);
-    }
-
-    private Type firstSwaggerDefinition(List<Type> types) {
-        Type result = null;
-        for (Type type : types)
-            if (type.isPublic())
-                if (result == null)
-                    result = type;
-                else
-                    type.error("conflicting @SwaggerDefinition found besides: " + result);
-            else
-                type.note("skipping non-public element");
-        return result;
-    }
-
-    // visible for testing
-    public RamlScanner addSwaggerDefinition(Type swaggerDefinitionElement) {
-        SwaggerDefinition swaggerDefinition = swaggerDefinitionElement.getAnnotation(SwaggerDefinition.class);
-
+    public void scan(SwaggerDefinition swaggerDefinition) {
         // TODO raml.setHost(nonEmpty(swaggerDefinition.host()));
-        // TODO raml.setBasePath(nonEmpty(swaggerDefinition.basePath()));
+        String basePath = swaggerDefinition.basePath();
+        if (!basePath.isEmpty()) {
+            raml.setBaseUri(basePath);
+            scanBasePathParams(basePath);
+        }
+        scan(swaggerDefinition.schemes());
 
         scan(swaggerDefinition.info());
         scan(swaggerDefinition.tags());
         scanConsumes(swaggerDefinition.consumes());
         scanProduces(swaggerDefinition.produces());
+    }
 
-        swaggerDefinitionElement.note("processed");
-        return this;
+    private void scanBasePathParams(String basePath) {
+        Matcher matcher = VARS.matcher(basePath);
+        while (matcher.find()) {
+            String name = matcher.group(1);
+            raml.getBaseUriParameters().put(name, new UriParameter(name));
+        }
+    }
+
+    private void scan(Scheme[] schemes) {
+        for (Scheme scheme : schemes)
+            try {
+                raml.getProtocols().add(Protocol.valueOf(scheme.name()));
+            } catch (IllegalArgumentException e) {
+                continue;
+            }
     }
 
     private void scan(io.swagger.annotations.Info in) {
         raml.setTitle(in.title());
-        // TODO Info outInfo = new Info();
-        // outInfo.title(in.title());
-        // outInfo.version(in.version());
+        raml.setVersion(in.version());
         // outInfo.description(nonEmpty(in.description()));
         // outInfo.termsOfService(nonEmpty(in.termsOfService()));
         //
@@ -130,40 +128,18 @@ public class RamlScanner {
         // raml.produces(mediaType);
     }
 
-    public RamlScanner addJaxRsTypes(List<Type> types) {
-        log.debug("addPathElements {}", types);
-        for (Type type : types)
-            addJaxRsType(type);
-        return this;
-    }
-
-    private RamlScanner addJaxRsType(Type type) {
-        Api api = type.getAnnotation(Api.class);
-        final List<String> defaultTags = tags(api);
-        final String typePath = type.getAnnotation(javax.ws.rs.Path.class).value();
-        log.debug("scan path {} in {}", typePath, type);
+    public RamlScanner scanJaxRsType(Type type) {
+        log.debug("scan type {}", type);
 
         type.accept(new TypeScanner() {
             @Override
             public void visit(Method method) {
-                // TODO new MethodScanner(method, raml, typePath, defaultTags).scan();
+                new MethodScanner(raml, method).scan();
             }
         });
 
         type.note("processed");
         return this;
-    }
-
-    private List<String> tags(Api api) {
-        if (api == null)
-            return null;
-        List<String> list = new ArrayList<>();
-        for (String tag : api.tags())
-            if (!tag.isEmpty())
-                list.add(tag);
-        if (list.isEmpty() && !api.value().isEmpty())
-            list.add(api.value());
-        return (list.isEmpty()) ? null : list;
     }
 
     public Raml getResult() {

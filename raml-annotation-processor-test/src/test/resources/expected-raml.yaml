@@ -1,2 +1,6 @@
 #%RAML 0.8
 title: test-title
+version: test-version
+/p: 
+    get: 
+        displayName: get-op

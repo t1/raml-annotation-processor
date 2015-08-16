@@ -4,6 +4,7 @@ import static javax.lang.model.SourceVersion.*;
 import static javax.tools.StandardLocation.*;
 
 import java.io.*;
+import java.util.List;
 
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.tools.FileObject;
@@ -13,6 +14,7 @@ import org.raml.emitter.RamlEmitter;
 import org.slf4j.*;
 
 import com.github.t1.exap.*;
+import com.github.t1.exap.reflection.Type;
 
 import io.swagger.annotations.SwaggerDefinition;
 
@@ -27,13 +29,40 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
     public boolean process(Round round) throws IOException {
         log.debug("process {}", round);
 
-        scanner.addSwaggerDefinitions(round.typesAnnotatedWith(SwaggerDefinition.class));
-        scanner.addJaxRsTypes(round.typesAnnotatedWith(Path.class));
+        scanSwaggerDefinitions(round.typesAnnotatedWith(SwaggerDefinition.class));
+        scanTypes(round.typesAnnotatedWith(Path.class));
 
         if (round.isLast() && scanner.isWorthWriting())
             writeRaml();
 
         return false;
+    }
+
+    public void scanSwaggerDefinitions(List<Type> elements) {
+        Type swaggerType = firstSwaggerDefinition(elements);
+        if (swaggerType == null)
+            return;
+        SwaggerDefinition swaggerAnnotation = swaggerType.getAnnotation(SwaggerDefinition.class);
+        scanner.scan(swaggerAnnotation);
+        swaggerType.note("processed");
+    }
+
+    private Type firstSwaggerDefinition(List<Type> types) {
+        Type result = null;
+        for (Type type : types)
+            if (type.isPublic())
+                if (result == null)
+                    result = type;
+                else
+                    type.error("conflicting @SwaggerDefinition found besides: " + result);
+            else
+                type.note("skipping non-public element");
+        return result;
+    }
+
+    private void scanTypes(List<Type> types) {
+        for (Type type : types)
+            scanner.scanJaxRsType(type);
     }
 
     private void writeRaml() throws IOException {
