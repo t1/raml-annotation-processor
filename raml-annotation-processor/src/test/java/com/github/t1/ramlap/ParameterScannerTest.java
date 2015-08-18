@@ -1,0 +1,200 @@
+package com.github.t1.ramlap;
+
+import static javax.tools.Diagnostic.Kind.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.StrictAssertions.assertThat;
+import static org.raml.model.ActionType.*;
+import static org.raml.model.BddAssertions.*;
+import static org.raml.model.ParamType.*;
+
+import java.util.Map;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.*;
+
+import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.raml.model.*;
+import org.raml.model.parameter.*;
+
+import com.github.t1.exap.JavaDoc;
+import com.github.t1.exap.reflection.*;
+
+import io.swagger.annotations.Api;
+
+@RunWith(MockitoJUnitRunner.class)
+public class ParameterScannerTest extends AbstractScannerTest {
+    @Test
+    public void shouldSkipContextParam() {
+        @Path("/p")
+        class Dummy {
+            @GET
+            @SuppressWarnings("unused")
+            public void getEnum(@Context UriInfo uriInfo) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/p", GET);
+        Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
+        assertThat(pathParams).isEmpty();
+        assertThat(env.getMessager().getMessages()).isEmpty();
+    }
+
+    @Test
+    public void shouldScanPathParams() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @Path("/{s}/{i}-{d}")
+            @SuppressWarnings("unused")
+            public void getMethod( //
+                    @PathParam("s") String s, //
+                    @JavaDoc(summary = "i-name", value = "i-desc") @PathParam("i") int i, //
+                    @JavaDoc(summary = "d-name", value = "d-desc") @PathParam("d") double d //
+            ) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo/{s}/{i}-{d}", GET);
+        Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
+        assertThat(pathParams.size()).isEqualTo(3);
+        then(pathParams.get("s")) //
+                .hasDisplayName("s") //
+                .hasDescription(null) //
+                .hasType(STRING) //
+                .isRequired() //
+        // TODO repeat : boolean
+        // TODO enumeration : List<String>
+        // TODO pattern : String
+        // TODO minLength : Integer
+        // TODO maxLength : Integer
+        // TODO minimum : BigDecimal
+        // TODO maximum : BigDecimal
+        // TODO defaultValue : String
+        // TODO example : String
+        ;
+        then(pathParams.get("i")) //
+                .hasDisplayName("i-name") //
+                .hasDescription("i-desc") //
+                .hasType(INTEGER) //
+                .isRequired() //
+                ;
+        then(pathParams.get("d")) //
+                .hasDisplayName("d-name") //
+                .hasDescription("d-desc") //
+                .hasType(NUMBER) //
+                .isRequired() //
+                ;
+        // TODO Type: DATE
+        // TODO Type: FILE
+
+        assertThat(env.getMessager().getMessages()).isEmpty();
+    }
+
+    @Test
+    public void shouldMarkWarningsWhenPathParamNamesDontMatch() {
+        @Path("")
+        class Dummy {
+            @GET
+            @Path("/{foo}")
+            @SuppressWarnings("unused")
+            public void getMethod(@PathParam("bar") String bar) {}
+        }
+
+        RamlScanner scanner = new RamlScanner();
+        ReflectionType type = env.type(Dummy.class);
+
+        scanner.scanJaxRsType(type);
+
+        ReflectionMethod method = type.getMethod("getMethod");
+        assertThat(method.getMessages(WARNING)) //
+                .containsExactly("no path param annotated as 'foo' found, but required in path '/{foo}'") //
+                ;
+        assertThat(method.getParameter(0).getMessages(WARNING)) //
+                .containsExactly("annotated path param name 'bar' not defined in path '/{foo}'") //
+                ;
+
+        assertThat(env.getMessager().getMessages()).hasSize(2);
+    }
+
+    @Test
+    public void shouldScanQueryParams() {
+        @Api
+        @Path("/p")
+        class Dummy {
+            @GET
+            @SuppressWarnings("unused")
+            public void getMethod( //
+                    @QueryParam("q0") String q0, //
+                    @JavaDoc(summary = "q-name", value = "q-desc") @QueryParam("q1") long q1 //
+            ) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/p", GET);
+        Map<String, QueryParameter> queryParams = action.getQueryParameters();
+        assertThat(queryParams.size()).isEqualTo(2);
+        then(queryParams.get("q0")) //
+                .hasDisplayName("q0") //
+                .hasDescription(null) //
+                .hasType(STRING) //
+                .isNotRequired() //
+                ;
+        then(queryParams.get("q1")) //
+                .hasDisplayName("q-name") //
+                .hasDescription("q-desc") //
+                .hasType(INTEGER) //
+                .isNotRequired() //
+                ;
+
+        assertThat(env.getMessager().getMessages()).isEmpty();
+    }
+
+    @Test
+    public void shouldMarkWarningIfAParameterIsMarkedAsQueryANDpathParam() {
+        @Api
+        @Path("/p")
+        class Dummy {
+            @GET
+            @Path("/{q}")
+            @SuppressWarnings("unused")
+            public void getMethod(@PathParam("q") @QueryParam("q") String q) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/p/{q}", GET);
+        Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
+        assertThat(pathParams.size()).isEqualTo(1);
+        then(pathParams.get("q")) //
+                .hasDisplayName("q") //
+                .hasDescription(null) //
+                .hasType(STRING) //
+                .isRequired() //
+                ;
+        Map<String, QueryParameter> queryParams = action.getQueryParameters();
+        assertThat(queryParams.size()).isEqualTo(1);
+        then(queryParams.get("q")) //
+                .hasDisplayName("q") //
+                .hasDescription(null) //
+                .hasType(STRING) //
+                .isNotRequired() //
+                ;
+
+        assertThat(env.type(Dummy.class).getMethod("getMethod").getParameter(0).getMessages(WARNING)) //
+                .containsExactly("method parameters can be only be annotated as one of " //
+                        + "path, query, header, cookie, bean, form, or matrix parameter") //
+                        ;
+        assertThat(env.getMessager().getMessages()).hasSize(1);
+    }
+
+    // TODO headers : Map<String, Header>
+    // TODO body : Map<String, MimeType>
+    // TODO cookie
+    // TODO form
+    // TODO bean
+}
