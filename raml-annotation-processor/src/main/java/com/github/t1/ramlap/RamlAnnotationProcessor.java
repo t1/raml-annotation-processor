@@ -44,7 +44,7 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
             return;
         SwaggerDefinition swaggerAnnotation = swaggerType.getAnnotation(SwaggerDefinition.class);
         scanner.scan(swaggerAnnotation);
-        swaggerType.note("processed");
+        log.debug("processed {}", swaggerType);
     }
 
     private Type firstSwaggerDefinition(List<Type> types) {

@@ -1,6 +1,10 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.ramlap.RamlScanner.*;
 import static com.github.t1.ramlap.StringTools.*;
+
+import java.util.*;
+import java.util.regex.Matcher;
 
 import javax.ws.rs.*;
 
@@ -38,7 +42,26 @@ public class MethodScanner {
         action.setDisplayName(displayName());
         action.setDescription(description());
         action.setType(actionType);
+
+        scanParams(resource, action);
+
         resource.getActions().put(actionType, action);
+    }
+
+    private void scanParams(Resource resource, Action action) {
+        List<String> expectedPathParamNames = uriParams();
+        for (Parameter parameter : method.getParameters()) {
+            ParameterScanner scanner = new ParameterScanner(action, parameter);
+            scanner.scan();
+            String pathParameterId = scanner.getPathParameterId();
+            if (pathParameterId != null && !expectedPathParamNames.remove(pathParameterId))
+                parameter.warning("annotated path param name '" + pathParameterId + "' not defined in path '"
+                        + resource.getUri() + "'");
+
+        }
+        for (String pathParameterName : expectedPathParamNames)
+            method.warning("no path param annotated as '" + pathParameterName + "' found, but required in path '"
+                    + resource.getUri() + "'");
     }
 
     private ActionType actionType() {
@@ -81,5 +104,13 @@ public class MethodScanner {
             return apiOperation.notes();
         JavaDoc javaDoc = method.getAnnotation(JavaDoc.class);
         return javaDoc == null ? null : javaDoc.value();
+    }
+
+    private List<String> uriParams() {
+        List<String> list = new ArrayList<>();
+        Matcher matcher = VARS.matcher(resource().getUri());
+        while (matcher.find())
+            list.add(matcher.group(1));
+        return list;
     }
 }

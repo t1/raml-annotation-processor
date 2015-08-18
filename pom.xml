@@ -15,6 +15,10 @@
         <tag>HEAD</tag>
     </scm>
 
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <modules>
         <module>raml-annotation-processor-test</module>
         <module>raml-annotation-processor</module>

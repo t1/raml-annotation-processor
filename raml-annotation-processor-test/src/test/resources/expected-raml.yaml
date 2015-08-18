@@ -2,8 +2,22 @@
 title: test-title
 version: test-version
 /p: 
-    displayName: api class
-    description: api class. more info. 
-    get: 
-        description: method javadoc 
-        displayName: get-op
+    displayName: p-resource
+    description: p-resource. something about the p. 
+    /{path-param}: 
+        uriParameters: 
+            path-param: 
+                displayName: p
+                description: p-param-descr
+                type: integer
+                required: true
+                repeat: false
+        get: 
+            description: get action 
+            displayName: get-op
+            queryParameters: 
+                query-param: 
+                    displayName: query-param
+                    type: string
+                    required: false
+                    repeat: false

@@ -11,17 +11,16 @@ import org.slf4j.*;
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.*;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.SwaggerDefinition.Scheme;
 
 public class RamlScanner {
-    private static final Pattern VARS = Pattern.compile("\\{(.*?)\\}");
+    public static final Pattern VARS = Pattern.compile("\\{(.*?)\\}");
     private static final Logger log = LoggerFactory.getLogger(RamlScanner.class);
 
     private final Raml raml = new XRaml();
 
     public void scan(SwaggerDefinition swaggerDefinition) {
-        // TODO raml.setHost(nonEmpty(swaggerDefinition.host()));
         String basePath = swaggerDefinition.basePath();
         if (!basePath.isEmpty()) {
             raml.setBaseUri(basePath);
@@ -30,9 +29,6 @@ public class RamlScanner {
         scan(swaggerDefinition.schemes());
 
         scan(swaggerDefinition.info());
-        scan(swaggerDefinition.tags());
-        scanConsumes(swaggerDefinition.consumes());
-        scanProduces(swaggerDefinition.produces());
     }
 
     private void scanBasePathParams(String basePath) {
@@ -55,80 +51,6 @@ public class RamlScanner {
     private void scan(io.swagger.annotations.Info in) {
         raml.setTitle(in.title());
         raml.setVersion(in.version());
-        // outInfo.description(nonEmpty(in.description()));
-        // outInfo.termsOfService(nonEmpty(in.termsOfService()));
-        //
-        // raml.setInfo(outInfo);
-
-        scanContact(in.contact());
-        scanLicense(in.license());
-        scanVendorExtensions(in.extensions());
-    }
-
-    private void scanContact(Contact in) {
-        if (in.name().isEmpty())
-            return;
-        // TODO io.swagger.models.Contact outContact = new io.swagger.models.Contact();
-        // outContact.setName(nonEmpty(in.name()));
-        // outContact.setEmail(nonEmpty(in.email()));
-        // outContact.setUrl(nonEmpty(in.url()));
-        // raml.getInfo().setContact(outContact);
-    }
-
-    private void scanLicense(License in) {
-        if (in.name().isEmpty())
-            return;
-        // TODO io.swagger.models.License outLicense = new io.swagger.models.License();
-        // outLicense.setName(nonEmpty(in.name()));
-        // outLicense.setUrl(nonEmpty(in.url()));
-        // raml.getInfo().setLicense(outLicense);
-    }
-
-    private void scanVendorExtensions(Extension[] inExtensions) {
-        if (inExtensions.length == 0 || inExtensions.length == 1 && inExtensions[0].name().isEmpty())
-            return;
-        // TODO @SuppressWarnings({ "unchecked", "rawtypes" })
-        // Map<String, Map<String, String>> vendorExtensions = (Map) raml.getInfo().getVendorExtensions();
-        // for (Extension inExtension : inExtensions) {
-        // if (inExtension.name().isEmpty())
-        // continue;
-        // String name = name(inExtension.name());
-        // if (!vendorExtensions.containsKey(name))
-        // vendorExtensions.put(name, new HashMap<String, String>());
-        // Map<String, String> extensionProperties = vendorExtensions.get(name);
-        //
-        // for (ExtensionProperty property : inExtension.properties()) {
-        // String propertyName = name(property.name());
-        // extensionProperties.put(propertyName, property.value());
-        // }
-        // }
-    }
-
-    private String name(String propertyName) {
-        if (!propertyName.startsWith("x-"))
-            propertyName = "x-" + propertyName;
-        return propertyName;
-    }
-
-    private void scan(Tag[] tags) {
-        // TODO for (Tag tag : tags)
-        // if (!tag.name().isEmpty())
-        // raml.tag(new io.swagger.models.Tag() //
-        // .name(tag.name()) //
-        // .description(tag.description()) //
-        // );
-    }
-
-    private void scanConsumes(String[] mediaTypes) {
-        // TODO for (String mediaType : mediaTypes)
-        // if (!mediaType.isEmpty())
-        // raml.consumes(mediaType);
-    }
-
-    private void scanProduces(String[] mediaTypes) {
-        // TODO for (String mediaType : mediaTypes)
-        // if (!mediaType.isEmpty())
-        // raml.produces(mediaType);
     }
 
     public RamlScanner scanJaxRsType(Type type) {
@@ -143,7 +65,7 @@ public class RamlScanner {
             }
         });
 
-        type.note("processed");
+        log.debug("processed {}", type);
         return this;
     }
 
@@ -182,15 +104,6 @@ public class RamlScanner {
     }
 
     public boolean isWorthWriting() {
-        return true;
-        // TODO return hasTitle() || hasPaths();
+        return raml.getTitle() != null || !raml.getResources().isEmpty();
     }
-
-    // private boolean hasTitle() {
-    // return raml.getInfo() != null && raml.getInfo().getTitle() != null;
-    // }
-    //
-    // private boolean hasPaths() {
-    // return raml.getPaths() != null && !raml.getPaths().isEmpty();
-    // }
 }
