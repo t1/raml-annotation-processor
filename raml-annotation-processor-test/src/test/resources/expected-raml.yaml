@@ -15,6 +15,12 @@ version: test-version
         get: 
             description: get action 
             displayName: get-op
+            headers: 
+                header-param: 
+                    displayName: header-param
+                    type: string
+                    required: false
+                    repeat: false
             queryParameters: 
                 query-param: 
                     displayName: query-param

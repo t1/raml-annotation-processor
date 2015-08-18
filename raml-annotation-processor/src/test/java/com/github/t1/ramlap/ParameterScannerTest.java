@@ -12,7 +12,7 @@ import java.util.Map;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.raml.model.*;
@@ -155,7 +155,45 @@ public class ParameterScannerTest extends AbstractScannerTest {
     }
 
     @Test
-    public void shouldMarkWarningIfAParameterIsMarkedAsQueryANDpathParam() {
+    public void shouldScanHeaderParams() {
+        @Api
+        @Path("/p")
+        class Dummy {
+            @GET
+            @SuppressWarnings("unused")
+            public void getMethod( //
+                    @HeaderParam("h0") String h0, //
+                    @JavaDoc(summary = "h-name", value = "h-desc") @HeaderParam("h1") long h1 //
+            ) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/p", GET);
+        Map<String, Header> headerParams = action.getHeaders();
+        assertThat(headerParams.size()).isEqualTo(2);
+        then(headerParams.get("h0")) //
+                .hasDisplayName("h0") //
+                .hasDescription(null) //
+                .hasType(STRING) //
+                .isNotRequired() //
+                ;
+        then(headerParams.get("h1")) //
+                .hasDisplayName("h-name") //
+                .hasDescription("h-desc") //
+                .hasType(INTEGER) //
+                .isNotRequired() //
+                ;
+
+        assertThat(env.getMessager().getMessages()).isEmpty();
+    }
+
+    // TODO body : Map<String, MimeType>
+    // TODO cookie
+    // TODO form
+    // TODO bean
+    @Test
+    public void shouldMarkWarningIfAParameterIsMarkedAsQueryAndPathParam() {
         @Api
         @Path("/p")
         class Dummy {
@@ -168,22 +206,8 @@ public class ParameterScannerTest extends AbstractScannerTest {
         Raml raml = scanTypes(Dummy.class);
 
         Action action = action(raml, "/p/{q}", GET);
-        Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
-        assertThat(pathParams.size()).isEqualTo(1);
-        then(pathParams.get("q")) //
-                .hasDisplayName("q") //
-                .hasDescription(null) //
-                .hasType(STRING) //
-                .isRequired() //
-                ;
-        Map<String, QueryParameter> queryParams = action.getQueryParameters();
-        assertThat(queryParams.size()).isEqualTo(1);
-        then(queryParams.get("q")) //
-                .hasDisplayName("q") //
-                .hasDescription(null) //
-                .hasType(STRING) //
-                .isNotRequired() //
-                ;
+        assertThat(action.getResource().getUriParameters().size()).isEqualTo(1);
+        assertThat(action.getQueryParameters().size()).isEqualTo(1);
 
         assertThat(env.type(Dummy.class).getMethod("getMethod").getParameter(0).getMessages(WARNING)) //
                 .containsExactly("method parameters can be only be annotated as one of " //
@@ -192,9 +216,51 @@ public class ParameterScannerTest extends AbstractScannerTest {
         assertThat(env.getMessager().getMessages()).hasSize(1);
     }
 
-    // TODO headers : Map<String, Header>
-    // TODO body : Map<String, MimeType>
-    // TODO cookie
-    // TODO form
-    // TODO bean
+    @Test
+    public void shouldMarkWarningIfAParameterIsMarkedAsQueryAndHeaderParam() {
+        @Api
+        @Path("/p")
+        class Dummy {
+            @GET
+            @SuppressWarnings("unused")
+            public void getMethod(@QueryParam("q") @HeaderParam("q") String q) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/p", GET);
+        assertThat(action.getHeaders().size()).isEqualTo(1);
+        assertThat(action.getQueryParameters().size()).isEqualTo(1);
+
+        assertThat(env.type(Dummy.class).getMethod("getMethod").getParameter(0).getMessages(WARNING)) //
+                .containsExactly("method parameters can be only be annotated as one of " //
+                        + "path, query, header, cookie, bean, form, or matrix parameter") //
+                        ;
+        assertThat(env.getMessager().getMessages()).hasSize(1);
+    }
+
+    @Test
+    public void shouldMarkWarningIfAParameterIsMarkedAsQueryAndPathAndHeaderParam() {
+        @Api
+        @Path("/p")
+        class Dummy {
+            @GET
+            @Path("/{q}")
+            @SuppressWarnings("unused")
+            public void getMethod(@PathParam("q") @QueryParam("q") @HeaderParam("q") String q) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/p/{q}", GET);
+        assertThat(action.getResource().getUriParameters().size()).isEqualTo(1);
+        assertThat(action.getQueryParameters().size()).isEqualTo(1);
+        assertThat(action.getHeaders().size()).isEqualTo(1);
+
+        assertThat(env.type(Dummy.class).getMethod("getMethod").getParameter(0).getMessages(WARNING)) //
+                .containsExactly("method parameters can be only be annotated as one of " //
+                        + "path, query, header, cookie, bean, form, or matrix parameter") //
+                        ;
+        assertThat(env.getMessager().getMessages()).hasSize(1);
+    }
 }

@@ -28,6 +28,7 @@ public class ParameterScanner {
     public void scan() {
         scan(parameter.getAnnotation(PathParam.class));
         scan(parameter.getAnnotation(QueryParam.class));
+        scan(parameter.getAnnotation(HeaderParam.class));
 
         if (paramAnnotationCount > 1)
             parameter.warning("method parameters can be only be annotated as one of " //
@@ -49,18 +50,6 @@ public class ParameterScanner {
         scanJavaDoc(model);
     }
 
-    private ParamType type() {
-        Class<?> primitiveType = parameter.getPrimitiveType();
-        if (primitiveType == boolean.class)
-            return BOOLEAN;
-        if (primitiveType == double.class || primitiveType == float.class)
-            return NUMBER;
-        if (primitiveType == byte.class || primitiveType == short.class || primitiveType == int.class
-                || primitiveType == long.class)
-            return INTEGER;
-        return STRING;
-    }
-
     private void scan(QueryParam queryParam) {
         if (queryParam == null)
             return;
@@ -74,6 +63,33 @@ public class ParameterScanner {
         }
         model.setType(type());
         scanJavaDoc(model);
+    }
+
+    private void scan(HeaderParam headerParam) {
+        if (headerParam == null)
+            return;
+        paramAnnotationCount++;
+        String parameterId = headerParam.value();
+        Header model = action.getHeaders().get(parameterId);
+        if (model == null) {
+            model = new Header();
+            model.setDisplayName(parameterId);
+            action.getHeaders().put(parameterId, model);
+        }
+        model.setType(type());
+        scanJavaDoc(model);
+    }
+
+    private ParamType type() {
+        Class<?> primitiveType = parameter.getPrimitiveType();
+        if (primitiveType == boolean.class)
+            return BOOLEAN;
+        if (primitiveType == double.class || primitiveType == float.class)
+            return NUMBER;
+        if (primitiveType == byte.class || primitiveType == short.class || primitiveType == int.class
+                || primitiveType == long.class)
+            return INTEGER;
+        return STRING;
     }
 
     private void scanJavaDoc(AbstractParam model) {
