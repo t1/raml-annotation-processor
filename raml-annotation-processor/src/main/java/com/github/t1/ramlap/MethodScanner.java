@@ -33,19 +33,19 @@ public class MethodScanner {
             return;
         log.debug("scan {} method {}", actionType, method);
         Resource resource = resource();
-        if (resource.getAction(actionType) != null) {
-            method.warning("path not unique");
-            return;
+        Action action = resource.getAction(actionType);
+        if (action == null) {
+            action = new Action();
+            action.setResource(resource);
+            resource.getActions().put(actionType, action);
+        } else {
+            method.note("path not unique");
         }
-        Action action = new Action();
-        action.setResource(resource);
         action.setDisplayName(displayName());
         action.setDescription(description());
         action.setType(actionType);
 
         scanParams(resource, action);
-
-        resource.getActions().put(actionType, action);
     }
 
     private void scanParams(Resource resource, Action action) {

@@ -1,8 +1,12 @@
 package com.github.t1.ramlap;
 
+import static javax.ws.rs.core.MediaType.*;
 import static org.raml.model.ParamType.*;
 
+import java.util.*;
+
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 
 import org.raml.model.*;
 import org.raml.model.parameter.*;
@@ -29,6 +33,8 @@ public class ParameterScanner {
         scan(parameter.getAnnotation(PathParam.class));
         scan(parameter.getAnnotation(QueryParam.class));
         scan(parameter.getAnnotation(HeaderParam.class));
+
+        scanBody();
 
         if (paramAnnotationCount > 1)
             parameter.warning("method parameters can be only be annotated as one of " //
@@ -78,6 +84,27 @@ public class ParameterScanner {
         }
         model.setType(type());
         scanJavaDoc(model);
+    }
+
+    private void scanBody() {
+        if (paramAnnotationCount > 0 || parameter.getAnnotation(Context.class) != null)
+            return;
+        Map<String, MimeType> bodyMap = action.getBody();
+        if (bodyMap == null) {
+            bodyMap = new LinkedHashMap<>();
+            action.setBody(bodyMap);
+        }
+        for (String mediaType : mediaTypes()) {
+            MimeType mimeType = new MimeType();
+            mimeType.setType(mediaType);
+            bodyMap.put(mediaType, mimeType);
+        }
+    }
+
+    private String[] mediaTypes() {
+        if (parameter.getMethod().getAnnotation(Consumes.class) != null)
+            return parameter.getMethod().getAnnotation(Consumes.class).value();
+        return new String[] { WILDCARD };
     }
 
     private ParamType type() {

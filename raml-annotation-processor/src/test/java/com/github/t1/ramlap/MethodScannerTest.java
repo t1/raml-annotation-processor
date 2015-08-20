@@ -7,17 +7,16 @@ import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
 
 import java.lang.annotation.Retention;
-import java.util.*;
 
 import javax.ws.rs.*;
 
-import org.junit.*;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.raml.model.*;
 
 import com.github.t1.exap.JavaDoc;
-import com.github.t1.exap.reflection.*;
+import com.github.t1.exap.reflection.ReflectionType;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -48,6 +47,8 @@ public class MethodScannerTest extends AbstractScannerTest {
         // TODO is : List<String>
         // TODO protocols : List<Protocol>
         // TODO securedBy : List<SecurityReference>
+
+        assertMessages(0);
     }
 
     @Test
@@ -66,6 +67,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("post method") //
                 .hasDescription(null) //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -84,6 +86,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("put method") //
                 .hasDescription(null) //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -102,6 +105,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("delete method") //
                 .hasDescription(null) //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -120,6 +124,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("head method") //
                 .hasDescription(null) //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -138,6 +143,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("options method") //
                 .hasDescription(null) //
                 ;
+        assertMessages(0);
     }
 
     @Retention(RUNTIME)
@@ -160,6 +166,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("trace method") //
                 .hasDescription(null) //
                 ;
+        assertMessages(0);
     }
 
     @Retention(RUNTIME)
@@ -182,6 +189,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("patch method") //
                 .hasDescription(null) //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -199,6 +207,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("summary") //
                 .hasDescription("full") //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -232,6 +241,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("summary") //
                 .hasDescription("full") //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -266,6 +276,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("bar") //
                 .hasDescription(null) //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -283,6 +294,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasParentUri("/foo") //
                 .hasRelativeUri("/bar") //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -300,6 +312,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasParentUri("/foo") //
                 .hasRelativeUri("/bar") //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -317,6 +330,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasParentUri("/foo") //
                 .hasRelativeUri("/bar") //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -334,6 +348,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasParentUri("/foo") //
                 .hasRelativeUri("/bar") //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -352,6 +367,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasRelativeUri("/foo") //
                 .hasParentUri("") //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -369,6 +385,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasRelativeUri("/bar") //
                 .hasParentUri("") //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -386,6 +403,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasRelativeUri("/foo") //
                 .hasParentUri("") //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -403,6 +421,7 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasRelativeUri("/bar") //
                 .hasParentUri("") //
                 ;
+        assertMessages(0);
     }
 
     @Test
@@ -422,10 +441,7 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         scanner.scanJaxRsType(type);
 
-        List<String> messages = new ArrayList<>();
-        messages.addAll(type.getMethod("foo").getMessages(WARNING)); // one...
-        messages.addAll(type.getMethod("bar").getMessages(WARNING)); // ... or the other
-        assertThat(messages).containsExactly("path not unique");
+        assertMessages(NOTE, "path not unique");
     }
 
     @Test
@@ -447,9 +463,6 @@ public class MethodScannerTest extends AbstractScannerTest {
         ReflectionType bar = env.type(Bar.class);
         scanner.scanJaxRsType(bar);
 
-        List<String> messages = new ArrayList<>();
-        messages.addAll(foo.getMethod("foo").getMessages(WARNING)); // one...
-        messages.addAll(bar.getMethod("bar").getMessages(WARNING)); // ... or the other
-        assertThat(messages).containsExactly("path not unique");
+        assertMessages(NOTE, "path not unique");
     }
 }

@@ -1,6 +1,10 @@
 package com.github.t1.ramlap;
 
+import static java.util.Arrays.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.raml.model.BddAssertions.*;
+
+import javax.tools.Diagnostic.Kind;
 
 import org.junit.Rule;
 import org.raml.model.*;
@@ -28,5 +32,14 @@ public class AbstractScannerTest {
         Action action = resource.getAction(type);
         then(action).as("action " + type).isNotNull();
         return action;
+    }
+
+    protected void assertMessages(int count) {
+        assertThat(env.getMessager().getMessages()).hasSize(count);
+    }
+
+    protected void assertMessages(Kind kind, String... messages) {
+        assertMessages(messages.length);
+        assertThat(env.getMessager().getMessages(kind)).containsValue(asList(messages));
     }
 }
