@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class RamlAnnotationProcessorIntegrationTest {
     private static final File EXPECTED_FILE = new File("src/test/resources/expected.raml");
-    private static final File ACTUAL_FILE = new File("target/generated-sources/annotations/raml.yaml");
+    private static final File ACTUAL_FILE = new File("target/classes/doc/api.raml");
 
     @Test
     public void shouldHaveProducedRaml() {

@@ -2,9 +2,11 @@ package com.github.t1.ramlap;
 
 import static java.lang.annotation.RetentionPolicy.*;
 import static javax.tools.Diagnostic.Kind.*;
+import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
+import static org.raml.model.ParamType.*;
 
 import java.lang.annotation.Retention;
 
@@ -18,14 +20,11 @@ import org.raml.model.*;
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.ReflectionType;
 
-import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MethodScannerTest extends AbstractScannerTest {
-    private ActionAssert assertThatAction(Raml raml, String path, ActionType type) {
-        Action action = action(raml, path, type);
-        return then.assertThat(action);
-    }
+    private static final String JSON_SCHEMA_INTEGER = "{\n  \"type\" : \"integer\"\n}";
 
     @Test
     public void shouldScanGET() {
@@ -37,18 +36,13 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        assertThatAction(raml, "/foo", GET) //
+        Action action = action(raml, "/foo", GET);
+        then(action) //
                 .hasResource(raml.getResource("/foo")) //
                 .hasType(GET) //
                 .hasDisplayName("get method") //
                 .hasDescription(null) //
                 ;
-        // TODO responses : Map<String, Response>
-        // TODO is : List<String>
-        // TODO protocols : List<Protocol>
-        // TODO securedBy : List<SecurityReference>
-
-        assertMessages(0);
     }
 
     @Test
@@ -61,13 +55,12 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        assertThatAction(raml, "/foo", POST) //
+        then(action(raml, "/foo", POST)) //
                 .hasResource(raml.getResource("/foo")) //
                 .hasType(POST) //
                 .hasDisplayName("post method") //
                 .hasDescription(null) //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -80,13 +73,12 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        assertThatAction(raml, "/foo", PUT) //
+        then(action(raml, "/foo", PUT)) //
                 .hasResource(raml.getResource("/foo")) //
                 .hasType(PUT) //
                 .hasDisplayName("put method") //
                 .hasDescription(null) //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -99,13 +91,12 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        assertThatAction(raml, "/foo", DELETE) //
+        then(action(raml, "/foo", DELETE)) //
                 .hasResource(raml.getResource("/foo")) //
                 .hasType(DELETE) //
                 .hasDisplayName("delete method") //
                 .hasDescription(null) //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -118,13 +109,12 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        assertThatAction(raml, "/foo", HEAD) //
+        then(action(raml, "/foo", HEAD)) //
                 .hasResource(raml.getResource("/foo")) //
                 .hasType(HEAD) //
                 .hasDisplayName("head method") //
                 .hasDescription(null) //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -137,13 +127,12 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        assertThatAction(raml, "/foo", OPTIONS) //
+        then(action(raml, "/foo", OPTIONS)) //
                 .hasResource(raml.getResource("/foo")) //
                 .hasType(OPTIONS) //
                 .hasDisplayName("options method") //
                 .hasDescription(null) //
                 ;
-        assertMessages(0);
     }
 
     @Retention(RUNTIME)
@@ -160,13 +149,12 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        assertThatAction(raml, "/foo", TRACE) //
+        then(action(raml, "/foo", TRACE)) //
                 .hasResource(raml.getResource("/foo")) //
                 .hasType(TRACE) //
                 .hasDisplayName("trace method") //
                 .hasDescription(null) //
                 ;
-        assertMessages(0);
     }
 
     @Retention(RUNTIME)
@@ -183,13 +171,12 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        assertThatAction(raml, "/foo", PATCH) //
+        then(action(raml, "/foo", PATCH)) //
                 .hasResource(raml.getResource("/foo")) //
                 .hasType(PATCH) //
                 .hasDisplayName("patch method") //
                 .hasDescription(null) //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -203,11 +190,10 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        assertThatAction(raml, "/foo", GET) //
+        then(action(raml, "/foo", GET)) //
                 .hasDisplayName("summary") //
                 .hasDescription("full") //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -237,11 +223,196 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        assertThatAction(raml, "/foo", GET) //
+        then(action(raml, "/foo", GET)) //
                 .hasDisplayName("summary") //
                 .hasDescription("full") //
                 ;
-        assertMessages(0);
+    }
+
+    @Test
+    public void shouldScanGETwithIntegerWildcardResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(code = 200, message = "ok-descr", response = Integer.class,
+                    responseHeaders = @ResponseHeader(name = "resp-header", description = "r-h-desc",
+                            response = Integer.class) )
+            public String getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        assertThat(action.getResponses()).hasSize(1);
+
+        Response response = action.getResponses().get("200");
+        assertThat(response.getHeaders()).hasSize(1);
+        then(response.getHeaders().get("resp-header")) //
+                .hasDisplayName("resp-header") //
+                .hasDescription("r-h-desc") //
+                .hasType(INTEGER) //
+                ;
+
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(JSON_SCHEMA_INTEGER) //
+                .hasFormParameters(null) // TODO form params
+                .hasExample(null) // TODO example
+                ;
+    }
+
+    @Test
+    public void shouldScanGETwithIntegerFallbackMediaTypeJsonResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(code = 200, message = "ok-descr", response = Integer.class,
+                    responseHeaders = @ResponseHeader(name = "resp-header", description = "r-h-desc",
+                            response = Integer.class) )
+            public String getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        assertThat(action.getResponses()).hasSize(1);
+
+        Response response = action.getResponses().get("200");
+        assertThat(response.getHeaders()).hasSize(1);
+        then(response.getHeaders().get("resp-header")) //
+                .hasDisplayName("resp-header") //
+                .hasDescription("r-h-desc") //
+                .hasType(INTEGER) //
+                ;
+
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(JSON_SCHEMA_INTEGER) //
+                .hasFormParameters(null) // TODO form params
+                .hasExample(null) // TODO example
+                ;
+    }
+
+    @Test
+    public void shouldScanGETwithIntegerJsonResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(code = 200, message = "ok-descr", response = Integer.class,
+                    responseHeaders = @ResponseHeader(name = "resp-header", description = "r-h-desc",
+                            response = Integer.class) )
+            @Produces(APPLICATION_JSON)
+            public String getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(JSON_SCHEMA_INTEGER) //
+                .hasFormParameters(null) // TODO form params
+                .hasExample(null) // TODO example
+                ;
+    }
+
+    @Test
+    public void shouldScanGETwithJsonAndXmlResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(code = 200, message = "ok-descr", response = Integer.class,
+                    responseHeaders = @ResponseHeader(name = "resp-header", description = "r-h-desc",
+                            response = Integer.class) )
+            @Produces({ APPLICATION_JSON, APPLICATION_XML })
+            public String getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(2);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(JSON_SCHEMA_INTEGER) //
+                .hasFormParameters(null) // TODO form params
+                .hasExample(null) // TODO example
+                ;
+        then(response.getBody().get(APPLICATION_XML)) //
+                .hasType(null) //
+                .hasSchema(null) // TODO schema
+                .hasFormParameters(null) // TODO form params
+                .hasExample(null) // TODO example
+                ;
+    }
+
+    // TODO {*} request header names
+    // TODO {?} response header names
+    // TODO replace methodName, resourcePath, resourcePathName, and mediaTypeExtension
+    // TODO !singularize and !pluralize functions
+    // TODO optional properties with ?
+
+    @Test
+    public void shouldScanGETwithResponses() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            public void getMethod() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+
+        then(action) //
+                .hasResource(raml.getResource("/foo")) //
+                .hasType(GET) //
+                .hasDisplayName("get method") //
+                .hasDescription(null) //
+                ;
+        // TODO responses : Map<String, Response>
+    }
+
+    // TODO is : List<String>
+    // TODO protocols : List<Protocol>
+    // TODO securedBy : List<SecurityReference>
+
+    @Test
+    public void shouldScanSubResource() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @Path("/bar")
+            public void foobar() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        assertThat(raml.getResources()).containsOnlyKeys("/foo");
+        Resource foo = raml.getResource("/foo");
+        then(foo) //
+                .hasDisplayName("dummy") //
+                .hasDescription(null) //
+                ;
+        assertThat(foo.getResources()).containsOnlyKeys("/bar");
+        then(raml.getResource("/foo/bar")).hasParentResource(foo);
+        then(raml.getResource("/foo/bar").getAction(GET)) //
+                .hasDisplayName("foobar") //
+                .hasDescription(null) //
+                ;
     }
 
     @Test
@@ -276,7 +447,6 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasDisplayName("bar") //
                 .hasDescription(null) //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -294,7 +464,6 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasParentUri("/foo") //
                 .hasRelativeUri("/bar") //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -312,7 +481,6 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasParentUri("/foo") //
                 .hasRelativeUri("/bar") //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -330,7 +498,6 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasParentUri("/foo") //
                 .hasRelativeUri("/bar") //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -348,7 +515,6 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasParentUri("/foo") //
                 .hasRelativeUri("/bar") //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -367,7 +533,6 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasRelativeUri("/foo") //
                 .hasParentUri("") //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -385,7 +550,6 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasRelativeUri("/bar") //
                 .hasParentUri("") //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -403,7 +567,6 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasRelativeUri("/foo") //
                 .hasParentUri("") //
                 ;
-        assertMessages(0);
     }
 
     @Test
@@ -421,7 +584,6 @@ public class MethodScannerTest extends AbstractScannerTest {
                 .hasRelativeUri("/bar") //
                 .hasParentUri("") //
                 ;
-        assertMessages(0);
     }
 
     @Test

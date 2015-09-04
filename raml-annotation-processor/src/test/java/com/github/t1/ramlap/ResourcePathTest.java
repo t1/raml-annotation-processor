@@ -15,10 +15,11 @@ public class ResourcePathTest {
 
         ResourcePathAssert.assertThat(path) //
                 .hasLength(1) //
-                .hasName("/") //
+                .hasSimpleName("/") //
                 .hasToString("/") //
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/");
+        assertThat(path.items()).containsExactly("/");
     }
 
     @Test
@@ -27,10 +28,11 @@ public class ResourcePathTest {
 
         ResourcePathAssert.assertThat(path) //
                 .hasLength(1) //
-                .hasName("/") //
+                .hasSimpleName("/") //
                 .hasToString("/") //
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/");
+        assertThat(path.items()).containsExactly("/");
     }
 
     @Test
@@ -39,10 +41,11 @@ public class ResourcePathTest {
 
         ResourcePathAssert.assertThat(path) //
                 .hasLength(1) //
-                .hasName("/foo") //
+                .hasSimpleName("/foo") //
                 .hasToString("/foo") //
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo");
+        assertThat(path.items()).containsExactly("/foo");
     }
 
     @Test
@@ -51,10 +54,11 @@ public class ResourcePathTest {
 
         ResourcePathAssert.assertThat(path) //
                 .hasLength(1) //
-                .hasName("/foo") //
+                .hasSimpleName("/foo") //
                 .hasToString("/foo") //
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo");
+        assertThat(path.items()).containsExactly("/foo");
     }
 
     @Test
@@ -63,10 +67,11 @@ public class ResourcePathTest {
 
         ResourcePathAssert.assertThat(path) //
                 .hasLength(1) //
-                .hasName("/foo") //
+                .hasSimpleName("/foo") //
                 .hasToString("/foo") //
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo");
+        assertThat(path.items()).containsExactly("/foo");
     }
 
     @Test
@@ -75,10 +80,11 @@ public class ResourcePathTest {
 
         ResourcePathAssert.assertThat(path) //
                 .hasLength(1) //
-                .hasName("/foo") //
+                .hasSimpleName("/foo") //
                 .hasToString("/foo") //
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo");
+        assertThat(path.items()).containsExactly("/foo");
     }
 
     @Test
@@ -87,10 +93,11 @@ public class ResourcePathTest {
 
         ResourcePathAssert.assertThat(path) //
                 .hasLength(2) //
-                .hasName("/bar") //
+                .hasSimpleName("/bar") //
                 .hasToString("/foo/bar") //
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar");
+        assertThat(path.items()).containsExactly("/foo", "/bar");
     }
 
     @Test
@@ -99,10 +106,50 @@ public class ResourcePathTest {
 
         ResourcePathAssert.assertThat(path) //
                 .hasLength(2) //
-                .hasName("/bar") //
+                .hasSimpleName("/bar") //
                 .hasToString("/foo/bar") //
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar");
+        assertThat(path.items()).containsExactly("/foo", "/bar");
+    }
+
+    @Test
+    public void shouldBuildWithTwoAnd() {
+        ResourcePath path = ResourcePath.of("/foo").and("/bar").and("/baz");
+
+        ResourcePathAssert.assertThat(path) //
+                .hasLength(3) //
+                .hasSimpleName("/baz") //
+                .hasToString("/foo/bar/baz") //
+                ;
+        assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar", "/baz");
+        assertThat(path.items()).containsExactly("/foo", "/bar", "/baz");
+    }
+
+    @Test
+    public void shouldBuildWithAndContainingSlash() {
+        ResourcePath path = ResourcePath.of("/foo").and("/bar/baz");
+
+        ResourcePathAssert.assertThat(path) //
+                .hasLength(3) //
+                .hasSimpleName("/baz") //
+                .hasToString("/foo/bar/baz") //
+                ;
+        assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar", "/baz");
+        assertThat(path.items()).containsExactly("/foo", "/bar", "/baz");
+    }
+
+    @Test
+    public void shouldBuildFromSlashWithAndContainingSlash() {
+        ResourcePath path = ResourcePath.of("/").and("/foo/bar/baz");
+
+        ResourcePathAssert.assertThat(path) //
+                .hasLength(3) //
+                .hasSimpleName("/baz") //
+                .hasToString("/foo/bar/baz") //
+                ;
+        assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar", "/baz");
+        assertThat(path.items()).containsExactly("/foo", "/bar", "/baz");
     }
 
     @Test
@@ -111,10 +158,11 @@ public class ResourcePathTest {
 
         ResourcePathAssert.assertThat(path) //
                 .hasLength(3) //
-                .hasName("/baz") //
+                .hasSimpleName("/baz") //
                 .hasToString("/foo/bar/baz") //
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar", "/baz");
+        assertThat(path.items()).containsExactly("/foo", "/bar", "/baz");
     }
 
     @Test
@@ -257,5 +305,33 @@ public class ResourcePathTest {
                 .hasParentResource(bar) //
                 .isSameAs(raml.getResource("/foo/bar/baz")) //
                 ;
+    }
+
+    @Test
+    public void shouldScanVariable() {
+        ResourcePath path = ResourcePath.of("/{foo}");
+
+        ResourcePathAssert.assertThat(path) //
+                .hasLength(1) //
+                .hasSimpleName("/{foo}") //
+                .hasToString("/{foo}") //
+                ;
+        assertThat(path.iterator()).extracting("name").containsExactly("/{foo}");
+        assertThat(path.items()).containsExactly("/{foo}");
+        assertThat(path.vars()).containsExactly(new ResourcePathVariable(null, "foo", null));
+    }
+
+    @Test
+    public void shouldStripRegexFromName() {
+        ResourcePath path = ResourcePath.of("/{foo:.*}");
+
+        ResourcePathAssert.assertThat(path) //
+                .hasLength(1) //
+                .hasSimpleName("/{foo}") //
+                .hasToString("/{foo:.*}") //
+                ;
+        assertThat(path.iterator()).containsExactly(ResourcePath.of("/{foo:.*}"));
+        assertThat(path.items()).containsExactly("/{foo}");
+        assertThat(path.vars()).containsExactly(new ResourcePathVariable(null, "foo", ".*"));
     }
 }

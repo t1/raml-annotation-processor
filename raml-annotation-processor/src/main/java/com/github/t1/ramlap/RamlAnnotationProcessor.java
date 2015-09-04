@@ -66,7 +66,7 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
     }
 
     private void writeRaml() throws IOException {
-        FileObject fileObject = filer().createResource(SOURCE_OUTPUT, "", "raml.yaml");
+        FileObject fileObject = filer().createResource(CLASS_OUTPUT, "doc", "api.raml");
         log.debug("write {}", fileObject.getName());
         try (Writer writer = fileObject.openWriter()) {
             writer.write(new RamlEmitter().dump(scanner.getResult()));

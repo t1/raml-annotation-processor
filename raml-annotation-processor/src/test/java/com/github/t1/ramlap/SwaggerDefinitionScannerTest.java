@@ -43,6 +43,17 @@ public class SwaggerDefinitionScannerTest {
     }
 
     @Test
+    public void shouldStripEmptyVersion() {
+        @SwaggerDefinition(info = @Info(title = "ti", version = "") )
+        class Dummy {}
+
+        Raml raml = scanSwaggerDefinition(Dummy.class);
+
+        softly.assertThat(raml.getTitle()).isEqualTo("ti");
+        softly.assertThat(raml.getVersion()).isNull();
+    }
+
+    @Test
     public void shouldScanBasePath() {
         @SwaggerDefinition(basePath = "http://{host}/{path}", schemes = Scheme.HTTPS)
         class Dummy {}

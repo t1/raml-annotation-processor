@@ -2,8 +2,6 @@ package com.github.t1.ramlap;
 
 import static com.github.t1.ramlap.StringTools.*;
 
-import java.util.regex.*;
-
 import org.raml.model.*;
 import org.raml.model.parameter.UriParameter;
 import org.slf4j.*;
@@ -15,7 +13,6 @@ import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.annotations.SwaggerDefinition.Scheme;
 
 public class RamlScanner {
-    public static final Pattern VARS = Pattern.compile("\\{(.*?)\\}");
     private static final Logger log = LoggerFactory.getLogger(RamlScanner.class);
 
     private final Raml raml = new XRaml();
@@ -27,14 +24,12 @@ public class RamlScanner {
             scanBasePathParams(basePath);
         }
         scan(swaggerDefinition.schemes());
-
         scan(swaggerDefinition.info());
     }
 
     private void scanBasePathParams(String basePath) {
-        Matcher matcher = VARS.matcher(basePath);
-        while (matcher.find()) {
-            String name = matcher.group(1);
+        for (ResourcePathVariable var : ResourcePath.of(basePath).vars()) {
+            String name = var.getName();
             raml.getBaseUriParameters().put(name, new UriParameter(name));
         }
     }
@@ -50,7 +45,7 @@ public class RamlScanner {
 
     private void scan(io.swagger.annotations.Info in) {
         raml.setTitle(in.title());
-        raml.setVersion(in.version());
+        raml.setVersion((in.version().isEmpty()) ? null : in.version());
     }
 
     public RamlScanner scanJaxRsType(Type type) {
@@ -86,17 +81,13 @@ public class RamlScanner {
     }
 
     private String displayName(Type type) {
-        JavaDoc javaDoc = type.getAnnotation(JavaDoc.class);
-        if (javaDoc != null)
-            return javaDoc.summary();
+        if (type.isAnnotated(JavaDoc.class))
+            return type.getAnnotation(JavaDoc.class).summary();
         return camelCaseToWords(type.getSimpleName());
     }
 
     private String description(Type type) {
-        JavaDoc javaDoc = type.getAnnotation(JavaDoc.class);
-        if (javaDoc != null)
-            return javaDoc.value();
-        return null;
+        return (type.isAnnotated(JavaDoc.class)) ? type.getAnnotation(JavaDoc.class).value() : null;
     }
 
     public Raml getResult() {

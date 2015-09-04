@@ -4,11 +4,12 @@ import static javax.tools.Diagnostic.Kind.*;
 import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.StrictAssertions.assertThat;
+import static org.junit.Assert.*;
 import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
 import static org.raml.model.ParamType.*;
 
-import java.util.Map;
+import java.util.*;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
@@ -26,6 +27,27 @@ import io.swagger.annotations.Api;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ParameterScannerTest extends AbstractScannerTest {
+    private static final String POJO_JSON_SCHEMA = "" //
+            + "{\n" //
+            + "  \"type\" : \"object\",\n" //
+            + "  \"id\" : \"urn:jsonschema:com:github:t1:ramlap:ParameterScannerTest:Pojo\",\n" //
+            + "  \"properties\" : {\n" //
+            + "    \"value\" : {\n" //
+            + "      \"type\" : \"string\"\n" //
+            + "    }\n" //
+            + "  }\n" //
+            + "}";
+    private static final String POJO_XML_SCHEMA = "<?xml version=\"1.0\" standalone=\"yes\"?>\n" //
+            + "<xs:schema version=\"1.0\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" //
+            + "\n" //
+            + "  <xs:complexType name=\"pojo\">\n" //
+            + "    <xs:sequence>\n" //
+            + "      <xs:element name=\"value\" type=\"xs:string\" minOccurs=\"0\"/>\n" //
+            + "    </xs:sequence>\n" //
+            + "  </xs:complexType>\n" //
+            + "</xs:schema>\n" //
+            + "\n";
+
     @Test
     public void shouldSkipContextParam() {
         @Path("/p")
@@ -40,7 +62,6 @@ public class ParameterScannerTest extends AbstractScannerTest {
         Action action = action(raml, "/p", GET);
         Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
         assertThat(pathParams).isEmpty();
-        assertMessages(0);
     }
 
     @Test
@@ -60,9 +81,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
         Raml raml = scanTypes(Dummy.class);
 
         Action action = action(raml, "/foo/{s}/{i}-{d}", GET);
-        Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
-        assertThat(pathParams.size()).isEqualTo(3);
-        then(pathParams.get("s")) //
+        then(raml.getResource("/foo/{s}").getUriParameters().get("s")) //
                 .hasDisplayName("s") //
                 .hasDescription(null) //
                 .hasType(STRING) //
@@ -78,6 +97,8 @@ public class ParameterScannerTest extends AbstractScannerTest {
         // TODO defaultValue : String
         // TODO example : String
         ;
+        Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
+        assertThat(pathParams.size()).isEqualTo(2);
         then(pathParams.get("i")) //
                 .hasDisplayName("i-name") //
                 .hasDescription("i-desc") //
@@ -93,8 +114,85 @@ public class ParameterScannerTest extends AbstractScannerTest {
         // TODO Type: DATE
         // TODO Type: FILE
         // TODO Named Parameters With Multiple Types
+    }
 
-        assertMessages(0);
+    @Test
+    public void shouldStripRegexFromPathParam() {
+        @Path("")
+        class Dummy {
+            @GET
+            @Path("/{p:.*}")
+            @SuppressWarnings("unused")
+            public void getMethod(@PathParam("p") String p) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/{p}", GET);
+        Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
+        assertThat(pathParams.size()).isEqualTo(1);
+        then(pathParams.get("p")) //
+                .hasDisplayName("p") //
+                .hasType(STRING) //
+                ;
+    }
+
+    @Test
+    public void shouldScanSeparateSuperPathParams() {
+        @Path("/{foo}")
+        class Dummy {
+            @GET
+            @Path("/{bar}")
+            @SuppressWarnings("unused")
+            public void getMethod( //
+                    @PathParam("foo") String foo, //
+                    @PathParam("bar") String bar //
+            ) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        assertThat(raml.getResources()).containsOnlyKeys("/{foo}");
+        assertThat(raml.getResource("/{foo}").getUriParameters()).containsOnlyKeys("foo");
+        assertThat(raml.getResource("/{foo}").getResources()).containsOnlyKeys("/{bar}");
+        assertThat(raml.getResource("/{foo}/{bar}").getUriParameters()).containsOnlyKeys("bar");
+    }
+
+    @Test
+    public void shouldScanCombinedSuperPathParams() {
+        @Path("/{foo}/{bar}")
+        class Dummy {
+            @GET
+            @SuppressWarnings("unused")
+            public void getMethod( //
+                    @PathParam("foo") String foo, //
+                    @PathParam("bar") String bar //
+            ) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        assertThat(raml.getResources()).containsOnlyKeys("/{foo}");
+        assertThat(raml.getResource("/{foo}").getResources()).containsOnlyKeys("/{bar}");
+        assertThat(raml.getResource("/{foo}").getUriParameters()).containsOnlyKeys("foo");
+        assertThat(raml.getResource("/{foo}/{bar}").getUriParameters()).containsOnlyKeys("bar");
+    }
+
+    @Test
+    public void shouldMarkWarningsWhenPathParamNameIsMissing() {
+        @Path("/{foo}")
+        class Dummy {
+            @GET
+            public void getMethod() {}
+        }
+
+        RamlScanner scanner = new RamlScanner();
+        ReflectionType type = env.type(Dummy.class);
+
+        scanner.scanJaxRsType(type);
+
+        ReflectionMethod method = type.getMethod("getMethod");
+        assertWarning(method, "no path param annotated as 'foo' found, but required in GET of '/{foo}'");
     }
 
     @Test
@@ -107,20 +205,12 @@ public class ParameterScannerTest extends AbstractScannerTest {
             public void getMethod(@PathParam("bar") String bar) {}
         }
 
-        RamlScanner scanner = new RamlScanner();
-        ReflectionType type = env.type(Dummy.class);
+        Raml raml = scanTypes(Dummy.class);
+        assertEquals(asSet("bar"), raml.getResource("/{foo}").getUriParameters().keySet());
 
-        scanner.scanJaxRsType(type);
-
-        ReflectionMethod method = type.getMethod("getMethod");
-        assertThat(method.getMessages(WARNING)) //
-                .containsExactly("no path param annotated as 'foo' found, but required in path '/{foo}'") //
-                ;
-        assertThat(method.getParameter(0).getMessages(WARNING)) //
-                .containsExactly("annotated path param name 'bar' not defined in path '/{foo}'") //
-                ;
-
-        assertMessages(2);
+        ReflectionMethod method = env.type(Dummy.class).getMethod("getMethod");
+        assertWarning(method, "no path param annotated as 'foo' found, but required in GET of '/{foo}'");
+        assertWarning(method.getParameter(0), "annotated path param name 'bar' not defined in GET of '/{foo}'");
     }
 
     @Test
@@ -153,8 +243,6 @@ public class ParameterScannerTest extends AbstractScannerTest {
                 .hasType(INTEGER) //
                 .isNotRequired() //
                 ;
-
-        assertMessages(0);
     }
 
     @Test
@@ -187,8 +275,6 @@ public class ParameterScannerTest extends AbstractScannerTest {
                 .hasType(INTEGER) //
                 .isNotRequired() //
                 ;
-
-        assertMessages(0);
     }
 
     @Test
@@ -199,7 +285,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
             @GET
             @SuppressWarnings("unused")
             @Consumes(APPLICATION_JSON)
-            public void getMethod(@JavaDoc(summary = "the body", value = "full of content") String body) {}
+            public void getMethod(String body) {}
         }
 
         Raml raml = scanTypes(Dummy.class);
@@ -208,12 +294,11 @@ public class ParameterScannerTest extends AbstractScannerTest {
         Map<String, MimeType> body = action.getBody();
         assertThat(body.size()).isEqualTo(1);
         then(body.get(APPLICATION_JSON)) //
-                .hasType(APPLICATION_JSON) //
-                .hasSchema(null) // TODO
-                .hasExample(null) // TODO
+                .hasType(null) //
+                .hasSchema("{\n  \"type\" : \"string\"\n}") //
+                .hasExample(null) // TODO example
                 ;
         // TODO form params
-        assertMessages(0);
     }
 
     @Test
@@ -223,16 +308,14 @@ public class ParameterScannerTest extends AbstractScannerTest {
         class Dummy {
             @GET
             @SuppressWarnings("unused")
-            public void getMethod(@JavaDoc(summary = "the body", value = "full of content") String body) {}
+            public void getMethod(String body) {}
         }
 
         Raml raml = scanTypes(Dummy.class);
 
         Action action = action(raml, "/p", GET);
         Map<String, MimeType> body = action.getBody();
-        assertThat(body.size()).isEqualTo(1);
-        then(body.get(WILDCARD)).hasType(WILDCARD);
-        assertMessages(0);
+        assertThat(body).containsOnlyKeys(WILDCARD);
     }
 
     @Test
@@ -243,7 +326,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
             @GET
             @SuppressWarnings("unused")
             @Consumes({ APPLICATION_JSON, APPLICATION_XML })
-            public void getMethod(@JavaDoc(summary = "the body", value = "full of content") String body) {}
+            public void getMethod(String body) {}
         }
 
         Raml raml = scanTypes(Dummy.class);
@@ -251,9 +334,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
         Action action = action(raml, "/p", GET);
         Map<String, MimeType> body = action.getBody();
         assertThat(body.size()).isEqualTo(2);
-        then(body.get(APPLICATION_JSON)).hasType(APPLICATION_JSON);
-        then(body.get(APPLICATION_XML)).hasType(APPLICATION_XML);
-        assertMessages(0);
+        assertThat(body).containsOnlyKeys(APPLICATION_JSON, APPLICATION_XML);
     }
 
     @Test
@@ -264,11 +345,11 @@ public class ParameterScannerTest extends AbstractScannerTest {
         class Dummy {
             @GET
             @Consumes(APPLICATION_JSON)
-            public void getJson(@JavaDoc(summary = "the body", value = "full of content") String body) {}
+            public void getJson(String body) {}
 
             @GET
             @Consumes(APPLICATION_XML)
-            public void getXml(@JavaDoc(summary = "the body", value = "full of content") String body) {}
+            public void getXml(String body) {}
         }
 
         Raml raml = scanTypes(Dummy.class);
@@ -276,15 +357,56 @@ public class ParameterScannerTest extends AbstractScannerTest {
         Action action = action(raml, "/p", GET);
         Map<String, MimeType> body = action.getBody();
         assertThat(body.size()).isEqualTo(2);
-        then(body.get(APPLICATION_JSON)).hasType(APPLICATION_JSON);
-        then(body.get(APPLICATION_XML)).hasType(APPLICATION_XML);
+        assertThat(body).containsOnlyKeys(APPLICATION_JSON, APPLICATION_XML);
 
         assertMessages(NOTE, "path not unique");
     }
 
-    // TODO cookie
-    // TODO form
-    // TODO bean
+    public static class Pojo {
+        private String value;
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
+    }
+
+    @Test
+    public void shouldScanBodyParamWithSchemaType() {
+        @Api
+        @Path("/p")
+        class Dummy {
+            @GET
+            @SuppressWarnings("unused")
+            @Consumes({ APPLICATION_JSON, APPLICATION_XML })
+            public void getMethod(Pojo body) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/p", GET);
+        Map<String, MimeType> body = action.getBody();
+        assertThat(body.size()).isEqualTo(2);
+        then(body.get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(POJO_JSON_SCHEMA) //
+                .hasExample(null) // TODO example
+                ;
+        then(body.get(APPLICATION_XML)) //
+                .hasType(null) //
+                .hasSchema(POJO_XML_SCHEMA) //
+                .hasExample(null) // TODO example
+                ;
+        // TODO form params
+        assertThat(raml.getSchemas()).hasSize(0);
+    }
+
+    // TODO cookie-param
+    // TODO form-param
+    // TODO bean-param
 
     @Test
     public void shouldMarkWarningIfAParameterIsMarkedAsQueryAndPathParam() {
@@ -303,11 +425,9 @@ public class ParameterScannerTest extends AbstractScannerTest {
         assertThat(action.getResource().getUriParameters().size()).isEqualTo(1);
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
 
-        assertThat(env.type(Dummy.class).getMethod("getMethod").getParameter(0).getMessages(WARNING)) //
-                .containsExactly("method parameters can be only be annotated as one of " //
-                        + "path, query, header, cookie, bean, form, or matrix parameter") //
-                        ;
-        assertMessages(1);
+        assertWarning(env.type(Dummy.class).getMethod("getMethod").getParameter(0),
+                "method parameters can be only be annotated as one of " //
+                        + "path, query, header, cookie, bean, form, or matrix parameter");
     }
 
     @Test
@@ -326,11 +446,9 @@ public class ParameterScannerTest extends AbstractScannerTest {
         assertThat(action.getHeaders().size()).isEqualTo(1);
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
 
-        assertThat(env.type(Dummy.class).getMethod("getMethod").getParameter(0).getMessages(WARNING)) //
-                .containsExactly("method parameters can be only be annotated as one of " //
-                        + "path, query, header, cookie, bean, form, or matrix parameter") //
-                        ;
-        assertMessages(1);
+        assertWarning(env.type(Dummy.class).getMethod("getMethod").getParameter(0),
+                "method parameters can be only be annotated as one of " //
+                        + "path, query, header, cookie, bean, form, or matrix parameter");
     }
 
     @Test
@@ -351,10 +469,13 @@ public class ParameterScannerTest extends AbstractScannerTest {
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
         assertThat(action.getHeaders().size()).isEqualTo(1);
 
-        assertThat(env.type(Dummy.class).getMethod("getMethod").getParameter(0).getMessages(WARNING)) //
-                .containsExactly("method parameters can be only be annotated as one of " //
-                        + "path, query, header, cookie, bean, form, or matrix parameter") //
-                        ;
-        assertMessages(1);
+        assertWarning(env.type(Dummy.class).getMethod("getMethod").getParameter(0),
+                "method parameters can be only be annotated as one of " //
+                        + "path, query, header, cookie, bean, form, or matrix parameter");
+    }
+
+    @Test
+    public void testName() {
+        System.out.println(new Random().nextInt(9999));
     }
 }

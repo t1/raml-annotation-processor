@@ -1,7 +1,6 @@
 package com.github.t1.ramlap;
 
 import static javax.ws.rs.core.MediaType.*;
-import static org.raml.model.ParamType.*;
 
 import java.util.*;
 
@@ -15,18 +14,15 @@ import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Parameter;
 
 public class ParameterScanner {
+    private final Raml raml;
     private final Action action;
     private final Parameter parameter;
-    private String pathParameterId;
     private int paramAnnotationCount = 0;
 
-    public ParameterScanner(Action action, Parameter parameter) {
+    public ParameterScanner(Raml raml, Action action, Parameter parameter) {
+        this.raml = raml;
         this.action = action;
         this.parameter = parameter;
-    }
-
-    public String getPathParameterId() {
-        return pathParameterId;
     }
 
     public void scan() {
@@ -45,49 +41,65 @@ public class ParameterScanner {
         if (pathParam == null)
             return;
         paramAnnotationCount++;
-        pathParameterId = pathParam.value();
-        Resource resource = action.getResource();
-        UriParameter model = resource.getResolvedUriParameters().get(pathParameterId);
-        if (model == null) {
-            model = new UriParameter(pathParameterId);
-            resource.getUriParameters().put(pathParameterId, model);
-        }
-        model.setType(type());
-        scanJavaDoc(model);
+        UriParameter uriParam = uriParameter(pathParam.value());
+        uriParam.setType(typeInfo().paramType());
+        scanJavaDoc(uriParam);
     }
 
-    private void scan(QueryParam queryParam) {
-        if (queryParam == null)
-            return;
-        paramAnnotationCount++;
-        String parameterId = queryParam.value();
-        QueryParameter model = action.getQueryParameters().get(parameterId);
-        if (model == null) {
-            model = new QueryParameter();
-            model.setDisplayName(parameterId);
-            action.getQueryParameters().put(parameterId, model);
+    private UriParameter uriParameter(String uriParamName) {
+        String uri = action.getResource().getUri();
+        Optional<ResourcePathVariable> var = ResourcePath.of(uri).var(uriParamName);
+        Resource resource;
+        if (!var.isPresent()) {
+            parameter.warning("annotated path param name '" + uriParamName + "' " //
+                    + "not defined in " + action.getType() + " of '" + uri + "'");
+            resource = action.getResource();
+        } else {
+            resource = raml.getResource(var.get().getResourcePath().toString());
         }
-        model.setType(type());
-        scanJavaDoc(model);
+        UriParameter model = resource.getResolvedUriParameters().get(uriParamName);
+        if (model == null) {
+            model = new UriParameter(uriParamName);
+            resource.getUriParameters().put(uriParamName, model);
+        } else {
+            // TODO check that the existing and the new param match
+        }
+        return model;
     }
 
-    private void scan(HeaderParam headerParam) {
-        if (headerParam == null)
+
+    private void scan(QueryParam queryParamAnnotation) {
+        if (queryParamAnnotation == null)
             return;
         paramAnnotationCount++;
-        String parameterId = headerParam.value();
-        Header model = action.getHeaders().get(parameterId);
-        if (model == null) {
-            model = new Header();
-            model.setDisplayName(parameterId);
-            action.getHeaders().put(parameterId, model);
+        String parameterId = queryParamAnnotation.value();
+        QueryParameter queryParamModel = action.getQueryParameters().get(parameterId);
+        if (queryParamModel == null) {
+            queryParamModel = new QueryParameter();
+            queryParamModel.setDisplayName(parameterId);
+            action.getQueryParameters().put(parameterId, queryParamModel);
         }
-        model.setType(type());
-        scanJavaDoc(model);
+        queryParamModel.setType(typeInfo().paramType());
+        scanJavaDoc(queryParamModel);
+    }
+
+    private void scan(HeaderParam headerParamAnnotation) {
+        if (headerParamAnnotation == null)
+            return;
+        paramAnnotationCount++;
+        String parameterId = headerParamAnnotation.value();
+        Header headerParamModel = action.getHeaders().get(parameterId);
+        if (headerParamModel == null) {
+            headerParamModel = new Header();
+            headerParamModel.setDisplayName(parameterId);
+            action.getHeaders().put(parameterId, headerParamModel);
+        }
+        headerParamModel.setType(typeInfo().paramType());
+        scanJavaDoc(headerParamModel);
     }
 
     private void scanBody() {
-        if (paramAnnotationCount > 0 || parameter.getAnnotation(Context.class) != null)
+        if (paramAnnotationCount > 0 || parameter.isAnnotated(Context.class))
             return;
         Map<String, MimeType> bodyMap = action.getBody();
         if (bodyMap == null) {
@@ -96,31 +108,23 @@ public class ParameterScanner {
         }
         for (String mediaType : mediaTypes()) {
             MimeType mimeType = new MimeType();
-            mimeType.setType(mediaType);
+            mimeType.setSchema(typeInfo().schema(mediaType));
             bodyMap.put(mediaType, mimeType);
         }
     }
 
+    private TypeInfo typeInfo() {
+        return new TypeInfo(parameter.getType());
+    }
+
     private String[] mediaTypes() {
-        if (parameter.getMethod().getAnnotation(Consumes.class) != null)
+        if (parameter.getMethod().isAnnotated(Consumes.class))
             return parameter.getMethod().getAnnotation(Consumes.class).value();
         return new String[] { WILDCARD };
     }
 
-    private ParamType type() {
-        Class<?> primitiveType = parameter.getPrimitiveType();
-        if (primitiveType == boolean.class)
-            return BOOLEAN;
-        if (primitiveType == double.class || primitiveType == float.class)
-            return NUMBER;
-        if (primitiveType == byte.class || primitiveType == short.class || primitiveType == int.class
-                || primitiveType == long.class)
-            return INTEGER;
-        return STRING;
-    }
-
     private void scanJavaDoc(AbstractParam model) {
-        if (parameter.getAnnotation(JavaDoc.class) != null) {
+        if (parameter.isAnnotated(JavaDoc.class)) {
             model.setDisplayName(parameter.getAnnotation(JavaDoc.class).summary());
             model.setDescription(parameter.getAnnotation(JavaDoc.class).value());
         }
