@@ -40,6 +40,9 @@ public class TypeScannerTest {
 
         Raml raml = scanTypes(DummyType.class);
 
+        then(raml) //
+                .hasTitle("") //
+                .hasVersion(null);
         assertThat(raml.getResources()).containsOnlyKeys("/foo");
         Resource foo = raml.getResource("/foo");
         then(foo).as("foo") //

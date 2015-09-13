@@ -17,6 +17,10 @@ public class RamlScanner {
 
     private final Raml raml = new XRaml();
 
+    public RamlScanner() {
+        raml.setTitle("");
+    }
+
     public void scan(SwaggerDefinition swaggerDefinition) {
         String basePath = swaggerDefinition.basePath();
         if (!basePath.isEmpty()) {
