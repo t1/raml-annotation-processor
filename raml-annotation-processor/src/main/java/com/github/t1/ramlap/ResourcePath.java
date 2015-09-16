@@ -90,19 +90,22 @@ public class ResourcePath implements Iterable<ResourcePath> {
     }
 
     public void setResource(Raml raml, Resource resource) {
-        resource.setParentResource(parentResource(raml));
-        resource.setRelativeUri(getSimpleName());
-        resource.setParentUri((parent == null) ? "" : parent.toString());
-        if (parent == null)
+        if (parent == null) {
+            resource.setParentResource(null);
+            resource.setRelativeUri(getSimpleName());
+            resource.setParentUri("");
             raml.getResources().put(this.getSimpleName(), resource);
-        else
-            raml.getResource(parent.toString()).getResources().put(this.getSimpleName(), resource);
+        } else {
+            Resource parentResource = parentResource(raml);
+            resource.setParentResource(parentResource);
+            resource.setRelativeUri(getSimpleName());
+            resource.setParentUri(parentResource.getUri());
+            parentResource.getResources().put(this.getSimpleName(), resource);
+        }
     }
 
     private Resource parentResource(Raml raml) {
-        if (parent == null)
-            return null;
-        Resource parentResource = raml.getResource(parent.toString());
+        Resource parentResource = raml.getResource(parent.getSimpleName());
         if (parentResource == null) {
             parentResource = new Resource();
             parent.setResource(raml, parentResource);

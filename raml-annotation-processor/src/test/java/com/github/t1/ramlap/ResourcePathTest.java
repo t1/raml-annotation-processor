@@ -308,6 +308,37 @@ public class ResourcePathTest {
     }
 
     @Test
+    public void shouldAddParentResourceWithPattern() {
+        Raml raml = new Raml();
+        ResourcePath methodPath = ResourcePath.of("/{foo:a}/{bar}");
+        Resource resource = new Resource();
+
+        methodPath.setResource(raml, resource);
+
+        Resource foo = raml.getResource("/{foo}");
+        Resource bar = raml.getResource("/{foo}/{bar}");
+        assertThat(raml.getResources()).containsOnlyKeys("/{foo}");
+        assertThat(foo.getResources()).containsOnlyKeys("/{bar}");
+        assertThat(bar.getResources()).isEmpty();
+        then.assertThat(foo) //
+                .as("newly created root resource") //
+                .isNotSameAs(bar) //
+                .hasUri("/{foo}") //
+                .hasRelativeUri("/{foo}") //
+                .hasParentUri("") //
+                .hasParentResource(null) //
+                ;
+        then.assertThat(bar) //
+                .as("newly created intermediate resource") //
+                .isNotSameAs(foo) //
+                .hasUri("/{foo}/{bar}") //
+                .hasRelativeUri("/{bar}") //
+                .hasParentUri("/{foo}") //
+                .hasParentResource(foo) //
+                ;
+    }
+
+    @Test
     public void shouldScanVariable() {
         ResourcePath path = ResourcePath.of("/{foo}");
 
