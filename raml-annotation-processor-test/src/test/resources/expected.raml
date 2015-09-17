@@ -28,4 +28,8 @@ version: test-version
                     required: false
                     repeat: false
             body: 
-                "*/*": 
+                application/json: 
+                    schema: |
+                        {
+                          "type" : "string"
+                        }

@@ -315,7 +315,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
 
         Action action = action(raml, "/p", GET);
         Map<String, MimeType> body = action.getBody();
-        assertThat(body).containsOnlyKeys(WILDCARD);
+        assertThat(body).containsOnlyKeys(APPLICATION_JSON);
     }
 
     @Test
