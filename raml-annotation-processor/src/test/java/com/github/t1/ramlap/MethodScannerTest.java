@@ -24,8 +24,6 @@ import io.swagger.annotations.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MethodScannerTest extends AbstractScannerTest {
-    private static final String JSON_SCHEMA_INTEGER = "{\n  \"type\" : \"integer\"\n}";
-
     @Test
     public void shouldScanGET() {
         @Path("/foo")
@@ -230,6 +228,61 @@ public class MethodScannerTest extends AbstractScannerTest {
     }
 
     @Test
+    public void shouldScanImplicitResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            public Pojo getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema("!include " + Pojo.class.getName() + ".json") //
+                ;
+    }
+
+    @Test
+    public void shouldScanTwoResponses() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponses({ //
+                    @ApiResponse(code = 200, message = "ok-descr"),
+                    @ApiResponse(code = 400, message = "bad-request-descr") //
+            })
+            @Produces(APPLICATION_JSON)
+            public Pojo getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+
+        Response okResponse = action.getResponses().get("200");
+        assertThat(okResponse.getBody()).hasSize(1);
+        then(okResponse.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema("!include " + Pojo.class.getName() + ".json") //
+                ;
+
+        Response badRequestResponse = action.getResponses().get("400");
+        assertThat(badRequestResponse.getBody()).hasSize(1);
+        then(badRequestResponse.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema("!include " + Pojo.class.getName() + ".json") //
+                ;
+    }
+
+    @Test
     public void shouldScanIntegerJsonResponse() {
         @Path("/foo")
         class Dummy {
@@ -247,8 +300,8 @@ public class MethodScannerTest extends AbstractScannerTest {
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
         then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(JSON_SCHEMA_INTEGER) //
+                .hasType("integer") //
+                .hasSchema(null) //
                 ;
     }
 
@@ -257,9 +310,9 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(code = 200, message = "ok-descr", response = Integer.class)
+            @ApiResponse(code = 200, message = "ok-descr")
             @Produces({ APPLICATION_JSON, APPLICATION_XML })
-            public String getMethod() {
+            public Pojo getMethod() {
                 return null;
             }
         }
@@ -271,11 +324,34 @@ public class MethodScannerTest extends AbstractScannerTest {
         assertThat(response.getBody()).hasSize(2);
         then(response.getBody().get(APPLICATION_JSON)) //
                 .hasType(null) //
-                .hasSchema(JSON_SCHEMA_INTEGER) //
+                .hasSchema("!include " + Pojo.class.getName() + ".json") //
                 ;
         then(response.getBody().get(APPLICATION_XML)) //
                 .hasType(null) //
-                .hasSchema(null) //
+                .hasSchema("!include " + Pojo.class.getName() + ".xsd") //
+                ;
+    }
+
+    @Test
+    public void shouldScanXmlResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(code = 200, message = "ok-descr")
+            @Produces(APPLICATION_XML)
+            public Pojo getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_XML)) //
+                .hasType(null) //
+                .hasSchema("!include " + Pojo.class.getName() + ".xsd") //
                 ;
     }
 
@@ -298,8 +374,8 @@ public class MethodScannerTest extends AbstractScannerTest {
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
         then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(JSON_SCHEMA_INTEGER) //
+                .hasType("integer") //
+                .hasSchema(null) //
                 ;
     }
 
@@ -322,7 +398,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         assertThat(action.getResponses()).hasSize(1);
 
         Response response = action.getResponses().get("200");
-        assertThat(response.getHeaders()).hasSize(1);
+        assertThat(response.getHeaders()).containsOnlyKeys("resp-header");
         then(response.getHeaders().get("resp-header")) //
                 .hasDisplayName("resp-header") //
                 .hasDescription("r-h-desc") //
@@ -596,12 +672,12 @@ public class MethodScannerTest extends AbstractScannerTest {
         Action action = action(raml, "/", PUT);
         assertThat(action.getBody()).containsOnlyKeys(APPLICATION_XML, APPLICATION_JSON);
         then(action.getBody().get(APPLICATION_JSON)) //
-                .hasSchema(JSON_SCHEMA_INTEGER) //
-                .hasType(null) //
+                .hasType("integer") //
+                .hasSchema(null) //
                 ;
         then(action.getBody().get(APPLICATION_XML)) //
-                .hasSchema(null) // TODO xml schema
-                .hasType(null) //
+                .hasType("integer") //
+                .hasSchema(null) //
                 ;
     }
 

@@ -106,9 +106,11 @@ public class ParameterScanner {
             bodyMap = new LinkedHashMap<>();
             action.setBody(bodyMap);
         }
+        TypeInfo typeInfo = typeInfo();
         for (String mediaType : mediaTypes()) {
             MimeType mimeType = new MimeType();
-            mimeType.setSchema(typeInfo().schema(mediaType));
+            mimeType.setType(typeInfo.type());
+            mimeType.setSchema(typeInfo.schema(mediaType));
             bodyMap.put(mediaType, mimeType);
         }
     }

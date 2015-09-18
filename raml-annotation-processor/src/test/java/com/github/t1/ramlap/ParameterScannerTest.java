@@ -27,27 +27,6 @@ import io.swagger.annotations.Api;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ParameterScannerTest extends AbstractScannerTest {
-    private static final String POJO_JSON_SCHEMA = "" //
-            + "{\n" //
-            + "  \"type\" : \"object\",\n" //
-            + "  \"id\" : \"urn:jsonschema:com:github:t1:ramlap:ParameterScannerTest:Pojo\",\n" //
-            + "  \"properties\" : {\n" //
-            + "    \"value\" : {\n" //
-            + "      \"type\" : \"string\"\n" //
-            + "    }\n" //
-            + "  }\n" //
-            + "}";
-    private static final String POJO_XML_SCHEMA = "<?xml version=\"1.0\" standalone=\"yes\"?>\n" //
-            + "<xs:schema version=\"1.0\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" //
-            + "\n" //
-            + "  <xs:complexType name=\"pojo\">\n" //
-            + "    <xs:sequence>\n" //
-            + "      <xs:element name=\"value\" type=\"xs:string\" minOccurs=\"0\"/>\n" //
-            + "    </xs:sequence>\n" //
-            + "  </xs:complexType>\n" //
-            + "</xs:schema>\n" //
-            + "\n";
-
     @Test
     public void shouldSkipContextParam() {
         @Path("/p")
@@ -294,8 +273,8 @@ public class ParameterScannerTest extends AbstractScannerTest {
         Map<String, MimeType> body = action.getBody();
         assertThat(body.size()).isEqualTo(1);
         then(body.get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema("{\n  \"type\" : \"string\"\n}") //
+                .hasType("string") //
+                .hasSchema(null) //
                 .hasExample(null) // TODO example
                 ;
         // TODO form params
@@ -362,18 +341,6 @@ public class ParameterScannerTest extends AbstractScannerTest {
         assertMessages(NOTE, "path not unique");
     }
 
-    public static class Pojo {
-        private String value;
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
-
     @Test
     public void shouldScanBodyParamWithSchemaType() {
         @Api
@@ -387,18 +354,19 @@ public class ParameterScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
+        String className = Pojo.class.getName();
         Action action = action(raml, "/p", GET);
         Map<String, MimeType> body = action.getBody();
         assertThat(body.size()).isEqualTo(2);
         then(body.get(APPLICATION_JSON)) //
                 .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
-                .hasExample(null) // TODO example
+                .hasSchema("!include " + className + ".json") //
+                .hasExample(null) // TODO json example
                 ;
         then(body.get(APPLICATION_XML)) //
                 .hasType(null) //
-                .hasSchema(POJO_XML_SCHEMA) //
-                .hasExample(null) // TODO example
+                .hasSchema("!include " + className + ".xsd") //
+                .hasExample(null) // TODO xml example
                 ;
         // TODO form params
         assertThat(raml.getSchemas()).hasSize(0);

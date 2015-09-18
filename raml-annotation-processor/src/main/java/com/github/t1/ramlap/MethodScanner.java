@@ -14,8 +14,9 @@ import org.slf4j.*;
 
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.*;
+import com.github.t1.ramlap.ResponseScanner.ResponseHeaderScanner;
 
-import io.swagger.annotations.*;
+import io.swagger.annotations.ApiOperation;
 
 public class MethodScanner {
     private static final Logger log = LoggerFactory.getLogger(MethodScanner.class);
@@ -116,52 +117,45 @@ public class MethodScanner {
     }
 
     private void scanResponses() {
-        if (!method.isAnnotated(ApiResponse.class))
-            return;
-        ApiResponse apiResponse = method.getAnnotation(ApiResponse.class);
+        for (ResponseScanner responseScanner : ResponseScanner.responses(method)) {
+            String status = responseScanner.status();
+            Response response = new Response();
+            action.getResponses().put(status, response);
 
-        String status = (apiResponse == null) ? null : Integer.toString(apiResponse.code());
-        Response response = new Response();
-        action.getResponses().put(status, response);
-
-        response.setDescription((apiResponse == null) ? null : apiResponse.message());
-
-        scanHeaders(apiResponse, response);
-        scanBody(apiResponse, response);
-    }
-
-    private void scanHeaders(ApiResponse apiResponse, Response response) {
-        if (apiResponse == null)
-            return;
-        for (ResponseHeader responseHeader : apiResponse.responseHeaders()) {
-            String headerName = responseHeader.name();
-            Header headerValue = new Header();
-            headerValue.setDescription(responseHeader.description());
-            headerValue.setDisplayName(responseHeader.name());
-            headerValue.setType(new TypeInfo(env, responseHeader.response()).paramType());
-            response.getHeaders().put(headerName, headerValue);
+            response.setDescription(responseScanner.description());
+            scanHeaders(responseScanner.responseHeaders(), response.getHeaders());
+            scanBody(responseScanner.responseType(), response);
         }
     }
 
-    private void scanBody(ApiResponse apiResponse, Response response) {
+    private void scanHeaders(List<ResponseHeaderScanner> scanners, Map<String, Header> map) {
+        for (ResponseHeaderScanner scanner : scanners) {
+            Header header = new Header();
+            header.setDisplayName(scanner.name());
+            header.setDescription(scanner.description());
+            header.setType(typeInfo(scanner.response()).paramType());
+            map.put(scanner.name(), header);
+        }
+    }
+
+    private void scanBody(Type responseType, Response response) {
         Map<String, MimeType> bodyMap = response.getBody();
         if (bodyMap == null) {
             bodyMap = new HashMap<>();
             response.setBody(bodyMap);
         }
 
-        TypeInfo typeInfo = new TypeInfo(env, returnType(apiResponse));
+        TypeInfo typeInfo = new TypeInfo(responseType);
         for (String mediaType : produces()) {
             MimeType mimeType = new MimeType();
+            mimeType.setType(typeInfo.type());
             mimeType.setSchema(typeInfo.schema(mediaType));
             bodyMap.put(mediaType, mimeType);
         }
     }
 
-    private Class<?> returnType(ApiResponse apiResponse) {
-        if (apiResponse == null || apiResponse.response() == Void.class)
-            return method.getReturnType();
-        return apiResponse.response();
+    private TypeInfo typeInfo(Class<?> returnType) {
+        return new TypeInfo(new ReflectionType(env, returnType));
     }
 
     private String[] produces() {

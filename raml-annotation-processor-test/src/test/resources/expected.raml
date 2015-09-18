@@ -17,19 +17,24 @@ version: test-version
             displayName: get-op
             headers: 
                 header-param: 
-                    displayName: header-param
+                    displayName: h
+                    description: h-param-descr
                     type: string
                     required: false
                     repeat: false
             queryParameters: 
                 query-param: 
-                    displayName: query-param
+                    displayName: q
+                    description: q-param-descr
                     type: string
                     required: false
                     repeat: false
             body: 
                 application/json: 
-                    schema: |
-                        {
-                          "type" : "string"
-                        }
+                    schema: "!include com.github.t1.ramlap.test.Pojo.json"
+            responses: 
+                "200": 
+                    description: Success
+                    body: 
+                        application/json: 
+                            schema: "!include com.github.t1.ramlap.test.SomeEnum.json"

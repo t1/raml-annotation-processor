@@ -16,21 +16,24 @@ public class ResourceClass {
     @Path("/{path-param}")
     @ApiOperation("get-op")
     @SuppressWarnings("unused")
-    public SwaggerEnumModel getEnum( //
+    public SomeEnum getEnum( //
             @Context UriInfo uriInfo //
             , //
             @JavaDoc(summary = "p", value = "p-param-descr") //
             @PathParam("path-param") int pathParam //
             , //
+            @JavaDoc(summary = "h", value = "h-param-descr") //
             @HeaderParam("header-param") String headerParam //
             , //
-            @ApiParam(name = "q", value = "q-param-descr") //
+            @JavaDoc(summary = "q", value = "q-param-descr") //
             @QueryParam("query-param") String queryParam //
             , //
             @MatrixParam("matrix-param-0") String matrixParam0 //
             , //
             @MatrixParam("matrix-param-1") String matrixParam1 //
+            , //
+            Pojo body//
     ) {
-        return SwaggerEnumModel.A;
+        return SomeEnum.A;
     }
 }

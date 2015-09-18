@@ -1,70 +1,31 @@
 package com.github.t1.ramlap;
 
-import static java.util.Locale.*;
-import static java.util.Objects.*;
-import static org.raml.model.ParamType.*;
+import static javax.ws.rs.core.MediaType.*;
 
 import java.io.*;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.xml.bind.*;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
-
-import org.raml.model.ParamType;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
 import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
-import com.github.t1.exap.reflection.*;
 
-public class TypeInfo {
-    private final Type type;
+public class SchemaGenerator {
+    private final String name;
 
-    public TypeInfo(ProcessingEnvironment env, Class<?> type) {
-        this(new ReflectionType(env, type));
-    }
-
-    public TypeInfo(Type type) {
-        this.type = requireNonNull(type);
-    }
-
-    public boolean isSimple() {
-        return type.isBoolean() || type.isNumber() || type.isString();
-    }
-
-    public ParamType paramType() {
-        if (type.isBoolean())
-            return BOOLEAN;
-        if (type.isDecimal())
-            return NUMBER;
-        if (type.isInteger())
-            return INTEGER;
-        return STRING;
-    }
-
-    public String type() {
-        return isSimple() ? paramType().name().toLowerCase(US) : null;
+    public SchemaGenerator(String name) {
+        this.name = name;
     }
 
     public String schema(String mediaType) {
-        if (isSimple())
-            return null;
-        if (isMediaType(mediaType, "json"))
-            return include("json");
-        if (isMediaType(mediaType, "xml"))
-            return include("xsd");
+        if (mediaType.equals(APPLICATION_JSON))
+            return jsonSchema();
+        if (mediaType.equals(APPLICATION_XML))
+            return xmlSchema();
         return null;
-    }
-
-    private boolean isMediaType(String mediaType, String extension) {
-        return mediaType.equals("application/" + extension)
-                || mediaType.startsWith("application/") && mediaType.endsWith("+" + extension);
-    }
-
-    private String include(String fileExtension) {
-        return "!include " + type.getQualifiedName() + "." + fileExtension;
     }
 
     public String jsonSchema() {
@@ -99,11 +60,7 @@ public class TypeInfo {
     }
 
     private Class<?> javaType() throws ClassNotFoundException {
-        return Class.forName(type.getQualifiedName());
-    }
-
-    @Override
-    public String toString() {
-        return "TypeInfo:" + type.getQualifiedName();
+        return Class.forName(name);
     }
 }
+
