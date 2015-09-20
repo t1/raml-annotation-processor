@@ -228,7 +228,7 @@ public class MethodScannerTest extends AbstractScannerTest {
     }
 
     @Test
-    public void shouldScanImplicitResponse() {
+    public void shouldScanImplicitPojoResponse() {
         @Path("/foo")
         class Dummy {
             @GET

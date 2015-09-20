@@ -42,7 +42,7 @@ public class ParameterScanner {
             return;
         paramAnnotationCount++;
         UriParameter uriParam = uriParameter(pathParam.value());
-        uriParam.setType(typeInfo().paramType());
+        typeInfo().applyTo(uriParam);
         scanJavaDoc(uriParam);
     }
 
@@ -79,7 +79,7 @@ public class ParameterScanner {
             queryParamModel.setDisplayName(parameterId);
             action.getQueryParameters().put(parameterId, queryParamModel);
         }
-        queryParamModel.setType(typeInfo().paramType());
+        typeInfo().applyTo(queryParamModel);
         scanJavaDoc(queryParamModel);
     }
 
@@ -94,25 +94,23 @@ public class ParameterScanner {
             headerParamModel.setDisplayName(parameterId);
             action.getHeaders().put(parameterId, headerParamModel);
         }
-        headerParamModel.setType(typeInfo().paramType());
+        typeInfo().applyTo(headerParamModel);
         scanJavaDoc(headerParamModel);
     }
 
     private void scanBody() {
         if (paramAnnotationCount > 0 || parameter.isAnnotated(Context.class))
             return;
+        typeInfo().applyTo(bodyMap(), mediaTypes());
+    }
+
+    private Map<String, MimeType> bodyMap() {
         Map<String, MimeType> bodyMap = action.getBody();
         if (bodyMap == null) {
             bodyMap = new LinkedHashMap<>();
             action.setBody(bodyMap);
         }
-        TypeInfo typeInfo = typeInfo();
-        for (String mediaType : mediaTypes()) {
-            MimeType mimeType = new MimeType();
-            mimeType.setType(typeInfo.type());
-            mimeType.setSchema(typeInfo.schema(mediaType));
-            bodyMap.put(mediaType, mimeType);
-        }
+        return bodyMap;
     }
 
     private TypeInfo typeInfo() {

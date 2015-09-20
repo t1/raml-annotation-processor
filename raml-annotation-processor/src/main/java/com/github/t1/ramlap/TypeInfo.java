@@ -4,19 +4,13 @@ import static java.util.Locale.*;
 import static java.util.Objects.*;
 import static org.raml.model.ParamType.*;
 
-import java.io.*;
+import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
-import javax.xml.bind.*;
-import javax.xml.transform.Result;
-import javax.xml.transform.stream.StreamResult;
 
-import org.raml.model.ParamType;
+import org.raml.model.*;
+import org.raml.model.parameter.AbstractParam;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.module.jsonSchema.JsonSchema;
-import com.fasterxml.jackson.module.jsonSchema.factories.SchemaFactoryWrapper;
 import com.github.t1.exap.reflection.*;
 
 public class TypeInfo {
@@ -30,11 +24,25 @@ public class TypeInfo {
         this.type = requireNonNull(type);
     }
 
-    public boolean isSimple() {
-        return type.isBoolean() || type.isNumber() || type.isString();
+    public void applyTo(AbstractParam param) {
+        param.setType(paramType());
+        param.setEnumeration(type.getEnumValues());
     }
 
-    public ParamType paramType() {
+    public void applyTo(Map<String, MimeType> bodyMap, String[] mediaTypes) {
+        for (String mediaType : mediaTypes) {
+            MimeType mimeType = new MimeType();
+            applyTo(mimeType, mediaType);
+            bodyMap.put(mediaType, mimeType);
+        }
+    }
+
+    private void applyTo(MimeType mimeType, String mediaType) {
+        mimeType.setType(isSimple() ? paramType().name().toLowerCase(US) : null);
+        mimeType.setSchema(schema(mediaType));
+    }
+
+    private ParamType paramType() {
         if (type.isBoolean())
             return BOOLEAN;
         if (type.isDecimal())
@@ -44,11 +52,11 @@ public class TypeInfo {
         return STRING;
     }
 
-    public String type() {
-        return isSimple() ? paramType().name().toLowerCase(US) : null;
+    private boolean isSimple() {
+        return type.isBoolean() || type.isNumber() || type.isString();
     }
 
-    public String schema(String mediaType) {
+    private String schema(String mediaType) {
         if (isSimple())
             return null;
         if (isMediaType(mediaType, "json"))
@@ -65,41 +73,6 @@ public class TypeInfo {
 
     private String include(String fileExtension) {
         return "!include " + type.getQualifiedName() + "." + fileExtension;
-    }
-
-    public String jsonSchema() {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            SchemaFactoryWrapper visitor = new SchemaFactoryWrapper();
-            mapper.acceptJsonFormatVisitor(mapper.constructType(javaType()), visitor);
-            JsonSchema schema = visitor.finalSchema();
-            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(schema);
-        } catch (JsonProcessingException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public String xmlSchema() {
-        final StringWriter string = new StringWriter();
-
-        try {
-            JAXBContext context = JAXBContext.newInstance(javaType());
-            context.generateSchema(new SchemaOutputResolver() {
-                @Override
-                public Result createOutput(String namespaceUri, String suggestedFileName) {
-                    StreamResult result = new StreamResult(string);
-                    result.setSystemId("dummy");
-                    return result;
-                }
-            });
-        } catch (ClassNotFoundException | JAXBException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        return (string.toString().isEmpty()) ? null : string.toString();
-    }
-
-    private Class<?> javaType() throws ClassNotFoundException {
-        return Class.forName(type.getQualifiedName());
     }
 
     @Override

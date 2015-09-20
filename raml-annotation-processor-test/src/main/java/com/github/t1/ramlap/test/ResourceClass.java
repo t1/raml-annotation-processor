@@ -26,7 +26,7 @@ public class ResourceClass {
             @HeaderParam("header-param") String headerParam //
             , //
             @JavaDoc(summary = "q", value = "q-param-descr") //
-            @QueryParam("query-param") String queryParam //
+            @QueryParam("query-param") SomeEnum queryParam //
             , //
             @MatrixParam("matrix-param-0") String matrixParam0 //
             , //

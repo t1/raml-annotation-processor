@@ -9,6 +9,7 @@ import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
 import static org.raml.model.ParamType.*;
 
+import java.nio.file.AccessMode;
 import java.util.*;
 
 import javax.ws.rs.*;
@@ -48,18 +49,19 @@ public class ParameterScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @Path("/{s}/{i}-{d}")
+            @Path("/{s}/{i}-{d}-{e}")
             @SuppressWarnings("unused")
             public void getMethod( //
                     @PathParam("s") String s, //
                     @JavaDoc(summary = "i-name", value = "i-desc") @PathParam("i") int i, //
-                    @JavaDoc(summary = "d-name", value = "d-desc") @PathParam("d") double d //
+                    @JavaDoc(summary = "d-name", value = "d-desc") @PathParam("d") double d, //
+                    @PathParam("e") AccessMode e //
             ) {}
         }
 
         Raml raml = scanTypes(Dummy.class);
 
-        Action action = action(raml, "/foo/{s}/{i}-{d}", GET);
+        Action action = action(raml, "/foo/{s}/{i}-{d}-{e}", GET);
         then(raml.getResource("/foo/{s}").getUriParameters().get("s")) //
                 .hasDisplayName("s") //
                 .hasDescription(null) //
@@ -67,7 +69,6 @@ public class ParameterScannerTest extends AbstractScannerTest {
                 .isRequired() //
         // TODO required=false : boolean
         // TODO repeat : boolean
-        // TODO enumeration : List<String>
         // TODO pattern : String
         // TODO minLength : Integer
         // TODO maxLength : Integer
@@ -77,7 +78,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
         // TODO example : String
         ;
         Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
-        assertThat(pathParams.size()).isEqualTo(2);
+        assertThat(pathParams.size()).isEqualTo(3);
         then(pathParams.get("i")) //
                 .hasDisplayName("i-name") //
                 .hasDescription("i-desc") //
@@ -88,6 +89,13 @@ public class ParameterScannerTest extends AbstractScannerTest {
                 .hasDisplayName("d-name") //
                 .hasDescription("d-desc") //
                 .hasType(NUMBER) //
+                .isRequired() //
+                ;
+        then(pathParams.get("e")) //
+                .hasDisplayName("e") //
+                .hasDescription(null) //
+                .hasType(STRING) //
+                .hasEnumeration("EXECUTE", "READ", "WRITE") //
                 .isRequired() //
                 ;
         // TODO Type: DATE
@@ -201,7 +209,8 @@ public class ParameterScannerTest extends AbstractScannerTest {
             @SuppressWarnings("unused")
             public void getMethod( //
                     @QueryParam("q0") String q0, //
-                    @JavaDoc(summary = "q-name", value = "q-desc") @QueryParam("q1") long q1 //
+                    @JavaDoc(summary = "q-name", value = "q-desc") @QueryParam("q1") long q1, //
+                    @QueryParam("q2") AccessMode q2 //
             ) {}
         }
 
@@ -209,7 +218,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
 
         Action action = action(raml, "/p", GET);
         Map<String, QueryParameter> queryParams = action.getQueryParameters();
-        assertThat(queryParams.size()).isEqualTo(2);
+        assertThat(queryParams.size()).isEqualTo(3);
         then(queryParams.get("q0")) //
                 .hasDisplayName("q0") //
                 .hasDescription(null) //
@@ -220,6 +229,13 @@ public class ParameterScannerTest extends AbstractScannerTest {
                 .hasDisplayName("q-name") //
                 .hasDescription("q-desc") //
                 .hasType(INTEGER) //
+                .isNotRequired() //
+                ;
+        then(queryParams.get("q2")) //
+                .hasDisplayName("q2") //
+                .hasDescription(null) //
+                .hasType(STRING) //
+                .hasEnumeration("EXECUTE", "READ", "WRITE") //
                 .isNotRequired() //
                 ;
     }

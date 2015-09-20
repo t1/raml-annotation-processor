@@ -133,25 +133,22 @@ public class MethodScanner {
             Header header = new Header();
             header.setDisplayName(scanner.name());
             header.setDescription(scanner.description());
-            header.setType(typeInfo(scanner.response()).paramType());
+            typeInfo(scanner.response()).applyTo(header);
             map.put(scanner.name(), header);
         }
     }
 
     private void scanBody(Type responseType, Response response) {
+        new TypeInfo(responseType).applyTo(bodyMap(response), produces());
+    }
+
+    private Map<String, MimeType> bodyMap(Response response) {
         Map<String, MimeType> bodyMap = response.getBody();
         if (bodyMap == null) {
             bodyMap = new HashMap<>();
             response.setBody(bodyMap);
         }
-
-        TypeInfo typeInfo = new TypeInfo(responseType);
-        for (String mediaType : produces()) {
-            MimeType mimeType = new MimeType();
-            mimeType.setType(typeInfo.type());
-            mimeType.setSchema(typeInfo.schema(mediaType));
-            bodyMap.put(mediaType, mimeType);
-        }
+        return bodyMap;
     }
 
     private TypeInfo typeInfo(Class<?> returnType) {
