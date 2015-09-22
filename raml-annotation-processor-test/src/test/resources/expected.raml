@@ -32,10 +32,29 @@ version: test-version
                     enum: [A, B]
             body: 
                 application/json: 
-                    schema: "!include com.github.t1.ramlap.test.Pojo.json"
+                    schema: |
+                        {
+                            "type":"object",
+                            "id":"urn:jsonschema:com:github:t1:ramlap:test:Pojo",
+                            "properties":{
+                                "foo":{
+                                    "type":"string"
+                                },
+                                "bar":{
+                                    "type":"string"
+                                }
+                            }
+                        }
             responses: 
                 "200": 
                     description: Success
                     body: 
                         application/json: 
-                            schema: "!include com.github.t1.ramlap.test.SomeEnum.json"
+                            schema: |
+                                {
+                                    "type":"string",
+                                    "enum":[
+                                        "A",
+                                        "B"
+                                    ]
+                                }

@@ -1,5 +1,6 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.ramlap.Pojo.*;
 import static javax.tools.Diagnostic.Kind.*;
 import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -370,18 +371,17 @@ public class ParameterScannerTest extends AbstractScannerTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        String className = Pojo.class.getName();
         Action action = action(raml, "/p", GET);
         Map<String, MimeType> body = action.getBody();
         assertThat(body.size()).isEqualTo(2);
         then(body.get(APPLICATION_JSON)) //
                 .hasType(null) //
-                .hasSchema("!include " + className + ".json") //
+                .hasSchema(POJO_JSON_SCHEMA) //
                 .hasExample(null) // TODO json example
                 ;
         then(body.get(APPLICATION_XML)) //
                 .hasType(null) //
-                .hasSchema("!include " + className + ".xsd") //
+                .hasSchema(POJO_XML_SCHEMA) //
                 .hasExample(null) // TODO xml example
                 ;
         // TODO form params

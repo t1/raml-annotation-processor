@@ -1,5 +1,6 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.ramlap.Pojo.*;
 import static java.lang.annotation.RetentionPolicy.*;
 import static javax.tools.Diagnostic.Kind.*;
 import static javax.ws.rs.core.MediaType.*;
@@ -244,7 +245,29 @@ public class MethodScannerTest extends AbstractScannerTest {
         assertThat(response.getBody()).hasSize(1);
         then(response.getBody().get(APPLICATION_JSON)) //
                 .hasType(null) //
-                .hasSchema("!include " + Pojo.class.getName() + ".json") //
+                .hasSchema(POJO_JSON_SCHEMA) //
+                ;
+    }
+
+    @Test
+    public void shouldScanExplicitPojoResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(code = 200, message = "ok-descr", response = Pojo.class)
+            public Response getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(POJO_JSON_SCHEMA) //
                 ;
     }
 
@@ -271,14 +294,14 @@ public class MethodScannerTest extends AbstractScannerTest {
         assertThat(okResponse.getBody()).hasSize(1);
         then(okResponse.getBody().get(APPLICATION_JSON)) //
                 .hasType(null) //
-                .hasSchema("!include " + Pojo.class.getName() + ".json") //
+                .hasSchema(POJO_JSON_SCHEMA) //
                 ;
 
         Response badRequestResponse = action.getResponses().get("400");
         assertThat(badRequestResponse.getBody()).hasSize(1);
         then(badRequestResponse.getBody().get(APPLICATION_JSON)) //
                 .hasType(null) //
-                .hasSchema("!include " + Pojo.class.getName() + ".json") //
+                .hasSchema(POJO_JSON_SCHEMA) //
                 ;
     }
 
@@ -324,11 +347,11 @@ public class MethodScannerTest extends AbstractScannerTest {
         assertThat(response.getBody()).hasSize(2);
         then(response.getBody().get(APPLICATION_JSON)) //
                 .hasType(null) //
-                .hasSchema("!include " + Pojo.class.getName() + ".json") //
+                .hasSchema(POJO_JSON_SCHEMA) //
                 ;
         then(response.getBody().get(APPLICATION_XML)) //
                 .hasType(null) //
-                .hasSchema("!include " + Pojo.class.getName() + ".xsd") //
+                .hasSchema(POJO_XML_SCHEMA) //
                 ;
     }
 
@@ -351,7 +374,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         assertThat(response.getBody()).hasSize(1);
         then(response.getBody().get(APPLICATION_XML)) //
                 .hasType(null) //
-                .hasSchema("!include " + Pojo.class.getName() + ".xsd") //
+                .hasSchema(POJO_XML_SCHEMA) //
                 ;
     }
 

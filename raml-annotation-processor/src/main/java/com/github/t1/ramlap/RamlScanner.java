@@ -57,7 +57,7 @@ public class RamlScanner {
 
         scanBasic(type);
 
-        type.accept(new TypeScanner() {
+        type.accept(new TypeVisitor() {
             @Override
             public void visit(Method method) {
                 new MethodScanner(raml, method).scan();

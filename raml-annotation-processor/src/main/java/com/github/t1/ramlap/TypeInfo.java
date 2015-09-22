@@ -30,6 +30,8 @@ public class TypeInfo {
     }
 
     public void applyTo(Map<String, MimeType> bodyMap, String[] mediaTypes) {
+        if (type.isVoid())
+            return;
         for (String mediaType : mediaTypes) {
             MimeType mimeType = new MimeType();
             applyTo(mimeType, mediaType);
@@ -39,7 +41,7 @@ public class TypeInfo {
 
     private void applyTo(MimeType mimeType, String mediaType) {
         mimeType.setType(isSimple() ? paramType().name().toLowerCase(US) : null);
-        mimeType.setSchema(schema(mediaType));
+        mimeType.setSchema(isSimple() ? null : SchemaGenerator.schema(type, mediaType));
     }
 
     private ParamType paramType() {
@@ -54,25 +56,6 @@ public class TypeInfo {
 
     private boolean isSimple() {
         return type.isBoolean() || type.isNumber() || type.isString();
-    }
-
-    private String schema(String mediaType) {
-        if (isSimple())
-            return null;
-        if (isMediaType(mediaType, "json"))
-            return include("json");
-        if (isMediaType(mediaType, "xml"))
-            return include("xsd");
-        return null;
-    }
-
-    private boolean isMediaType(String mediaType, String extension) {
-        return mediaType.equals("application/" + extension)
-                || mediaType.startsWith("application/") && mediaType.endsWith("+" + extension);
-    }
-
-    private String include(String fileExtension) {
-        return "!include " + type.getQualifiedName() + "." + fileExtension;
     }
 
     @Override
