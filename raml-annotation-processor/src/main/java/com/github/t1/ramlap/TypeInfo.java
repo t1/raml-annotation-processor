@@ -41,7 +41,11 @@ public class TypeInfo {
 
     private void applyTo(MimeType mimeType, String mediaType) {
         mimeType.setType(isSimple() ? paramType().name().toLowerCase(US) : null);
-        mimeType.setSchema(isSimple() ? null : SchemaGenerator.schema(type, mediaType));
+        mimeType.setSchema(isSimple() || isUnspecific() ? null : SchemaGenerator.schema(type, mediaType));
+    }
+
+    private boolean isUnspecific() {
+        return javax.ws.rs.core.Response.class.getName().equals(type.getQualifiedName());
     }
 
     private ParamType paramType() {

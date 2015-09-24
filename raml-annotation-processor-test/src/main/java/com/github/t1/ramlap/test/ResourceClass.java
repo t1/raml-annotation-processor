@@ -1,5 +1,7 @@
 package com.github.t1.ramlap.test;
 
+import java.util.List;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
@@ -16,7 +18,7 @@ public class ResourceClass {
     @Path("/{path-param}")
     @ApiOperation("get-op")
     @SuppressWarnings("unused")
-    public SomeEnum getEnum( //
+    public List<Pojo> doGet( //
             @Context UriInfo uriInfo //
             , //
             @JavaDoc(summary = "p", value = "p-param-descr") //
@@ -30,10 +32,10 @@ public class ResourceClass {
             , //
             @MatrixParam("matrix-param-0") String matrixParam0 //
             , //
-            @MatrixParam("matrix-param-1") String matrixParam1 //
+            @MatrixParam("matrix-param-1") Boolean matrixParam1 //
             , //
             Pojo body//
     ) {
-        return SomeEnum.A;
+        return null;
     }
 }

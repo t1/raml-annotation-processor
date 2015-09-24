@@ -1,6 +1,7 @@
 package com.github.t1.ramlap;
 
 import java.io.*;
+import java.lang.annotation.Annotation;
 import java.util.*;
 
 import javax.json.Json;
@@ -25,6 +26,9 @@ public class SchemaGenerator {
                 || mediaType.startsWith("application/") && mediaType.endsWith("+" + extension);
     }
 
+    /**
+     * @see <a href="http://spacetelescope.github.io/understanding-json-schema/index.html">web</a>
+     */
     private static class JsonSchemaGenerator {
         private final Type type;
         private JsonGenerator json;
@@ -39,6 +43,7 @@ public class SchemaGenerator {
             try (JsonGenerator json = createJsonGenerator(out)) {
                 this.json = json;
                 json.writeStartObject();
+                json.write("$schema", "http://json-schema.org/schema#");
                 generate(type);
                 json.writeEnd();
             }
@@ -53,44 +58,71 @@ public class SchemaGenerator {
         }
 
         public void generate(Type type) {
-            if (type.isBoolean()) {
-                json.write("type", "boolean");
-            } else if (type.isInteger()) {
-                json.write("type", "integer");
-            } else if (type.isDecimal()) {
-                json.write("type", "number");
-            } else if (type.isString()) {
-                json.write("type", "string");
-            } else if (type.isEnum()) {
-                json.write("type", "string");
-                json.writeStartArray("enum");
-                for (String enumValue : type.getEnumValues())
-                    json.write(enumValue);
-                json.writeEnd();
-            } else if (type.isArray()) {
-                json.write("type", "array");
-                json.writeStartObject("items");
-                generate(type.elementType());
-                json.writeEnd();
-            } else if (type.isSubclassOf(List.class)) {
-                json.write("type", "array");
-                json.writeStartObject("items");
-                generate(type.getTypeParameters().get(0).getBounds().get(0));
-                json.writeEnd();
-            } else {
-                json.write("type", "object");
-                if (depth == 0)
-                    json.write("id", "urn:jsonschema:" + type.getQualifiedName().replace('.', ':'));
-                json.writeStartObject("properties");
-                for (Field field : type.getFields()) {
-                    json.writeStartObject(field.getName());
-                    depth++;
-                    generate(field.getType());
-                    depth--;
+            try {
+                if (type.isBoolean()) {
+                    json.write("type", "boolean");
+                } else if (type.isInteger()) {
+                    json.write("type", "integer");
+                } else if (type.isDecimal()) {
+                    json.write("type", "number");
+                } else if (type.isString()) {
+                    json.write("type", "string");
+                } else if (isJacksonToString(type)) {
+                    json.write("type", "string");
+                    writeId(type);
+                } else if (type.isEnum()) {
+                    json.write("type", "string");
+                    json.writeStartArray("enum");
+                    for (String enumValue : type.getEnumValues())
+                        json.write(enumValue);
+                    json.writeEnd();
+                } else if (type.isArray()) {
+                    json.write("type", "array");
+                    json.writeStartObject("items");
+                    generate(type.elementType());
+                    json.writeEnd();
+                } else if (type.isAssignableTo(Collection.class)) {
+                    json.write("type", "array");
+                    json.writeStartObject("items");
+                    generate(type.getTypeParameters().get(0).getBounds().get(0));
+                    json.writeEnd();
+                } else {
+                    json.write("type", "object");
+                    writeId(type);
+                    json.writeStartObject("properties");
+                    for (Field field : type.getFields()) {
+                        if (field.isStatic() || field.isTransient())
+                            continue;
+                        json.writeStartObject(field.getName());
+                        depth++;
+                        generate(field.getType());
+                        depth--;
+                        json.writeEnd();
+                    }
                     json.writeEnd();
                 }
-                json.writeEnd();
+            } catch (RuntimeException e) {
+                throw new RuntimeException("while generating json schema for " + type, e);
+            } catch (Error e) {
+                throw new Error("while generating json schema for " + type, e);
             }
+        }
+
+        private boolean isJacksonToString(Type type) {
+            return isUsing(type, org.codehaus.jackson.map.annotate.JsonSerialize.class,
+                    org.codehaus.jackson.map.ser.std.ToStringSerializer.class)
+                    || isUsing(type, com.fasterxml.jackson.databind.annotation.JsonSerialize.class,
+                            com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class);
+        }
+
+        private boolean isUsing(Type type, Class<? extends Annotation> annotation, Class<?> serializer) {
+            return type.isAnnotated(annotation)
+                    && serializer.getName().equals(type.getAnnotationClassAttribute(annotation, "using"));
+        }
+
+        private void writeId(Type type) {
+            if (depth == 0)
+                json.write("id", "urn:jsonschema:" + type.getQualifiedName().replace('.', ':'));
         }
     }
 

@@ -229,6 +229,27 @@ public class MethodScannerTest extends AbstractScannerTest {
     }
 
     @Test
+    public void shouldScanUnspecificResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            public javax.ws.rs.core.Response getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(null) //
+                ;
+    }
+
+    @Test
     public void shouldScanImplicitPojoResponse() {
         @Path("/foo")
         class Dummy {
@@ -255,7 +276,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         class Dummy {
             @GET
             @ApiResponse(code = 200, message = "ok-descr", response = Pojo.class)
-            public Response getMethod() {
+            public javax.ws.rs.core.Response getMethod() {
                 return null;
             }
         }

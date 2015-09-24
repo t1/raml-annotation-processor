@@ -2,6 +2,7 @@ package com.github.t1.ramlap;
 
 public class Pojo {
     public static final String POJO_JSON_SCHEMA = "{\n" //
+            + "    \"$schema\":\"http://json-schema.org/schema#\",\n" //
             + "    \"type\":\"object\",\n" //
             + "    \"id\":\"urn:jsonschema:" + Pojo.class.getName().replace(".", ":") + "\",\n" //
             + "    \"properties\":{\n" //

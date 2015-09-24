@@ -31,7 +31,7 @@ public class MethodScanner {
     public MethodScanner(Raml raml, Method method) {
         this.raml = raml;
         this.method = method;
-        this.env = method.getProcessingEnv();
+        this.env = method.env();
     }
 
     public void scan() {

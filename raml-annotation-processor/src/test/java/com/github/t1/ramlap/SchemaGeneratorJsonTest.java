@@ -4,19 +4,22 @@ import static javax.ws.rs.core.MediaType.*;
 import static org.junit.Assert.*;
 
 import java.nio.file.AccessMode;
-import java.util.List;
+import java.util.*;
 
-import org.junit.Test;
+import org.junit.*;
 
 import com.github.t1.exap.reflection.ReflectionType;
 
 public class SchemaGeneratorJsonTest {
+    private static final String SCHEMA = "    \"$schema\":\"http://json-schema.org/schema#\",\n";
+
     @Test
     public void shouldGenerateString() {
         String json = SchemaGenerator.schema(new ReflectionType(null, String.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
+                + SCHEMA //
                 + "    \"type\":\"string\"\n" //
                 + "}\n", json);
     }
@@ -27,6 +30,7 @@ public class SchemaGeneratorJsonTest {
 
         assertEquals("" //
                 + "{\n" //
+                + SCHEMA //
                 + "    \"type\":\"string\",\n" //
                 + "    \"enum\":[\n" //
                 + "        \"READ\",\n" //
@@ -42,6 +46,7 @@ public class SchemaGeneratorJsonTest {
 
         assertEquals("" //
                 + "{\n" //
+                + SCHEMA //
                 + "    \"type\":\"integer\"\n" //
                 + "}\n", json);
     }
@@ -52,16 +57,18 @@ public class SchemaGeneratorJsonTest {
 
         assertEquals("" //
                 + "{\n" //
+                + SCHEMA //
                 + "    \"type\":\"number\"\n" //
                 + "}\n", json);
     }
 
     @Test
     public void shouldGenerateBoolean() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, Boolean.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(new ReflectionType(null, boolean.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
+                + SCHEMA //
                 + "    \"type\":\"boolean\"\n" //
                 + "}\n", json);
     }
@@ -72,6 +79,7 @@ public class SchemaGeneratorJsonTest {
 
         assertEquals("" //
                 + "{\n" //
+                + SCHEMA //
                 + "    \"type\":\"array\",\n" //
                 + "    \"items\":{\n" //
                 + "        \"type\":\"string\"\n" //
@@ -85,6 +93,7 @@ public class SchemaGeneratorJsonTest {
 
         assertEquals("" //
                 + "{\n" //
+                + SCHEMA //
                 + "    \"type\":\"array\",\n" //
                 + "    \"items\":{\n" //
                 + "        \"type\":\"integer\"\n" //
@@ -95,6 +104,7 @@ public class SchemaGeneratorJsonTest {
     static class Pojo {
         String value;
         Long integer;
+        boolean bool;
     }
 
     @Test
@@ -103,6 +113,7 @@ public class SchemaGeneratorJsonTest {
 
         assertEquals("" //
                 + "{\n" //
+                + SCHEMA //
                 + "    \"type\":\"object\",\n" //
                 + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$Pojo\",\n" //
                 + "    \"properties\":{\n" //
@@ -111,6 +122,9 @@ public class SchemaGeneratorJsonTest {
                 + "        },\n" //
                 + "        \"integer\":{\n" //
                 + "            \"type\":\"integer\"\n" //
+                + "        },\n" //
+                + "        \"bool\":{\n" //
+                + "            \"type\":\"boolean\"\n" //
                 + "        }\n" //
                 + "    }\n" //
                 + "}\n", json);
@@ -127,6 +141,7 @@ public class SchemaGeneratorJsonTest {
 
         assertEquals("" //
                 + "{\n" //
+                + SCHEMA //
                 + "    \"type\":\"object\",\n" //
                 + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithList\",\n" //
                 + "    \"properties\":{\n" //
@@ -138,11 +153,13 @@ public class SchemaGeneratorJsonTest {
                 + "                },\n" //
                 + "                \"integer\":{\n" //
                 + "                    \"type\":\"integer\"\n" //
+                + "                },\n" //
+                + "                \"bool\":{\n" //
+                + "                    \"type\":\"boolean\"\n" //
                 + "                }\n" //
                 + "            }\n" //
                 + "        },\n" //
-                + "        \"list\":{\n" //
-                + "            \"type\":\"array\",\n" //
+                + "        \"list\":{\n" + "            \"type\":\"array\",\n" //
                 + "            \"items\":{\n" //
                 + "                \"type\":\"string\"\n" //
                 + "            }\n" //
@@ -150,4 +167,104 @@ public class SchemaGeneratorJsonTest {
                 + "    }\n" //
                 + "}\n", json);
     }
+
+    static class PojoWithSet {
+        Set<Pojo> set;
+    }
+
+    @Test
+    public void shouldGeneratePojoWithSet() {
+        String json = SchemaGenerator.schema(new ReflectionType(null, PojoWithSet.class), APPLICATION_JSON);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"object\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithSet\",\n" //
+                + "    \"properties\":{\n" //
+                + "        \"set\":{\n" //
+                + "            \"type\":\"array\",\n" //
+                + "            \"items\":{\n" //
+                + "                \"type\":\"object\",\n" //
+                + "                \"properties\":{\n" //
+                + "                    \"value\":{\n" //
+                + "                        \"type\":\"string\"\n" //
+                + "                    },\n" //
+                + "                    \"integer\":{\n" //
+                + "                        \"type\":\"integer\"\n" //
+                + "                    },\n" //
+                + "                    \"bool\":{\n" //
+                + "                        \"type\":\"boolean\"\n" //
+                + "                    }\n" //
+                + "                }\n" //
+                + "            }\n" //
+                + "        }\n" //
+                + "    }\n" //
+                + "}\n", json);
+    }
+
+    @org.codehaus.jackson.map.annotate.JsonSerialize(using = org.codehaus.jackson.map.ser.std.ToStringSerializer.class)
+    static class CodehausToStringPojo {
+        long value;
+    }
+
+    @Test
+    public void shouldGenerateCodehausToStringPojo() {
+        String json = SchemaGenerator.schema(new ReflectionType(null, CodehausToStringPojo.class), APPLICATION_JSON);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"string\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$CodehausToStringPojo\"\n" //
+                + "}\n", json);
+    }
+
+    @com.fasterxml.jackson.databind.annotation.JsonSerialize(
+            using = com.fasterxml.jackson.databind.ser.std.ToStringSerializer.class)
+    static class FasterXmlToStringPojo {
+        long value;
+    }
+
+    @Test
+    public void shouldGenerateFasterXmlToStringPojo() {
+        String json = SchemaGenerator.schema(new ReflectionType(null, FasterXmlToStringPojo.class), APPLICATION_JSON);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"string\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$FasterXmlToStringPojo\"\n" //
+                + "}\n", json);
+    }
+
+    static class RecursivePojo {
+        RecursivePojo pojo;
+    }
+
+    @Test
+    @Ignore
+    public void shouldGenerateRecursivePojo() {
+        String json = SchemaGenerator.schema(new ReflectionType(null, RecursivePojo.class), APPLICATION_JSON);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"object\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$RecursivePojo\",\n" //
+                + "    \"properties\":{\n" //
+                + "        \"pojo\":{\n" //
+                + "            \"type\":\"object\",\n" //
+                + "            \"properties\":{\n" //
+                + "                \"value\":{\n" //
+                + "                    \"type\":\"string\"\n" //
+                + "                }\n" //
+                + "            }\n" //
+                + "        }\n" //
+                + "    }\n" //
+                + "}\n", json);
+    }
+
+    // TODO UUID
+    // TODO Path
 }
