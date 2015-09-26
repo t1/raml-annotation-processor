@@ -32,7 +32,6 @@ public class SchemaGenerator {
     private static class JsonSchemaGenerator {
         private final Type type;
         private JsonGenerator json;
-        private int depth;
 
         public JsonSchemaGenerator(Type type) {
             this.type = type;
@@ -94,9 +93,7 @@ public class SchemaGenerator {
                         if (field.isStatic() || field.isTransient())
                             continue;
                         json.writeStartObject(field.getName());
-                        depth++;
                         generate(field.getType());
-                        depth--;
                         json.writeEnd();
                     }
                     json.writeEnd();
@@ -121,8 +118,7 @@ public class SchemaGenerator {
         }
 
         private void writeId(Type type) {
-            if (depth == 0)
-                json.write("id", "urn:jsonschema:" + type.getQualifiedName().replace('.', ':'));
+            json.write("id", "urn:jsonschema:" + type.getQualifiedName().replace('.', ':'));
         }
     }
 

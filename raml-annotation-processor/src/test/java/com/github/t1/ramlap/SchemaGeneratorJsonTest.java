@@ -147,6 +147,7 @@ public class SchemaGeneratorJsonTest {
                 + "    \"properties\":{\n" //
                 + "        \"pojo\":{\n" //
                 + "            \"type\":\"object\",\n" //
+                + "            \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$Pojo\",\n" //
                 + "            \"properties\":{\n" //
                 + "                \"value\":{\n" //
                 + "                    \"type\":\"string\"\n" //
@@ -187,6 +188,7 @@ public class SchemaGeneratorJsonTest {
                 + "            \"type\":\"array\",\n" //
                 + "            \"items\":{\n" //
                 + "                \"type\":\"object\",\n" //
+                + "                \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$Pojo\",\n" //
                 + "                \"properties\":{\n" //
                 + "                    \"value\":{\n" //
                 + "                        \"type\":\"string\"\n" //
