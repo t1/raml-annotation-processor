@@ -3,7 +3,7 @@ package com.github.t1.ramlap;
 import static javax.ws.rs.core.MediaType.*;
 import static org.junit.Assert.*;
 
-import java.nio.file.AccessMode;
+import java.nio.file.*;
 import java.util.*;
 
 import org.junit.*;
@@ -340,6 +340,17 @@ public class SchemaGeneratorJsonTest {
                 + "}\n", json);
     }
 
+    @Test
+    public void shouldGenerateSchemaForPath() {
+        String json = json(Path.class);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"string\",\n" //
+                + "    \"id\":\"urn:jsonschema:java:nio:file:Path\"\n" //
+                + "}\n", json);
+    }
+
     // TODO Map
-    // TODO Path
 }

@@ -2,6 +2,7 @@ package com.github.t1.ramlap;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
+import java.nio.file.Path;
 import java.util.*;
 
 import javax.json.Json;
@@ -121,6 +122,8 @@ public class SchemaGenerator {
         }
 
         private boolean isStringWrapper(Type type) {
+            if (type.isAssignableTo(Path.class))
+                return true;
             return hasToString(type) && hasFromString(type);
         }
 
