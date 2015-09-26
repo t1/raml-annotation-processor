@@ -75,6 +75,9 @@ public class SchemaGenerator {
                     for (String enumValue : type.getEnumValues())
                         json.write(enumValue);
                     json.writeEnd();
+                } else if (isStringWrapper(type)) {
+                    json.write("type", "string");
+                    writeId(type);
                 } else if (type.isArray()) {
                     json.write("type", "array");
                     json.writeStartObject("items");
@@ -115,6 +118,27 @@ public class SchemaGenerator {
         private boolean isUsing(Type type, Class<? extends Annotation> annotation, Class<?> serializer) {
             return type.isAnnotated(annotation)
                     && serializer.getName().equals(type.getAnnotationClassAttribute(annotation, "using"));
+        }
+
+        private boolean isStringWrapper(Type type) {
+            return hasToString(type) && hasFromString(type);
+        }
+
+        private boolean hasToString(Type type) {
+            for (Method method : type.getAllMethods())
+                if ("toString".equals(method.getName()) && method.getParameters().isEmpty() //
+                        && !method.getContainerType().equals(Type.of(Object.class)))
+                    return true;
+            return false;
+        }
+
+        private boolean hasFromString(Type type) {
+            for (Method method : type.getMethods())
+                if ("fromString".equals(method.getName()) //
+                        && method.getParameters().size() == 1 && method.getParameter(0).isType(String.class) //
+                        && method.isPublic() && method.isStatic())
+                    return true;
+            return false;
         }
 
         private void writeId(Type type) {

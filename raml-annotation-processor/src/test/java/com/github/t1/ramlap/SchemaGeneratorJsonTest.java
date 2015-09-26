@@ -13,9 +13,13 @@ import com.github.t1.exap.reflection.Type;
 public class SchemaGeneratorJsonTest {
     private static final String SCHEMA = "    \"$schema\":\"http://json-schema.org/schema#\",\n";
 
+    private String json(Class<?> type) {
+        return SchemaGenerator.schema(Type.of(type), APPLICATION_JSON);
+    }
+
     @Test
     public void shouldGenerateString() {
-        String json = SchemaGenerator.schema(Type.of(String.class), APPLICATION_JSON);
+        String json = json(String.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -26,7 +30,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateEnum() {
-        String json = SchemaGenerator.schema(Type.of(AccessMode.class), APPLICATION_JSON);
+        String json = json(AccessMode.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -42,7 +46,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateInteger() {
-        String json = SchemaGenerator.schema(Type.of(Integer.class), APPLICATION_JSON);
+        String json = json(Integer.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -53,7 +57,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateDouble() {
-        String json = SchemaGenerator.schema(Type.of(Double.class), APPLICATION_JSON);
+        String json = json(Double.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -64,7 +68,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateBoolean() {
-        String json = SchemaGenerator.schema(Type.of(boolean.class), APPLICATION_JSON);
+        String json = json(boolean.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -75,7 +79,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateStringArray() {
-        String json = SchemaGenerator.schema(Type.of(String[].class), APPLICATION_JSON);
+        String json = json(String[].class);
 
         assertEquals("" //
                 + "{\n" //
@@ -89,7 +93,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateIntegerArray() {
-        String json = SchemaGenerator.schema(Type.of(Integer[].class), APPLICATION_JSON);
+        String json = json(Integer[].class);
 
         assertEquals("" //
                 + "{\n" //
@@ -109,7 +113,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGeneratePojo() {
-        String json = SchemaGenerator.schema(Type.of(Pojo.class), APPLICATION_JSON);
+        String json = json(Pojo.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -137,7 +141,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGeneratePojoWithList() {
-        String json = SchemaGenerator.schema(Type.of(PojoWithList.class), APPLICATION_JSON);
+        String json = json(PojoWithList.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -176,7 +180,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGeneratePojoWithSet() {
-        String json = SchemaGenerator.schema(Type.of(PojoWithSet.class), APPLICATION_JSON);
+        String json = json(PojoWithSet.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -213,7 +217,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateCodehausToStringPojo() {
-        String json = SchemaGenerator.schema(Type.of(CodehausToStringPojo.class), APPLICATION_JSON);
+        String json = json(CodehausToStringPojo.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -231,7 +235,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateFasterXmlToStringPojo() {
-        String json = SchemaGenerator.schema(Type.of(FasterXmlToStringPojo.class), APPLICATION_JSON);
+        String json = json(FasterXmlToStringPojo.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -248,7 +252,7 @@ public class SchemaGeneratorJsonTest {
     @Test
     @Ignore("requires $ref from json-schema draft-4")
     public void shouldGenerateRecursivePojo() {
-        String json = SchemaGenerator.schema(Type.of(RecursivePojo.class), APPLICATION_JSON);
+        String json = json(RecursivePojo.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -268,7 +272,74 @@ public class SchemaGeneratorJsonTest {
                 + "}\n", json);
     }
 
-    // TODO UUID
+    @Test
+    public void shouldGenerateSchemaForClassWithToStringAndFromString() {
+        String json = json(UUID.class);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"string\",\n" //
+                + "    \"id\":\"urn:jsonschema:java:util:UUID\"\n" //
+                + "}\n", json);
+    }
+
+    static class PojoWithFromString {
+        public static PojoWithFromString fromString(String value) {
+            PojoWithFromString pojo = new PojoWithFromString();
+            pojo.value = value;
+            return pojo;
+        }
+
+        String value;
+    }
+
+    @Test
+    public void shouldGeneratePojoSchemaForClassWithFromStringButNoToString() {
+        String json = json(PojoWithFromString.class);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"object\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithFromString\",\n" //
+                + "    \"properties\":{\n" //
+                + "        \"value\":{\n" //
+                + "            \"type\":\"string\"\n" //
+                + "        }\n" //
+                + "    }\n" //
+                + "}\n", json);
+    }
+
+    static class SuperPojoWithToString {
+        @Override
+        public String toString() {
+            return "x";
+        }
+    }
+
+    static class PojoWithInheritedToString extends SuperPojoWithToString {
+        public static PojoWithInheritedToString fromString(String value) {
+            PojoWithInheritedToString pojo = new PojoWithInheritedToString();
+            pojo.value = value;
+            return pojo;
+        }
+
+        String value;
+    }
+
+    @Test
+    public void shouldGenerateSchemaForClassWithFromStringAndInheritedToString() {
+        String json = json(PojoWithInheritedToString.class);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"string\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithInheritedToString\"\n" //
+                + "}\n", json);
+    }
+
     // TODO Map
     // TODO Path
 }
