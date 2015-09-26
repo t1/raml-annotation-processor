@@ -6,19 +6,13 @@ import static org.raml.model.ParamType.*;
 
 import java.util.Map;
 
-import javax.annotation.processing.ProcessingEnvironment;
-
 import org.raml.model.*;
 import org.raml.model.parameter.AbstractParam;
 
-import com.github.t1.exap.reflection.*;
+import com.github.t1.exap.reflection.Type;
 
 public class TypeInfo {
     private final Type type;
-
-    public TypeInfo(ProcessingEnvironment env, Class<?> type) {
-        this(new ReflectionType(env, type));
-    }
 
     public TypeInfo(Type type) {
         this.type = requireNonNull(type);
@@ -41,6 +35,7 @@ public class TypeInfo {
 
     private void applyTo(MimeType mimeType, String mediaType) {
         mimeType.setType(isSimple() ? paramType().name().toLowerCase(US) : null);
+        // TODO add schema to raml root and link from here
         mimeType.setSchema(isSimple() || isUnspecific() ? null : SchemaGenerator.schema(type, mediaType));
     }
 

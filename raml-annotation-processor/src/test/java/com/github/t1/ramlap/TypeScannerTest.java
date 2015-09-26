@@ -12,19 +12,17 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.raml.model.*;
 
 import com.github.t1.exap.JavaDoc;
-import com.github.t1.exap.reflection.*;
+import com.github.t1.exap.reflection.Type;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TypeScannerTest {
-    private final ReflectionProcessingEnvironment env = new ReflectionProcessingEnvironment();
-
     @Rule
     public final JUnitSoftAssertions then = new JUnitSoftAssertions();
 
     private Raml scanTypes(Class<?>... containers) {
         RamlScanner scanner = new RamlScanner();
         for (Class<?> container : containers) {
-            Type type = env.type(container);
+            Type type = Type.of(container);
             scanner.scanJaxRsType(type);
         }
         return scanner.getResult();

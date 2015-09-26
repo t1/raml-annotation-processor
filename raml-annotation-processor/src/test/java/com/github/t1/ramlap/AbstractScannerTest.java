@@ -1,14 +1,13 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
 import static java.util.Arrays.*;
-import static javax.tools.Diagnostic.Kind.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.raml.model.BddAssertions.*;
 
 import java.util.*;
 
-import javax.tools.Diagnostic.Kind;
+import javax.tools.Diagnostic;
 
 import org.junit.*;
 import org.raml.model.*;
@@ -18,15 +17,13 @@ import com.github.t1.exap.reflection.*;
 import io.swagger.annotations.SwaggerDefinition;
 
 public abstract class AbstractScannerTest {
-    protected final ReflectionProcessingEnvironment env = new ReflectionProcessingEnvironment();
-
     @Rule
     public final JUnitSoftAssertions then = new JUnitSoftAssertions();
 
     protected Raml scanTypes(Class<?>... containers) {
         RamlScanner scanner = new RamlScanner();
         for (Class<?> container : containers) {
-            Type type = env.type(container);
+            Type type = Type.of(container);
             if (type.isAnnotated(SwaggerDefinition.class))
                 scanner.scan(type.getAnnotation(SwaggerDefinition.class));
             scanner.scanJaxRsType(type);
@@ -49,18 +46,18 @@ public abstract class AbstractScannerTest {
 
     private int expectedMessageCount = 0;
 
-    protected void assertWarning(ReflectionMessageTarget target, String message) {
-        assertTrue(target.getMessages(WARNING).contains(message));
+    protected void assertMessage(Diagnostic.Kind kind, Elemental target, String message) {
+        assertThat(ENV.getMessages(target, kind)).contains(message);
         expectedMessageCount++;
-    }
-
-    protected void assertMessages(Kind kind, String... messages) {
-        expectedMessageCount += messages.length;
-        assertThat(env.getMessager().getMessages(kind)).containsValue(asList(messages));
     }
 
     @After
     public void assertNoUnexpectedMessages() {
-        assertThat(env.getMessager().getMessages()).hasSize(expectedMessageCount);
+        List<Message> messages = ENV.getMessages();
+        try {
+            assertThat(messages).hasSize(expectedMessageCount);
+        } finally {
+            messages.clear();
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.exap.reflection.Message.*;
 import static com.github.t1.ramlap.Pojo.*;
 import static java.lang.annotation.RetentionPolicy.*;
 import static javax.tools.Diagnostic.Kind.*;
@@ -19,7 +20,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.raml.model.*;
 
 import com.github.t1.exap.JavaDoc;
-import com.github.t1.exap.reflection.ReflectionType;
+import com.github.t1.exap.reflection.Type;
 
 import io.swagger.annotations.*;
 
@@ -673,11 +674,11 @@ public class MethodScannerTest extends AbstractScannerTest {
             public void bar() {}
         }
         RamlScanner scanner = new RamlScanner();
-        ReflectionType type = env.type(Foo.class);
+        Type type = Type.of(Foo.class);
 
         scanner.scanJaxRsType(type);
 
-        assertMessages(NOTE, "path not unique");
+        assertMessage(NOTE, ANY_ELEMENT, "path not unique");
     }
 
     @Test
@@ -694,12 +695,12 @@ public class MethodScannerTest extends AbstractScannerTest {
             public void bar() {}
         }
         RamlScanner scanner = new RamlScanner();
-        ReflectionType foo = env.type(Foo.class);
+        Type foo = Type.of(Foo.class);
         scanner.scanJaxRsType(foo);
-        ReflectionType bar = env.type(Bar.class);
+        Type bar = Type.of(Bar.class);
         scanner.scanJaxRsType(bar);
 
-        assertMessages(NOTE, "path not unique");
+        assertMessage(NOTE, ANY_ELEMENT, "path not unique");
     }
 
     @Test

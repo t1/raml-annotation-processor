@@ -5,7 +5,6 @@ import static javax.ws.rs.core.MediaType.*;
 
 import java.util.*;
 
-import javax.annotation.processing.ProcessingEnvironment;
 import javax.ws.rs.*;
 
 import org.raml.model.*;
@@ -23,7 +22,6 @@ public class MethodScanner {
 
     private final Raml raml;
     private final Method method;
-    private final ProcessingEnvironment env;
 
     private Resource resource;
     private Action action;
@@ -31,7 +29,6 @@ public class MethodScanner {
     public MethodScanner(Raml raml, Method method) {
         this.raml = raml;
         this.method = method;
-        this.env = method.env();
     }
 
     public void scan() {
@@ -80,7 +77,7 @@ public class MethodScanner {
     }
 
     private ResourcePath methodPath() {
-        ResourcePath path = ResourcePath.of(method.getType());
+        ResourcePath path = ResourcePath.of(method.getContainerType());
         if (method.isAnnotated(Path.class))
             path = path.and(method.getAnnotation(Path.class).value());
         return path;
@@ -92,7 +89,7 @@ public class MethodScanner {
             return apiOperation.value();
         if (method.isAnnotated(JavaDoc.class))
             return method.getAnnotation(JavaDoc.class).summary();
-        return camelCaseToWords(method.getSimpleName());
+        return camelCaseToWords(method.getName());
     }
 
     private String description() {
@@ -152,7 +149,7 @@ public class MethodScanner {
     }
 
     private TypeInfo typeInfo(Class<?> returnType) {
-        return new TypeInfo(new ReflectionType(env, returnType));
+        return new TypeInfo(Type.of(returnType));
     }
 
     private String[] produces() {

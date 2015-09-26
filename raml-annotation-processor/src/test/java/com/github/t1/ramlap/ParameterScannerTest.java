@@ -1,5 +1,6 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.exap.reflection.Message.*;
 import static com.github.t1.ramlap.Pojo.*;
 import static javax.tools.Diagnostic.Kind.*;
 import static javax.ws.rs.core.MediaType.*;
@@ -175,12 +176,12 @@ public class ParameterScannerTest extends AbstractScannerTest {
         }
 
         RamlScanner scanner = new RamlScanner();
-        ReflectionType type = env.type(Dummy.class);
+        Type type = Type.of(Dummy.class);
 
         scanner.scanJaxRsType(type);
 
-        ReflectionMethod method = type.getMethod("getMethod");
-        assertWarning(method, "no path param annotated as 'foo' found, but required in GET of '/{foo}'");
+        Method method = type.getMethod("getMethod");
+        assertMessage(WARNING, method, "no path param annotated as 'foo' found, but required in GET of '/{foo}'");
     }
 
     @Test
@@ -196,9 +197,10 @@ public class ParameterScannerTest extends AbstractScannerTest {
         Raml raml = scanTypes(Dummy.class);
         assertEquals(asSet("bar"), raml.getResource("/{foo}").getUriParameters().keySet());
 
-        ReflectionMethod method = env.type(Dummy.class).getMethod("getMethod");
-        assertWarning(method, "no path param annotated as 'foo' found, but required in GET of '/{foo}'");
-        assertWarning(method.getParameter(0), "annotated path param name 'bar' not defined in GET of '/{foo}'");
+        Method method = Type.of(Dummy.class).getMethod("getMethod");
+        assertMessage(WARNING, method, "no path param annotated as 'foo' found, but required in GET of '/{foo}'");
+        assertMessage(WARNING, method.getParameter(0),
+                "annotated path param name 'bar' not defined in GET of '/{foo}'");
     }
 
     @Test
@@ -355,7 +357,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
         assertThat(body.size()).isEqualTo(2);
         assertThat(body).containsOnlyKeys(APPLICATION_JSON, APPLICATION_XML);
 
-        assertMessages(NOTE, "path not unique");
+        assertMessage(NOTE, ANY_ELEMENT, "path not unique");
     }
 
     @Test
@@ -409,7 +411,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
         assertThat(action.getResource().getUriParameters().size()).isEqualTo(1);
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
 
-        assertWarning(env.type(Dummy.class).getMethod("getMethod").getParameter(0),
+        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getParameter(0), //
                 "method parameters can be only be annotated as one of " //
                         + "path, query, header, cookie, bean, form, or matrix parameter");
     }
@@ -430,7 +432,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
         assertThat(action.getHeaders().size()).isEqualTo(1);
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
 
-        assertWarning(env.type(Dummy.class).getMethod("getMethod").getParameter(0),
+        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getParameter(0),
                 "method parameters can be only be annotated as one of " //
                         + "path, query, header, cookie, bean, form, or matrix parameter");
     }
@@ -453,7 +455,7 @@ public class ParameterScannerTest extends AbstractScannerTest {
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
         assertThat(action.getHeaders().size()).isEqualTo(1);
 
-        assertWarning(env.type(Dummy.class).getMethod("getMethod").getParameter(0),
+        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getParameter(0),
                 "method parameters can be only be annotated as one of " //
                         + "path, query, header, cookie, bean, form, or matrix parameter");
     }

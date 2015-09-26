@@ -8,14 +8,14 @@ import java.util.*;
 
 import org.junit.*;
 
-import com.github.t1.exap.reflection.ReflectionType;
+import com.github.t1.exap.reflection.Type;
 
 public class SchemaGeneratorJsonTest {
     private static final String SCHEMA = "    \"$schema\":\"http://json-schema.org/schema#\",\n";
 
     @Test
     public void shouldGenerateString() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, String.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(String.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -26,7 +26,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateEnum() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, AccessMode.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(AccessMode.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -42,7 +42,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateInteger() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, Integer.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(Integer.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -53,7 +53,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateDouble() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, Double.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(Double.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -64,7 +64,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateBoolean() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, boolean.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(boolean.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -75,7 +75,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateStringArray() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, String[].class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(String[].class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -89,7 +89,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateIntegerArray() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, Integer[].class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(Integer[].class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -109,7 +109,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGeneratePojo() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, Pojo.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(Pojo.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -137,7 +137,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGeneratePojoWithList() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, PojoWithList.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(PojoWithList.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -159,7 +159,8 @@ public class SchemaGeneratorJsonTest {
                 + "                }\n" //
                 + "            }\n" //
                 + "        },\n" //
-                + "        \"list\":{\n" + "            \"type\":\"array\",\n" //
+                + "        \"list\":{\n" //
+                + "            \"type\":\"array\",\n" //
                 + "            \"items\":{\n" //
                 + "                \"type\":\"string\"\n" //
                 + "            }\n" //
@@ -174,7 +175,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGeneratePojoWithSet() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, PojoWithSet.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(PojoWithSet.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -210,7 +211,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateCodehausToStringPojo() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, CodehausToStringPojo.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(CodehausToStringPojo.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -228,7 +229,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateFasterXmlToStringPojo() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, FasterXmlToStringPojo.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(FasterXmlToStringPojo.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -243,9 +244,9 @@ public class SchemaGeneratorJsonTest {
     }
 
     @Test
-    @Ignore
+    @Ignore("requires $ref from json-schema draft-4")
     public void shouldGenerateRecursivePojo() {
-        String json = SchemaGenerator.schema(new ReflectionType(null, RecursivePojo.class), APPLICATION_JSON);
+        String json = SchemaGenerator.schema(Type.of(RecursivePojo.class), APPLICATION_JSON);
 
         assertEquals("" //
                 + "{\n" //
@@ -266,5 +267,6 @@ public class SchemaGeneratorJsonTest {
     }
 
     // TODO UUID
+    // TODO Map
     // TODO Path
 }

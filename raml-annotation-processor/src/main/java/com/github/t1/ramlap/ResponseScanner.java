@@ -107,7 +107,7 @@ public abstract class ResponseScanner {
         public Type responseType() {
             if (apiResponse.response() == Void.class)
                 return method.getReturnType();
-            return new ReflectionType(null, apiResponse.response());
+            return Type.of(apiResponse.response());
         }
     }
 
