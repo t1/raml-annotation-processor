@@ -60,9 +60,9 @@ public class MethodScanner {
     }
 
     private ActionType actionType() {
-        for (AnnotationType annotation : method.getAnnotationTypes())
-            if (annotation.getAnnotation(HttpMethod.class) != null)
-                return ActionType.valueOf(annotation.getAnnotation(HttpMethod.class).value());
+        for (Annotation annotation : method.getAnnotations())
+            if (annotation.getAnnotationType().getAnnotation(HttpMethod.class) != null)
+                return ActionType.valueOf(annotation.getAnnotationType().getAnnotation(HttpMethod.class).value());
         return null;
     }
 
