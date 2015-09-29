@@ -3,6 +3,8 @@ package com.github.t1.ramlap;
 import static com.github.t1.ramlap.StringTools.*;
 import static javax.ws.rs.core.MediaType.*;
 
+import io.swagger.annotations.ApiOperation;
+
 import java.util.*;
 
 import javax.ws.rs.*;
@@ -14,8 +16,6 @@ import org.slf4j.*;
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.*;
 import com.github.t1.ramlap.ResponseScanner.ResponseHeaderScanner;
-
-import io.swagger.annotations.ApiOperation;
 
 public class MethodScanner {
     private static final Logger log = LoggerFactory.getLogger(MethodScanner.class);
@@ -60,7 +60,7 @@ public class MethodScanner {
     }
 
     private ActionType actionType() {
-        for (Annotation annotation : method.getAnnotations())
+        for (AnnotationWrapper annotation : method.getAnnotationWrappers())
             if (annotation.getAnnotationType().getAnnotation(HttpMethod.class) != null)
                 return ActionType.valueOf(annotation.getAnnotationType().getAnnotation(HttpMethod.class).value());
         return null;
@@ -130,9 +130,15 @@ public class MethodScanner {
             Header header = new Header();
             header.setDisplayName(scanner.name());
             header.setDescription(scanner.description());
-            typeInfo(scanner.response()).applyTo(header);
+            applyResponse(scanner, header);
             map.put(scanner.name(), header);
         }
+    }
+
+    private void applyResponse(ResponseHeaderScanner scanner, Header header) {
+        Type response = scanner.response();
+        if (response != null)
+            new TypeInfo(response).applyTo(header);
     }
 
     private void scanBody(Type responseType, Response response) {
@@ -146,10 +152,6 @@ public class MethodScanner {
             response.setBody(bodyMap);
         }
         return bodyMap;
-    }
-
-    private TypeInfo typeInfo(Class<?> returnType) {
-        return new TypeInfo(Type.of(returnType));
     }
 
     private String[] produces() {

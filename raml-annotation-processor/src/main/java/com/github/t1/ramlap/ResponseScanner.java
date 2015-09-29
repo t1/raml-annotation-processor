@@ -3,47 +3,46 @@ package com.github.t1.ramlap;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 
+import io.swagger.annotations.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import com.github.t1.exap.reflection.*;
 
-import io.swagger.annotations.*;
-
 public abstract class ResponseScanner {
     public static List<ResponseScanner> responses(Method method) {
         if (method.isAnnotated(ApiResponses.class))
             return apiResponses(method);
-        if (method.isAnnotated(ApiResponse.class))
-            return asList(new ApiResponseScanner(method, method.getAnnotation(ApiResponse.class)));
+        if (method.isAnnotated(ApiResponse.class)) // ApiResponse(s) is not yet @Repeatable
+            return asList(new ApiResponseScanner(method, method.getAnnotationWrapper(ApiResponse.class)));
         return asList(new DefaultResponseScanner(method));
     }
 
     private static List<ResponseScanner> apiResponses(Method method) {
         List<ResponseScanner> list = new ArrayList<>();
-        for (ApiResponse apiResponse : method.getAnnotation(ApiResponses.class).value()) {
-            list.add(new ApiResponseScanner(method, apiResponse));
-        }
+        for (AnnotationWrapper apiResponseWrapper : method.getAnnotationWrappers(ApiResponses.class))
+            list.add(new ApiResponseScanner(method, apiResponseWrapper.getAnnotationWrapper(ApiResponse.class)));
         return list;
     }
 
     public static class ResponseHeaderScanner {
-        private final ResponseHeader header;
+        private final AnnotationWrapper header;
 
-        public ResponseHeaderScanner(ResponseHeader header) {
+        public ResponseHeaderScanner(AnnotationWrapper header) {
             this.header = header;
         }
 
         public String name() {
-            return header.name();
+            return (String) header.get("name");
         }
 
         public String description() {
-            return header.description();
+            return (String) header.get("description");
         }
 
-        public Class<?> response() {
-            return header.response();
+        public Type response() {
+            return header.getAnnotationWrapper(ApiResponse.class).getType("response");
         }
     }
 
@@ -77,37 +76,37 @@ public abstract class ResponseScanner {
 
     private static class ApiResponseScanner extends ResponseScanner {
         private final Method method;
-        private final ApiResponse apiResponse;
+        private final AnnotationWrapper apiResponses;
 
-        public ApiResponseScanner(Method method, ApiResponse apiResponse) {
+        public ApiResponseScanner(Method method, AnnotationWrapper apiResponses) {
             this.method = method;
-            this.apiResponse = apiResponse;
+            this.apiResponses = apiResponses;
         }
 
         @Override
         public String status() {
-            return Integer.toString(apiResponse.code());
+            return apiResponses.getString("code");
         }
 
         @Override
         public String description() {
-            return apiResponse.message();
+            return apiResponses.getString("message");
         }
 
         @Override
         public List<ResponseHeaderScanner> responseHeaders() {
             List<ResponseHeaderScanner> list = new ArrayList<>();
-            for (ResponseHeader header : apiResponse.responseHeaders()) {
+            for (AnnotationWrapper header : apiResponses.getAnnotationWrappers(ResponseHeader.class))
                 list.add(new ResponseHeaderScanner(header));
-            }
             return list;
         }
 
         @Override
         public Type responseType() {
-            if (apiResponse.response() == Void.class)
+            Type type = apiResponses.getType("response");
+            if (type != null && type.isVoid())
                 return method.getReturnType();
-            return Type.of(apiResponse.response());
+            return type;
         }
     }
 

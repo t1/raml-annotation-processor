@@ -118,7 +118,7 @@ public class SchemaGenerator {
 
         private boolean isUsing(Type type, Class<? extends Annotation> annotation, Class<?> serializer) {
             return type.isAnnotated(annotation)
-                    && serializer.getName().equals(type.getAnnotationClassAttribute(annotation, "using"));
+                    && serializer.getName().equals(type.getAnnotationWrapper(annotation).getString("using"));
         }
 
         private boolean isStringWrapper(Type type) {

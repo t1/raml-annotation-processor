@@ -10,6 +10,8 @@ import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
 import static org.raml.model.ParamType.*;
 
+import io.swagger.annotations.*;
+
 import java.lang.annotation.Retention;
 
 import javax.ws.rs.*;
@@ -21,8 +23,6 @@ import org.raml.model.*;
 
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Type;
-
-import io.swagger.annotations.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MethodScannerTest extends AbstractScannerTest {
@@ -426,10 +426,11 @@ public class MethodScannerTest extends AbstractScannerTest {
 
     @Test
     public void shouldScanResponseHeader() {
+        // we have three response types here: String, boolean, and Integer... the last one is correct
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(code = 200, message = "ok-descr", response = Long.class,
+            @ApiResponse(code = 200, message = "ok-descr", response = boolean.class,
                     responseHeaders = @ResponseHeader(name = "resp-header", description = "r-h-desc",
                             response = Integer.class) )
             public String getMethod() {
