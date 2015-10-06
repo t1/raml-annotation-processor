@@ -1,7 +1,6 @@
 package com.github.t1.ramlap;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.StrictAssertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.raml.model.BddAssertions.*;
 
 import javax.ws.rs.*;

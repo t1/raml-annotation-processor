@@ -5,7 +5,6 @@ import static com.github.t1.ramlap.Pojo.*;
 import static javax.tools.Diagnostic.Kind.*;
 import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.StrictAssertions.assertThat;
 import static org.junit.Assert.*;
 import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
