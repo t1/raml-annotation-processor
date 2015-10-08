@@ -430,9 +430,10 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(code = 200, message = "ok-descr", response = boolean.class,
+            @ApiResponse(code = 200, message = "ok-descr", response = boolean.class, //
                     responseHeaders = @ResponseHeader(name = "resp-header", description = "r-h-desc",
-                            response = Integer.class) )
+                            response = Integer.class) //
+            )
             public String getMethod() {
                 return null;
             }
@@ -441,9 +442,11 @@ public class MethodScannerTest extends AbstractScannerTest {
         Raml raml = scanTypes(Dummy.class);
 
         Action action = action(raml, "/foo", GET);
+
         assertThat(action.getResponses()).hasSize(1);
 
         Response response = action.getResponses().get("200");
+        then(response).hasDescription("ok-descr");
         assertThat(response.getHeaders()).containsOnlyKeys("resp-header");
         then(response.getHeaders().get("resp-header")) //
                 .hasDisplayName("resp-header") //

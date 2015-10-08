@@ -53,7 +53,7 @@ public class RamlScanner {
     }
 
     public RamlScanner scanJaxRsType(Type type) {
-        log.debug("scan type {}", type);
+        log.debug("scan type {}", type.getFullName());
 
         scanBasic(type);
 
@@ -64,7 +64,7 @@ public class RamlScanner {
             }
         });
 
-        log.debug("processed {}", type);
+        log.debug("processed {}", type.getFullName());
         return this;
     }
 

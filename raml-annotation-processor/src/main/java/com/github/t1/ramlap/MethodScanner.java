@@ -3,11 +3,10 @@ package com.github.t1.ramlap;
 import static com.github.t1.ramlap.StringTools.*;
 import static javax.ws.rs.core.MediaType.*;
 
-import io.swagger.annotations.ApiOperation;
-
 import java.util.*;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Response.StatusType;
 
 import org.raml.model.*;
 import org.raml.model.parameter.Header;
@@ -16,6 +15,8 @@ import org.slf4j.*;
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.*;
 import com.github.t1.ramlap.ResponseScanner.ResponseHeaderScanner;
+
+import io.swagger.annotations.ApiOperation;
 
 public class MethodScanner {
     private static final Logger log = LoggerFactory.getLogger(MethodScanner.class);
@@ -115,9 +116,10 @@ public class MethodScanner {
 
     private void scanResponses() {
         for (ResponseScanner responseScanner : ResponseScanner.responses(method)) {
-            String status = responseScanner.status();
+            StatusType status = responseScanner.status();
+            String statusCodeString = Integer.toString(status.getStatusCode());
             Response response = new Response();
-            action.getResponses().put(status, response);
+            action.getResponses().put(statusCodeString, response);
 
             response.setDescription(responseScanner.description());
             scanHeaders(responseScanner.responseHeaders(), response.getHeaders());
@@ -126,12 +128,12 @@ public class MethodScanner {
     }
 
     private void scanHeaders(List<ResponseHeaderScanner> scanners, Map<String, Header> map) {
-        for (ResponseHeaderScanner scanner : scanners) {
+        for (ResponseHeaderScanner headerScanner : scanners) {
             Header header = new Header();
-            header.setDisplayName(scanner.name());
-            header.setDescription(scanner.description());
-            applyResponse(scanner, header);
-            map.put(scanner.name(), header);
+            header.setDisplayName(headerScanner.name());
+            header.setDescription(headerScanner.description());
+            applyResponse(headerScanner, header);
+            map.put(headerScanner.name(), header);
         }
     }
 

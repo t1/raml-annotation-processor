@@ -40,7 +40,7 @@ public class TypeInfo {
     }
 
     private boolean isUnspecific() {
-        return javax.ws.rs.core.Response.class.getName().equals(type.getQualifiedName());
+        return javax.ws.rs.core.Response.class.getName().equals(type.getFullName());
     }
 
     private ParamType paramType() {
@@ -59,6 +59,6 @@ public class TypeInfo {
 
     @Override
     public String toString() {
-        return "TypeInfo:" + type.getQualifiedName();
+        return "TypeInfo:" + type.getFullName();
     }
 }

@@ -11,9 +11,13 @@ import javax.xml.bind.*;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 
+import org.slf4j.*;
+
 import com.github.t1.exap.reflection.*;
 
 public class SchemaGenerator {
+    private static final Logger log = LoggerFactory.getLogger(SchemaGenerator.class);
+
     public static String schema(Type type, String mediaType) {
         if (isMediaType(mediaType, "json"))
             return new JsonSchemaGenerator(type).generate();
@@ -60,36 +64,46 @@ public class SchemaGenerator {
         public void generate(Type type) {
             try {
                 if (type.isBoolean()) {
+                    log.trace("write boolean {}", type.getFullName());
                     json.write("type", "boolean");
                 } else if (type.isInteger()) {
+                    log.trace("write integer {}", type.getFullName());
                     json.write("type", "integer");
                 } else if (type.isDecimal()) {
+                    log.trace("write number {}", type.getFullName());
                     json.write("type", "number");
                 } else if (type.isString()) {
+                    log.trace("write string {}", type.getFullName());
                     json.write("type", "string");
                 } else if (isJacksonToString(type)) {
+                    log.trace("write jackson toString {}", type.getFullName());
                     json.write("type", "string");
                     writeId(type);
                 } else if (type.isEnum()) {
+                    log.trace("write enum {}", type.getFullName());
                     json.write("type", "string");
                     json.writeStartArray("enum");
                     for (String enumValue : type.getEnumValues())
                         json.write(enumValue);
                     json.writeEnd();
                 } else if (isStringWrapper(type)) {
+                    log.trace("write string wrapper {}", type.getFullName());
                     json.write("type", "string");
                     writeId(type);
                 } else if (type.isArray()) {
+                    log.trace("write array {}", type.getFullName());
                     json.write("type", "array");
                     json.writeStartObject("items");
                     generate(type.elementType());
                     json.writeEnd();
-                } else if (type.isAssignableTo(Collection.class)) {
+                } else if (type.isA(Collection.class)) {
+                    log.trace("write collection {}", type.getFullName());
                     json.write("type", "array");
                     json.writeStartObject("items");
-                    generate(type.getTypeParameters().get(0).getBounds().get(0));
+                    generate(type.getTypeParameters().get(0));
                     json.writeEnd();
                 } else {
+                    log.trace("write object {}", type.getFullName());
                     json.write("type", "object");
                     writeId(type);
                     json.writeStartObject("properties");
@@ -117,12 +131,13 @@ public class SchemaGenerator {
         }
 
         private boolean isUsing(Type type, Class<? extends Annotation> annotation, Class<?> serializer) {
-            return type.isAnnotated(annotation)
-                    && serializer.getName().equals(type.getAnnotationWrapper(annotation).getString("using"));
+            return type.isAnnotated(annotation) //
+                    && serializer.getName()
+                            .contentEquals(type.getAnnotationWrapper(annotation).getTypeValue("using").getFullName());
         }
 
         private boolean isStringWrapper(Type type) {
-            if (type.isAssignableTo(Path.class))
+            if (type.isA(Path.class))
                 return true;
             return hasToString(type) && hasFromString(type);
         }
@@ -138,14 +153,14 @@ public class SchemaGenerator {
         private boolean hasFromString(Type type) {
             for (Method method : type.getMethods())
                 if ("fromString".equals(method.getName()) //
-                        && method.getParameters().size() == 1 && method.getParameter(0).isType(String.class) //
+                        && method.getParameters().size() == 1 && method.getParameter(0).getType().isString() //
                         && method.isPublic() && method.isStatic())
                     return true;
             return false;
         }
 
         private void writeId(Type type) {
-            json.write("id", "urn:jsonschema:" + type.getQualifiedName().replace('.', ':'));
+            json.write("id", "urn:jsonschema:" + type.getFullName().replace('.', ':'));
         }
     }
 
@@ -160,7 +175,7 @@ public class SchemaGenerator {
             final StringWriter string = new StringWriter();
 
             try {
-                Class<?> javaType = Class.forName(type.getQualifiedName());
+                Class<?> javaType = Class.forName(type.getFullName());
                 JAXBContext context = JAXBContext.newInstance(javaType);
                 context.generateSchema(new SchemaOutputResolver() {
                     @Override

@@ -3,7 +3,7 @@ title: test-title
 version: test-version
 /p: 
     displayName: p-resource
-    description: p-resource. something about the p. 
+    description: p-resource. something about the p.
     /{path-param}: 
         uriParameters: 
             path-param: 
@@ -13,7 +13,7 @@ version: test-version
                 required: true
                 repeat: false
         get: 
-            description: get action 
+            description: get action
             displayName: get-op
             headers: 
                 header-param: 
@@ -47,8 +47,8 @@ version: test-version
                             }
                         }
             responses: 
-                "200": 
-                    description: Success
+                "400": 
+                    description: you did it wrong
                     body: 
                         application/json: 
                             schema: |
