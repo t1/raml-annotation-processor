@@ -63,47 +63,48 @@ public class SchemaGenerator {
 
         public void generate(Type type) {
             try {
+                log.trace("write {}", type.getFullName());
                 if (type.isBoolean()) {
-                    log.trace("write boolean {}", type.getFullName());
+                    log.trace("write boolean");
                     json.write("type", "boolean");
                 } else if (type.isInteger()) {
-                    log.trace("write integer {}", type.getFullName());
+                    log.trace("write integer");
                     json.write("type", "integer");
                 } else if (type.isDecimal()) {
-                    log.trace("write number {}", type.getFullName());
+                    log.trace("write number");
                     json.write("type", "number");
                 } else if (type.isString()) {
-                    log.trace("write string {}", type.getFullName());
+                    log.trace("write string");
                     json.write("type", "string");
-                } else if (isJacksonToString(type)) {
-                    log.trace("write jackson toString {}", type.getFullName());
-                    json.write("type", "string");
-                    writeId(type);
                 } else if (type.isEnum()) {
-                    log.trace("write enum {}", type.getFullName());
+                    log.trace("write enum");
                     json.write("type", "string");
                     json.writeStartArray("enum");
                     for (String enumValue : type.getEnumValues())
                         json.write(enumValue);
                     json.writeEnd();
                 } else if (isStringWrapper(type)) {
-                    log.trace("write string wrapper {}", type.getFullName());
+                    log.trace("write string wrapper");
+                    json.write("type", "string");
+                    writeId(type);
+                } else if (isJacksonToString(type)) {
+                    log.trace("write jackson toString");
                     json.write("type", "string");
                     writeId(type);
                 } else if (type.isArray()) {
-                    log.trace("write array {}", type.getFullName());
+                    log.trace("write array");
                     json.write("type", "array");
                     json.writeStartObject("items");
                     generate(type.elementType());
                     json.writeEnd();
                 } else if (type.isA(Collection.class)) {
-                    log.trace("write collection {}", type.getFullName());
+                    log.trace("write collection");
                     json.write("type", "array");
                     json.writeStartObject("items");
                     generate(type.getTypeParameters().get(0));
                     json.writeEnd();
                 } else {
-                    log.trace("write object {}", type.getFullName());
+                    log.trace("write object");
                     json.write("type", "object");
                     writeId(type);
                     json.writeStartObject("properties");
@@ -116,6 +117,7 @@ public class SchemaGenerator {
                     }
                     json.writeEnd();
                 }
+                log.trace("written {}", type.getFullName());
             } catch (RuntimeException e) {
                 throw new RuntimeException("while generating json schema for " + type, e);
             } catch (Error e) {
