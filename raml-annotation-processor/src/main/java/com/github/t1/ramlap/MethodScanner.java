@@ -14,7 +14,6 @@ import org.slf4j.*;
 
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.*;
-import com.github.t1.ramlap.ResponseScanner.ResponseHeaderScanner;
 
 import io.swagger.annotations.ApiOperation;
 

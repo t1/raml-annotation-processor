@@ -5,12 +5,12 @@ import static com.github.t1.ramlap.Pojo.*;
 import static java.lang.annotation.RetentionPolicy.*;
 import static javax.tools.Diagnostic.Kind.*;
 import static javax.ws.rs.core.MediaType.*;
+import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.OK;
 import static org.assertj.core.api.Assertions.*;
 import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
 import static org.raml.model.ParamType.*;
-
-import io.swagger.annotations.*;
 
 import java.lang.annotation.Retention;
 
@@ -23,6 +23,8 @@ import org.raml.model.*;
 
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Type;
+
+import io.swagger.annotations.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MethodScannerTest extends AbstractScannerTest {
@@ -276,7 +278,29 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(code = 200, message = "ok-descr", response = Pojo.class)
+            @ApiResponse(status = OK, message = "ok-descr", type = Pojo.class)
+            public javax.ws.rs.core.Response getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(POJO_JSON_SCHEMA) //
+                ;
+    }
+
+    @Test
+    public void shouldScanExplicitPojoSwaggerResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr", response = Pojo.class)
             public javax.ws.rs.core.Response getMethod() {
                 return null;
             }
@@ -298,9 +322,41 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponses({ //
-                    @ApiResponse(code = 200, message = "ok-descr"),
-                    @ApiResponse(code = 400, message = "bad-request-descr") //
+            @ApiResponse(status = OK, message = "ok-descr")
+            @ApiResponse(status = BAD_REQUEST, message = "bad-request-descr")
+            @Produces(APPLICATION_JSON)
+            public Pojo getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+
+        Response okResponse = action.getResponses().get("200");
+        assertThat(okResponse.getBody()).hasSize(1);
+        then(okResponse.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(POJO_JSON_SCHEMA) //
+                ;
+
+        Response badRequestResponse = action.getResponses().get("400");
+        assertThat(badRequestResponse.getBody()).hasSize(1);
+        then(badRequestResponse.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(POJO_JSON_SCHEMA) //
+                ;
+    }
+
+    @Test
+    public void shouldScanTwoSwaggerResponses() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @io.swagger.annotations.ApiResponses({ //
+                    @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr"),
+                    @io.swagger.annotations.ApiResponse(code = 400, message = "bad-request-descr") //
             })
             @Produces(APPLICATION_JSON)
             public Pojo getMethod() {
@@ -332,7 +388,30 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(code = 200, message = "ok-descr", response = Integer.class)
+            @ApiResponse(status = OK, message = "ok-descr", type = Integer.class)
+            @Produces(APPLICATION_JSON)
+            public String getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType("integer") //
+                .hasSchema(null) //
+                ;
+    }
+
+    @Test
+    public void shouldScanIntegerJsonSwaggerResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr", response = Integer.class)
             @Produces(APPLICATION_JSON)
             public String getMethod() {
                 return null;
@@ -355,7 +434,34 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(code = 200, message = "ok-descr")
+            @ApiResponse(status = OK, message = "ok-descr")
+            @Produces({ APPLICATION_JSON, APPLICATION_XML })
+            public Pojo getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(2);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(POJO_JSON_SCHEMA) //
+                ;
+        then(response.getBody().get(APPLICATION_XML)) //
+                .hasType(null) //
+                .hasSchema(POJO_XML_SCHEMA) //
+                ;
+    }
+
+    @Test
+    public void shouldScanJsonAndXmlSwaggerResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr")
             @Produces({ APPLICATION_JSON, APPLICATION_XML })
             public Pojo getMethod() {
                 return null;
@@ -382,7 +488,30 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(code = 200, message = "ok-descr")
+            @ApiResponse(status = OK, message = "ok-descr")
+            @Produces(APPLICATION_XML)
+            public Pojo getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_XML)) //
+                .hasType(null) //
+                .hasSchema(POJO_XML_SCHEMA) //
+                ;
+    }
+
+    @Test
+    public void shouldScanXmlResponseSwagger() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr")
             @Produces(APPLICATION_XML)
             public Pojo getMethod() {
                 return null;
@@ -405,7 +534,31 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(code = 200, message = "ok-descr", response = Integer.class)
+            @ApiResponse(status = OK, message = "ok-descr", type = Integer.class)
+            public String getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        assertThat(action.getResponses()).hasSize(1);
+
+        Response response = action.getResponses().get("200");
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType("integer") //
+                .hasSchema(null) //
+                ;
+    }
+
+    @Test
+    public void shouldScanFallbackMediaTypeSwaggerResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr", response = Integer.class)
             public String getMethod() {
                 return null;
             }
@@ -430,7 +583,38 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(code = 200, message = "ok-descr", response = boolean.class, //
+            @ApiResponse(status = OK, message = "ok-descr", type = boolean.class, //
+                    responseHeaders = @ApiResponseHeader(name = "resp-header", description = "r-h-desc",
+                            type = Integer.class) //
+            )
+            public String getMethod() {
+                return null;
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+
+        assertThat(action.getResponses()).hasSize(1);
+
+        Response response = action.getResponses().get("200");
+        then(response).hasDescription("ok-descr");
+        assertThat(response.getHeaders()).containsOnlyKeys("resp-header");
+        then(response.getHeaders().get("resp-header")) //
+                .hasDisplayName("resp-header") //
+                .hasDescription("r-h-desc") //
+                .hasType(INTEGER) //
+                ;
+    }
+
+    @Test
+    public void shouldScanSwaggerResponseHeader() {
+        // we have three response types here: String, boolean, and Integer... the last one is correct
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr", response = boolean.class, //
                     responseHeaders = @ResponseHeader(name = "resp-header", description = "r-h-desc",
                             response = Integer.class) //
             )
