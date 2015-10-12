@@ -39,7 +39,6 @@ public abstract class AbstractScannerTest {
         return action;
     }
 
-
     public static <T> Set<T> asSet(@SuppressWarnings("unchecked") T... items) {
         return new LinkedHashSet<>(asList(items));
     }

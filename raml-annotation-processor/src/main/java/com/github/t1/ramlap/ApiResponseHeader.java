@@ -9,7 +9,7 @@ import java.lang.annotation.*;
 @Retention(RUNTIME)
 @Repeatable(ApiResponseHeaders.class)
 public @interface ApiResponseHeader {
-    String name() default "";
+    String name();
 
     String description() default "";
 

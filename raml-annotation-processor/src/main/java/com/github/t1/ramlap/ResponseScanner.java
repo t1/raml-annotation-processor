@@ -47,7 +47,7 @@ public abstract class ResponseScanner {
         }
 
         @Override
-        public Status status() {
+        public StatusType status() {
             return OK;
         }
 
@@ -77,7 +77,7 @@ public abstract class ResponseScanner {
         }
 
         @Override
-        public abstract Status status();
+        public abstract StatusType status();
 
         @Override
         public String description() {
@@ -118,7 +118,21 @@ public abstract class ResponseScanner {
         }
 
         @Override
-        public Status status() {
+        public StatusType status() {
+            int code = annotationWrapper.getIntValue("statusCode");
+            if (code > 0) {
+                StatusType statusFromCode = Status.fromStatusCode(code);
+                if (statusFromCode == null)
+                    return new NonStandardStatus(code);
+                Status statusFromAnnotation = (Status) annotationWrapper.getValue("status");
+                if (statusFromAnnotation != ApiResponse.DEFAULT_STATUS && !statusFromAnnotation.equals(statusFromCode))
+                    annotationWrapper.error("Conflicting specification of status " + statusFromAnnotation
+                            + " and status code " + code + ". You should just use the status.");
+                else
+                    annotationWrapper.warning("Status code " + code + " is defined as " + statusFromCode
+                            + ". You should use that instead.");
+                return statusFromCode;
+            }
             return (Status) annotationWrapper.getValue("status");
         }
 
@@ -139,7 +153,7 @@ public abstract class ResponseScanner {
         }
 
         @Override
-        public Status status() {
+        public StatusType status() {
             return Status.fromStatusCode(annotationWrapper.getIntValue("code"));
         }
 

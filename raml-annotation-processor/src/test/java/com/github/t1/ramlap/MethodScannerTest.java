@@ -296,12 +296,104 @@ public class MethodScannerTest extends AbstractScannerTest {
     }
 
     @Test
+    public void shouldScanExplicitPojoResponseWithStatusCode() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(statusCode = 793, message = "zombie apocalypse")
+            public void getMethod() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("793");
+        then(response).hasDescription("zombie apocalypse").doesNotHaveBody();
+    }
+
+    @Test
+    public void shouldWarnAboutStatusCodeAndStatusEnumValue() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(status = BAD_REQUEST, statusCode = 201, message = "created")
+            public void getMethod() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("201");
+        then(response).hasDescription("created").doesNotHaveBody();
+
+        assertMessage(ERROR, Type.of(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
+                "Conflicting specification of status Bad Request and status code 201. You should just use the status.");
+    }
+
+    @Test
+    public void shouldWarnAboutStatusCodeForDefinedDefaultStatusEnumValue() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(statusCode = 200, message = "okay")
+            public void getMethod() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("200");
+        then(response).hasDescription("okay").doesNotHaveBody();
+
+        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
+                "Status code 200 is defined as OK. You should use that instead.");
+    }
+
+    @Test
+    public void shouldWarnAboutStatusCodeForDefinedStatusEnumValue() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(statusCode = 201, message = "okay")
+            public void getMethod() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("201");
+        then(response).hasDescription("okay").doesNotHaveBody();
+
+        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
+                "Status code 201 is defined as Created. You should use that instead.");
+    }
+
+    @Test
+    public void shouldWarnAboutStatusCodeForDefinedStatusEnumValueEvenWhenStatusIsSpecifiedAsWell() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(status = CREATED, statusCode = 201, message = "okay")
+            public void getMethod() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("201");
+        then(response).hasDescription("okay").doesNotHaveBody();
+
+        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
+                "Status code 201 is defined as Created. You should use that instead.");
+    }
+
+    @Test
     public void shouldScanExplicitPojoSwaggerResponse() {
         @Path("/foo")
         class Dummy {
             @GET
             @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr", response = Pojo.class)
-            public javax.ws.rs.core.Response getMethod() {
+            public Response getMethod() {
                 return null;
             }
         }
@@ -850,7 +942,7 @@ public class MethodScannerTest extends AbstractScannerTest {
     }
 
     @Test
-    public void shouldMarkWarningWhenTwoGETsHaveTheSamePath() {
+    public void shouldWarnAboutWhenTwoGETsHaveTheSamePath() {
         @Path("/foo")
         class Foo {
             @GET
@@ -870,7 +962,7 @@ public class MethodScannerTest extends AbstractScannerTest {
     }
 
     @Test
-    public void shouldMarkWarningWhenTwoGETsHaveTheSamePathInDifferentTypes() {
+    public void shouldWarnAboutWhenTwoGETsHaveTheSamePathInDifferentTypes() {
         @Path("/foo")
         class Foo {
             @GET
