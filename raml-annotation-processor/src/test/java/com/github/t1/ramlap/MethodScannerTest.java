@@ -12,6 +12,8 @@ import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
 import static org.raml.model.ParamType.*;
 
+import io.swagger.annotations.*;
+
 import java.lang.annotation.Retention;
 
 import javax.ws.rs.*;
@@ -24,10 +26,11 @@ import org.raml.model.*;
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Type;
 
-import io.swagger.annotations.*;
-
 @RunWith(MockitoJUnitRunner.class)
 public class MethodScannerTest extends AbstractScannerTest {
+    @ApiResponse(status = NOT_FOUND)
+    public static final class FooNotFound {}
+
     @Test
     public void shouldScanGET() {
         @Path("/foo")
@@ -278,7 +281,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = OK, message = "ok-descr", type = Pojo.class)
+            @ApiResponse(status = OK, title = "ok-descr", type = Pojo.class)
             public javax.ws.rs.core.Response getMethod() {
                 return null;
             }
@@ -300,7 +303,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(statusCode = 793, message = "zombie apocalypse")
+            @ApiResponse(statusCode = 793, title = "zombie apocalypse")
             public void getMethod() {}
         }
 
@@ -312,11 +315,50 @@ public class MethodScannerTest extends AbstractScannerTest {
     }
 
     @Test
+    public void shouldScanProblemDetailResponse() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(type = FooNotFound.class)
+            public javax.ws.rs.core.Response getMethod() {
+                return ProblemDetail.of(FooNotFound.class).detail("dynamic, long text").toResponse();
+            }
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        Response response = action.getResponses().get("404");
+        // TODO assertThat(response.getBody()).hasSize(1);
+        // TODO then(response.getBody().get(APPLICATION_JSON)) //
+        // .hasType(null) //
+        // .hasSchema(POJO_JSON_SCHEMA) //
+        // ;
+
+        ProblemDetail responseEntity = (ProblemDetail) new Dummy().getMethod().getEntity();
+        // TODO assertThat(responseEntity).hasStatus(NOT_FOUND);
+    }
+
+    @Test
+    public void shouldThrowProblemDetailResponse() {
+        class Dummy {
+            public void getMethod() {
+                throw ProblemDetail.of(FooNotFound.class).detail("dynamic, long text").toWebException();
+            }
+        }
+
+        assertThatThrownBy(() -> new Dummy().getMethod()) //
+                .isInstanceOf(WebApplicationApplicationException.class) //
+                .matches((t) -> NOT_FOUND == ((WebApplicationException) t).getResponse().getStatusInfo()) //
+                ;
+    }
+
+    @Test
     public void shouldWarnAboutStatusCodeAndStatusEnumValue() {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = BAD_REQUEST, statusCode = 201, message = "created")
+            @ApiResponse(status = BAD_REQUEST, statusCode = 201, title = "created")
             public void getMethod() {}
         }
 
@@ -335,7 +377,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(statusCode = 200, message = "okay")
+            @ApiResponse(statusCode = 200, title = "okay")
             public void getMethod() {}
         }
 
@@ -354,7 +396,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(statusCode = 201, message = "okay")
+            @ApiResponse(statusCode = 201, title = "okay")
             public void getMethod() {}
         }
 
@@ -373,7 +415,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = CREATED, statusCode = 201, message = "okay")
+            @ApiResponse(status = CREATED, statusCode = 201, title = "okay")
             public void getMethod() {}
         }
 
@@ -414,8 +456,8 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = OK, message = "ok-descr")
-            @ApiResponse(status = BAD_REQUEST, message = "bad-request-descr")
+            @ApiResponse(status = OK, title = "ok-descr")
+            @ApiResponse(status = BAD_REQUEST, title = "bad-request-descr")
             @Produces(APPLICATION_JSON)
             public Pojo getMethod() {
                 return null;
@@ -480,7 +522,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = OK, message = "ok-descr", type = Integer.class)
+            @ApiResponse(status = OK, title = "ok-descr", type = Integer.class)
             @Produces(APPLICATION_JSON)
             public String getMethod() {
                 return null;
@@ -526,7 +568,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = OK, message = "ok-descr")
+            @ApiResponse(status = OK, title = "ok-descr")
             @Produces({ APPLICATION_JSON, APPLICATION_XML })
             public Pojo getMethod() {
                 return null;
@@ -580,7 +622,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = OK, message = "ok-descr")
+            @ApiResponse(status = OK, title = "ok-descr")
             @Produces(APPLICATION_XML)
             public Pojo getMethod() {
                 return null;
@@ -626,7 +668,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = OK, message = "ok-descr", type = Integer.class)
+            @ApiResponse(status = OK, title = "ok-descr", type = Integer.class)
             public String getMethod() {
                 return null;
             }
@@ -675,7 +717,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = OK, message = "ok-descr", type = boolean.class, //
+            @ApiResponse(status = OK, title = "ok-descr", type = boolean.class, //
                     responseHeaders = @ApiResponseHeader(name = "resp-header", description = "r-h-desc",
                             type = Integer.class) //
             )

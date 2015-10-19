@@ -81,7 +81,7 @@ public abstract class ResponseScanner {
 
         @Override
         public String description() {
-            return annotationWrapper.getStringValue("message");
+            return annotationWrapper.getStringValue("title");
         }
 
         @Override

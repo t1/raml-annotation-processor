@@ -72,6 +72,13 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.jboss.spec.javax.ejb</groupId>
+            <artifactId>jboss-ejb-api_3.1_spec</artifactId>
+            <version>1.0.2.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
             <groupId>com.github.t1</groupId>
             <artifactId>extended-annotation-processor</artifactId>
             <version>1.0.0-SNAPSHOT</version>
@@ -103,6 +110,7 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
         <dependency>
             <groupId>org.glassfish</groupId>
             <artifactId>javax.json</artifactId>
@@ -128,6 +136,13 @@
             <artifactId>swagger-annotations</artifactId>
             <version>1.5.2</version>
             <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jaxrs</artifactId>
+            <version>3.0.13.Final</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
