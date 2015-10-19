@@ -1,6 +1,6 @@
 package com.github.t1.ramlap.test;
 
-import io.swagger.annotations.*;
+import static javax.ws.rs.core.Response.Status.*;
 
 import java.util.List;
 
@@ -8,9 +8,11 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
 import com.github.t1.exap.JavaDoc;
+import com.github.t1.ramlap.ApiResponse;
+
+import io.swagger.annotations.ApiOperation;
 
 /** p-resource. something about the p. */
-@Api
 @Path("/p")
 public class ResourceClass {
     /** get action */
@@ -18,7 +20,7 @@ public class ResourceClass {
     @Path("/{path-param}")
     @ApiOperation("get-op")
     @SuppressWarnings("unused")
-    @ApiResponse(code = 400, message = "you did it wrong")
+    @ApiResponse(status = BAD_REQUEST, message = "you did it wrong")
     public List<Pojo> doGet( //
             @Context UriInfo uriInfo //
             , //

@@ -10,7 +10,7 @@ public abstract class ResponseHeaderScanner {
 
         @Override
         public Type response() {
-            return header.getTypeValue("type");
+            return header.getTypeProperty("type");
         }
     }
 
@@ -21,7 +21,7 @@ public abstract class ResponseHeaderScanner {
 
         @Override
         public Type response() {
-            return header.getTypeValue("response");
+            return header.getTypeProperty("response");
         }
     }
 
@@ -32,11 +32,11 @@ public abstract class ResponseHeaderScanner {
     }
 
     public String name() {
-        return (String) header.getValue("name");
+        return (String) header.getProperty("name");
     }
 
     public String description() {
-        return (String) header.getValue("description");
+        return (String) header.getProperty("description");
     }
 
     public abstract Type response();

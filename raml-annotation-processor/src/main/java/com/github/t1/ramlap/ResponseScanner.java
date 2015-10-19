@@ -7,12 +7,17 @@ import static javax.ws.rs.core.Response.Status.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.lang.model.element.VariableElement;
 import javax.ws.rs.core.Response.*;
+
+import org.slf4j.*;
 
 import com.github.t1.exap.reflection.*;
 import com.github.t1.ramlap.ResponseHeaderScanner.*;
 
 public abstract class ResponseScanner {
+    private static final Logger log = LoggerFactory.getLogger(ResponseScanner.class);
+
     public static List<ResponseScanner> responses(Method method) {
         if (method.isAnnotated(ApiResponse.class))
             return ramlResponses(method);
@@ -34,7 +39,7 @@ public abstract class ResponseScanner {
     private static List<ResponseScanner> swaggerResponses(Method method) {
         List<ResponseScanner> list = new ArrayList<>();
         for (AnnotationWrapper responses : method.getAnnotationWrappers(io.swagger.annotations.ApiResponses.class))
-            for (AnnotationWrapper response : responses.getAnnotationsValue("value"))
+            for (AnnotationWrapper response : responses.getAnnotationProperties("value"))
                 list.add(new SwaggerApiResponseScanner(method, response));
         return list;
     }
@@ -80,21 +85,16 @@ public abstract class ResponseScanner {
         public abstract StatusType status();
 
         @Override
-        public String description() {
-            return annotationWrapper.getStringValue("title");
-        }
-
-        @Override
         public List<ResponseHeaderScanner> responseHeaders() {
             List<ResponseHeaderScanner> list = new ArrayList<>();
-            for (AnnotationWrapper header : annotationWrapper.getAnnotationsValue("responseHeaders"))
+            for (AnnotationWrapper header : annotationWrapper.getAnnotationProperties("responseHeaders"))
                 if (!isDefaultResponseHeader(header))
                     list.add(headerScanner(header));
             return list;
         }
 
         private boolean isDefaultResponseHeader(AnnotationWrapper header) {
-            return header.getStringValue("name").isEmpty();
+            return header.getStringProperty("name").isEmpty();
         }
 
         protected abstract ResponseHeaderScanner headerScanner(AnnotationWrapper header);
@@ -118,13 +118,18 @@ public abstract class ResponseScanner {
         }
 
         @Override
+        public String description() {
+            return annotationWrapper.getStringProperty("title");
+        }
+
+        @Override
         public StatusType status() {
-            int code = annotationWrapper.getIntValue("statusCode");
+            int code = annotationWrapper.getIntProperty("statusCode");
             if (code > 0) {
                 StatusType statusFromCode = Status.fromStatusCode(code);
                 if (statusFromCode == null)
                     return new NonStandardStatus(code);
-                Status statusFromAnnotation = (Status) annotationWrapper.getValue("status");
+                Status statusFromAnnotation = getStatus();
                 if (statusFromAnnotation != ApiResponse.DEFAULT_STATUS && !statusFromAnnotation.equals(statusFromCode))
                     annotationWrapper.error("Conflicting specification of status " + statusFromAnnotation
                             + " and status code " + code + ". You should just use the status.");
@@ -133,12 +138,33 @@ public abstract class ResponseScanner {
                             + ". You should use that instead.");
                 return statusFromCode;
             }
-            return (Status) annotationWrapper.getValue("status");
+            return getStatus();
+        }
+
+        private Status getStatus() {
+            Object value = annotationWrapper.getProperty("status");
+            log.debug("########## {}", value);
+            if (value instanceof VariableElement)
+                log.debug("         : {}", ((VariableElement) value).getSimpleName());
+            else if (value instanceof Enum) {
+                Enum<?> v = (Enum<?>) value;
+                log.debug("         : {}", v.name());
+            }
+            printTypes(value.getClass());
+            return Status.valueOf(annotationWrapper.getEnumProperty("status"));
+        }
+
+        private void printTypes(Class<?> type) {
+            log.debug("  -> {}", type.getName());
+            for (Class<?> i : type.getInterfaces())
+                printTypes(i);
+            if (type.getSuperclass() != null)
+                printTypes(type.getSuperclass());
         }
 
         @Override
         protected Type type() {
-            return annotationWrapper.getTypeValue("type");
+            return annotationWrapper.getTypeProperty("type");
         }
 
         @Override
@@ -153,13 +179,18 @@ public abstract class ResponseScanner {
         }
 
         @Override
+        public String description() {
+            return annotationWrapper.getStringProperty("message");
+        }
+
+        @Override
         public StatusType status() {
-            return Status.fromStatusCode(annotationWrapper.getIntValue("code"));
+            return Status.fromStatusCode(annotationWrapper.getIntProperty("code"));
         }
 
         @Override
         protected Type type() {
-            return annotationWrapper.getTypeValue("response");
+            return annotationWrapper.getTypeProperty("response");
         }
 
         @Override

@@ -12,9 +12,8 @@ import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
 import static org.raml.model.ParamType.*;
 
-import io.swagger.annotations.*;
-
 import java.lang.annotation.Retention;
+import java.net.URI;
 
 import javax.ws.rs.*;
 
@@ -25,6 +24,8 @@ import org.raml.model.*;
 
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Type;
+
+import io.swagger.annotations.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MethodScannerTest extends AbstractScannerTest {
@@ -321,36 +322,44 @@ public class MethodScannerTest extends AbstractScannerTest {
             @GET
             @ApiResponse(type = FooNotFound.class)
             public javax.ws.rs.core.Response getMethod() {
-                return ProblemDetail.of(FooNotFound.class).detail("dynamic, long text").toResponse();
+                return ProblemDetail.of(FooNotFound.class).detail("detail-text").toResponse();
             }
         }
+
+        assertProblemDetail((ProblemDetail) new Dummy().getMethod().getEntity());
 
         Raml raml = scanTypes(Dummy.class);
 
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("404");
-        // TODO assertThat(response.getBody()).hasSize(1);
-        // TODO then(response.getBody().get(APPLICATION_JSON)) //
-        // .hasType(null) //
-        // .hasSchema(POJO_JSON_SCHEMA) //
-        // ;
-
-        ProblemDetail responseEntity = (ProblemDetail) new Dummy().getMethod().getEntity();
-        // TODO assertThat(responseEntity).hasStatus(NOT_FOUND);
+        assertThat(response.getBody()).hasSize(1);
+        then(response.getBody().get(APPLICATION_JSON)) //
+                .hasType(null) //
+                .hasSchema(POJO_JSON_SCHEMA) //
+                ;
     }
 
     @Test
     public void shouldThrowProblemDetailResponse() {
         class Dummy {
             public void getMethod() {
-                throw ProblemDetail.of(FooNotFound.class).detail("dynamic, long text").toWebException();
+                throw ProblemDetail.of(FooNotFound.class).detail("detail-text").toWebException();
             }
         }
 
-        assertThatThrownBy(() -> new Dummy().getMethod()) //
-                .isInstanceOf(WebApplicationApplicationException.class) //
-                .matches((t) -> NOT_FOUND == ((WebApplicationException) t).getResponse().getStatusInfo()) //
-                ;
+        WebApplicationApplicationException throwable =
+                (WebApplicationApplicationException) catchThrowable(() -> new Dummy().getMethod());
+        assertThat(throwable.getResponse().getStatusInfo()).isEqualTo(NOT_FOUND);
+        assertProblemDetail(ProblemDetail.of(throwable));
+    }
+
+    private void assertProblemDetail(ProblemDetail problemDetail) {
+        assertThat(problemDetail.type()).isEqualTo(URI.create("urn:problem:" + FooNotFound.class.getName()));
+        assertThat(problemDetail.title()).isEqualTo("foo not found");
+        assertThat(problemDetail.status()).isEqualTo(NOT_FOUND);
+        assertThat(problemDetail.detail()).isEqualTo("detail-text");
+        assertThat(problemDetail.instance().toString())
+                .matches("urn:problem-instance:........-....-....-....-............");
     }
 
     @Test

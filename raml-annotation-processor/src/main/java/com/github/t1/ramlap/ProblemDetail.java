@@ -1,5 +1,6 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.ramlap.StringTools.*;
 import static javax.ws.rs.core.Response.Status.Family.*;
 
 import java.net.URI;
@@ -10,8 +11,8 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.StatusType;
 
 /**
- * Defines a "problem detail" as a way to carry machine-readable details of errors in a HTTP response, to avoid the need to
- * invent new error response formats for HTTP APIs.
+ * Defines a "problem detail" as a way to carry machine-readable details of errors in a HTTP response, to avoid the need
+ * to invent new error response formats for HTTP APIs.
  * 
  * @see <a href="https://tools.ietf.org/html/draft-ietf-appsawg-http-problem-01">IETF: Problem Details for HTTP APIs</a>
  */
@@ -21,8 +22,14 @@ public class ProblemDetail {
     /** The {@link MediaType} Content-Type for {@link ProblemDetail}s */
     public static final MediaType PROBLEM_JSON_TYPE = MediaType.valueOf(PROBLEM_JSON);
 
+    public static ProblemDetail of(Throwable throwable) {
+        WebApplicationException webException = (WebApplicationException) throwable;
+        return (ProblemDetail) webException.getResponse().getEntity();
+    }
+
     public static ProblemDetail of(Class<?> type) {
         ProblemDetail problemDetail = of(URI.create("urn:problem:" + type.getName()));
+        problemDetail = problemDetail.title(camelCaseToWords(type.getSimpleName()));
         if (type.isAnnotationPresent(ApiResponse.class))
             problemDetail = problemDetail.status(type.getAnnotation(ApiResponse.class).status());
         return problemDetail;
@@ -80,6 +87,26 @@ public class ProblemDetail {
         this.status = status;
         this.detail = detail;
         this.instance = instance;
+    }
+
+    public URI type() {
+        return type;
+    }
+
+    public String title() {
+        return title;
+    }
+
+    public StatusType status() {
+        return status;
+    }
+
+    public String detail() {
+        return detail;
+    }
+
+    public URI instance() {
+        return instance;
     }
 
     public ProblemDetail title(String title) {
