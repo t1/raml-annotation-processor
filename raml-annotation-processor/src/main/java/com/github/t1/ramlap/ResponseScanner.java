@@ -7,17 +7,12 @@ import static javax.ws.rs.core.Response.Status.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.lang.model.element.VariableElement;
 import javax.ws.rs.core.Response.*;
-
-import org.slf4j.*;
 
 import com.github.t1.exap.reflection.*;
 import com.github.t1.ramlap.ResponseHeaderScanner.*;
 
 public abstract class ResponseScanner {
-    private static final Logger log = LoggerFactory.getLogger(ResponseScanner.class);
-
     public static List<ResponseScanner> responses(Method method) {
         if (method.isAnnotated(ApiResponse.class))
             return ramlResponses(method);
@@ -142,24 +137,17 @@ public abstract class ResponseScanner {
         }
 
         private Status getStatus() {
-            Object value = annotationWrapper.getProperty("status");
-            log.debug("########## {}", value);
-            if (value instanceof VariableElement)
-                log.debug("         : {}", ((VariableElement) value).getSimpleName());
-            else if (value instanceof Enum) {
-                Enum<?> v = (Enum<?>) value;
-                log.debug("         : {}", v.name());
+            String value = annotationWrapper.getEnumProperty("status");
+            if (ApiResponse.DEFAULT_STATUS.name().equals(value)) {
+                Type type = annotationWrapper.getTypeProperty("type");
+                if (type != null) {
+                    AnnotationWrapper referenced = type.getAnnotationWrapper(ApiResponse.class);
+                    if (referenced != null) {
+                        value = referenced.getEnumProperty("status");
+                    }
+                }
             }
-            printTypes(value.getClass());
-            return Status.valueOf(annotationWrapper.getEnumProperty("status"));
-        }
-
-        private void printTypes(Class<?> type) {
-            log.debug("  -> {}", type.getName());
-            for (Class<?> i : type.getInterfaces())
-                printTypes(i);
-            if (type.getSuperclass() != null)
-                printTypes(type.getSuperclass());
+            return Status.valueOf(value);
         }
 
         @Override
@@ -206,4 +194,8 @@ public abstract class ResponseScanner {
     public abstract List<ResponseHeaderScanner> responseHeaders();
 
     public abstract Type responseType();
+
+    public String statusCodeString() {
+        return Integer.toString(status().getStatusCode());
+    }
 }

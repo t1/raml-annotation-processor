@@ -20,7 +20,7 @@ public class ResourceClass {
     @Path("/{path-param}")
     @ApiOperation("get-op")
     @SuppressWarnings("unused")
-    @ApiResponse(status = BAD_REQUEST, message = "you did it wrong")
+    @ApiResponse(status = BAD_REQUEST, title = "you did it wrong")
     public List<Pojo> doGet( //
             @Context UriInfo uriInfo //
             , //

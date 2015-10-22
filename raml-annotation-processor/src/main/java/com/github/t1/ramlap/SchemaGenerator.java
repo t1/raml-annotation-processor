@@ -18,6 +18,7 @@ import com.github.t1.exap.reflection.*;
 public class SchemaGenerator {
     private static final Logger log = LoggerFactory.getLogger(SchemaGenerator.class);
 
+    /** we don't use the MediaType class, as that would require a dependency on e.g. the glassfish RI */
     public static String schema(Type type, String mediaType) {
         if (isMediaType(mediaType, "json"))
             return new JsonSchemaGenerator(type).generate();
@@ -134,8 +135,8 @@ public class SchemaGenerator {
 
         private boolean isUsing(Type type, Class<? extends Annotation> annotation, Class<?> serializer) {
             return type.isAnnotated(annotation) //
-                    && serializer.getName()
-                            .contentEquals(type.getAnnotationWrapper(annotation).getTypeProperty("using").getFullName());
+                    && serializer.getName().contentEquals(
+                            type.getAnnotationWrapper(annotation).getTypeProperty("using").getFullName());
         }
 
         private boolean isStringWrapper(Type type) {

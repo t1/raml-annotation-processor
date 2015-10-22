@@ -1,12 +1,13 @@
 package com.github.t1.ramlap;
 
 import static com.github.t1.ramlap.StringTools.*;
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static javax.ws.rs.core.MediaType.*;
 
 import java.util.*;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response.StatusType;
 
 import org.raml.model.*;
 import org.raml.model.parameter.Header;
@@ -115,14 +116,13 @@ public class MethodScanner {
 
     private void scanResponses() {
         for (ResponseScanner responseScanner : ResponseScanner.responses(method)) {
-            StatusType status = responseScanner.status();
-            String statusCodeString = Integer.toString(status.getStatusCode());
             Response response = new Response();
-            action.getResponses().put(statusCodeString, response);
 
             response.setDescription(responseScanner.description());
             scanHeaders(responseScanner.responseHeaders(), response.getHeaders());
             scanBody(responseScanner.responseType(), response);
+
+            action.getResponses().put(responseScanner.statusCodeString(), response);
         }
     }
 
@@ -155,11 +155,11 @@ public class MethodScanner {
         return bodyMap;
     }
 
-    private String[] produces() {
+    private List<String> produces() {
         if (method.isAnnotated(Produces.class))
-            return method.getAnnotation(Produces.class).value();
+            return asList(method.getAnnotation(Produces.class).value());
         if (raml.getMediaType() != null)
-            return new String[] { raml.getMediaType() };
-        return new String[] { APPLICATION_JSON };
+            return singletonList(raml.getMediaType());
+        return singletonList(APPLICATION_JSON);
     }
 }

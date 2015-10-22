@@ -2,6 +2,7 @@ package com.github.t1.ramlap;
 
 import static com.github.t1.exap.reflection.Message.*;
 import static com.github.t1.ramlap.Pojo.*;
+import static com.github.t1.ramlap.ProblemDetail.*;
 import static java.lang.annotation.RetentionPolicy.*;
 import static javax.tools.Diagnostic.Kind.*;
 import static javax.ws.rs.core.MediaType.*;
@@ -16,7 +17,9 @@ import java.lang.annotation.Retention;
 import java.net.URI;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Response.StatusType;
 
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -29,8 +32,16 @@ import io.swagger.annotations.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MethodScannerTest extends AbstractScannerTest {
-    @ApiResponse(status = NOT_FOUND)
-    public static final class FooNotFound {}
+    public static final class FooBadRequest extends ProblemDetail {}
+
+    @ApiResponse(status = NOT_FOUND, title = "foo-nf")
+    public static final class FooNotFound extends ProblemDetail {}
+
+    private ProblemDetail catchProblemDetail(StatusType expectedStatus, ThrowingCallable callable) {
+        WebApplicationApplicationException throwable = (WebApplicationApplicationException) catchThrowable(callable);
+        assertThat(throwable.getResponse().getStatusInfo()).isEqualTo(expectedStatus);
+        return ProblemDetail.of(throwable);
+    }
 
     @Test
     public void shouldScanGET() {
@@ -316,46 +327,90 @@ public class MethodScannerTest extends AbstractScannerTest {
     }
 
     @Test
-    public void shouldScanProblemDetailResponse() {
+    public void shouldScanProblemDetailAnnotation() {
         @Path("/foo")
         class Dummy {
             @GET
             @ApiResponse(type = FooNotFound.class)
-            public javax.ws.rs.core.Response getMethod() {
-                return ProblemDetail.of(FooNotFound.class).detail("detail-text").toResponse();
+            public void getMethod() {
+                throw new FooNotFound().detail("detail-text").toWebException();
             }
         }
 
-        assertProblemDetail((ProblemDetail) new Dummy().getMethod().getEntity());
+        assertFooNotFound(catchProblemDetail(NOT_FOUND, () -> new Dummy().getMethod()));
 
         Raml raml = scanTypes(Dummy.class);
 
         Action action = action(raml, "/foo", GET);
-        Response response = action.getResponses().get("404");
-        assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_JSON)) //
+        Response notFoundResponse = action.getResponses().get("404");
+        assertThat(notFoundResponse.getBody()).hasSize(1);
+        then(notFoundResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
+                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
+                ;
+    }
+
+    @Test
+    public void shouldScanTwoProblemDetailResponses() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(type = FooBadRequest.class)
+            @ApiResponse(type = FooNotFound.class)
+            public javax.ws.rs.core.Response getMethod(boolean b) {
+                return b //
+                        ? new FooBadRequest().toResponse() : new FooNotFound().detail("detail-text").toResponse();
+            }
+        }
+
+        assertFooBadRequest((ProblemDetail) new Dummy().getMethod(true).getEntity());
+        assertFooNotFound((ProblemDetail) new Dummy().getMethod(false).getEntity());
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+
+        Response badRequestResponse = action.getResponses().get("400");
+        assertThat(badRequestResponse.getBody()).hasSize(1);
+        then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
+                .hasType(null) //
+                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
+                ;
+
+        Response notFoundResponse = action.getResponses().get("404");
+        assertThat(notFoundResponse.getBody()).hasSize(1);
+        then(notFoundResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
+                .hasType(null) //
+                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
                 ;
     }
 
     @Test
     public void shouldThrowProblemDetailResponse() {
         class Dummy {
-            public void getMethod() {
-                throw ProblemDetail.of(FooNotFound.class).detail("detail-text").toWebException();
+            public void getMethod(boolean b) {
+                if (b)
+                    throw new FooBadRequest().toWebException();
+                throw new FooNotFound().detail("detail-text").toWebException();
             }
         }
 
-        WebApplicationApplicationException throwable =
-                (WebApplicationApplicationException) catchThrowable(() -> new Dummy().getMethod());
-        assertThat(throwable.getResponse().getStatusInfo()).isEqualTo(NOT_FOUND);
-        assertProblemDetail(ProblemDetail.of(throwable));
+        assertFooBadRequest(catchProblemDetail(BAD_REQUEST, () -> new Dummy().getMethod(true)));
+        assertFooNotFound(catchProblemDetail(NOT_FOUND, () -> new Dummy().getMethod(false)));
     }
 
-    private void assertProblemDetail(ProblemDetail problemDetail) {
-        assertThat(problemDetail.type()).isEqualTo(URI.create("urn:problem:" + FooNotFound.class.getName()));
-        assertThat(problemDetail.title()).isEqualTo("foo not found");
+    private void assertFooBadRequest(ProblemDetail problemDetail) {
+        assertThat(problemDetail.type()).isEqualTo(URI.create("urn:problem:java:" + FooBadRequest.class.getName()));
+        assertThat(problemDetail.title()).isEqualTo("foo bad request");
+        assertThat(problemDetail.status()).isEqualTo(BAD_REQUEST);
+        assertThat(problemDetail.detail()).isNull();
+        assertThat(problemDetail.instance().toString())
+                .matches("urn:problem-instance:........-....-....-....-............");
+    }
+
+    private void assertFooNotFound(ProblemDetail problemDetail) {
+        assertThat(problemDetail.type()).isEqualTo(URI.create("urn:problem:java:" + FooNotFound.class.getName()));
+        assertThat(problemDetail.title()).isEqualTo("foo-nf");
         assertThat(problemDetail.status()).isEqualTo(NOT_FOUND);
         assertThat(problemDetail.detail()).isEqualTo("detail-text");
         assertThat(problemDetail.instance().toString())
@@ -367,7 +422,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = BAD_REQUEST, statusCode = 201, title = "created")
+            @ApiResponse(status = UNAUTHORIZED, statusCode = 201, title = "created")
             public void getMethod() {}
         }
 
@@ -378,7 +433,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         then(response).hasDescription("created").doesNotHaveBody();
 
         assertMessage(ERROR, Type.of(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
-                "Conflicting specification of status Bad Request and status code 201. You should just use the status.");
+                "Conflicting specification of status Unauthorized and status code 201. You should just use the status.");
     }
 
     @Test
@@ -386,18 +441,18 @@ public class MethodScannerTest extends AbstractScannerTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(statusCode = 200, title = "okay")
+            @ApiResponse(statusCode = 201, title = "okay")
             public void getMethod() {}
         }
 
         Raml raml = scanTypes(Dummy.class);
 
         Action action = action(raml, "/foo", GET);
-        Response response = action.getResponses().get("200");
+        Response response = action.getResponses().get("201");
         then(response).hasDescription("okay").doesNotHaveBody();
 
         assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
-                "Status code 200 is defined as OK. You should use that instead.");
+                "Status code 201 is defined as Created. You should use that instead.");
     }
 
     @Test
@@ -461,14 +516,13 @@ public class MethodScannerTest extends AbstractScannerTest {
     }
 
     @Test
-    public void shouldScanTwoResponses() {
+    public void shouldScanTwoResponsesWithOneProblemDetailResponse() {
         @Path("/foo")
         class Dummy {
             @GET
             @ApiResponse(status = OK, title = "ok-descr")
             @ApiResponse(status = BAD_REQUEST, title = "bad-request-descr")
-            @Produces(APPLICATION_JSON)
-            public Pojo getMethod() {
+            public FooBadRequest getMethod() {
                 return null;
             }
         }
@@ -479,16 +533,16 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Response okResponse = action.getResponses().get("200");
         assertThat(okResponse.getBody()).hasSize(1);
-        then(okResponse.getBody().get(APPLICATION_JSON)) //
+        then(okResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
+                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
                 ;
 
         Response badRequestResponse = action.getResponses().get("400");
         assertThat(badRequestResponse.getBody()).hasSize(1);
-        then(badRequestResponse.getBody().get(APPLICATION_JSON)) //
+        then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
+                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
                 ;
     }
 

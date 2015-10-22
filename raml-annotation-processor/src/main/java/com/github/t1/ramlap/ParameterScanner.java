@@ -1,5 +1,7 @@
 package com.github.t1.ramlap;
 
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
 import static javax.ws.rs.core.MediaType.*;
 
 import java.util.*;
@@ -117,12 +119,12 @@ public class ParameterScanner {
         return new TypeInfo(parameter.getType());
     }
 
-    private String[] mediaTypes() {
+    private List<String> mediaTypes() {
         if (parameter.getMethod().isAnnotated(Consumes.class))
-            return parameter.getMethod().getAnnotation(Consumes.class).value();
+            return asList(parameter.getMethod().getAnnotation(Consumes.class).value());
         if (parameter.getMethod().getContainerType().isAnnotated(Consumes.class))
-            return parameter.getMethod().getContainerType().getAnnotation(Consumes.class).value();
-        return new String[] { APPLICATION_JSON };
+            return asList(parameter.getMethod().getContainerType().getAnnotation(Consumes.class).value());
+        return singletonList(APPLICATION_JSON);
     }
 
     private void scanJavaDoc(AbstractParam model) {
