@@ -2,6 +2,8 @@ package com.github.t1.ramlap;
 
 import static com.github.t1.ramlap.StringTools.*;
 
+import java.util.TreeMap;
+
 import org.raml.model.*;
 import org.raml.model.parameter.UriParameter;
 import org.slf4j.*;
@@ -19,6 +21,7 @@ public class RamlScanner {
 
     public RamlScanner() {
         raml.setTitle("");
+        raml.setResources(new TreeMap<>()); // sort keys
     }
 
     public void scan(SwaggerDefinition swaggerDefinition) {
@@ -69,19 +72,9 @@ public class RamlScanner {
     }
 
     private void scanBasic(Type type) {
-        Resource resource = resource(type);
+        Resource resource = ResourcePath.of(type).resource(raml);
         resource.setDisplayName(displayName(type));
         resource.setDescription(description(type));
-    }
-
-    private Resource resource(Type type) {
-        ResourcePath path = ResourcePath.of(type);
-        Resource resource = raml.getResource(path.toString());
-        if (resource == null) {
-            resource = new Resource();
-            path.setResource(raml, resource);
-        }
-        return resource;
     }
 
     private String displayName(Type type) {
@@ -94,11 +87,11 @@ public class RamlScanner {
         return (type.isAnnotated(JavaDoc.class)) ? type.getAnnotation(JavaDoc.class).value() : null;
     }
 
-    public Raml getResult() {
-        return raml;
-    }
-
     public boolean isWorthWriting() {
         return raml.getTitle() != null || !raml.getResources().isEmpty();
+    }
+
+    public Raml getResult() {
+        return raml;
     }
 }

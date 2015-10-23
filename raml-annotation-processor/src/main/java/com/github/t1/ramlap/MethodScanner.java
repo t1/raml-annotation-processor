@@ -57,20 +57,10 @@ public class MethodScanner {
     }
 
     private Resource resource() {
-        ResourcePath methodPath = methodPath();
-        Resource resource = raml.getResource(methodPath.toString());
-        if (resource == null) {
-            resource = new Resource();
-            methodPath.setResource(raml, resource);
-        }
-        return resource;
-    }
-
-    private ResourcePath methodPath() {
         ResourcePath path = ResourcePath.of(method.getContainerType());
         if (method.isAnnotated(Path.class))
             path = path.and(method.getAnnotation(Path.class).value());
-        return path;
+        return path.resource(raml);
     }
 
     private Action action(ActionType actionType) {

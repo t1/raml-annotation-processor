@@ -169,9 +169,8 @@ public class ResourcePathTest {
     public void shouldSetRamlForEmptyRootResource() {
         ResourcePath path = ResourcePath.of("/");
         Raml raml = new Raml();
-        Resource resource = new Resource();
 
-        path.setResource(raml, resource);
+        Resource resource = path.resource(raml);
 
         assertThat(raml.getResources()).containsOnlyKeys("/");
         assertThat(resource.getResources()).isEmpty();
@@ -185,37 +184,11 @@ public class ResourcePathTest {
     }
 
     @Test
-    public void shouldSetRamlForRootResourceReplacingOld() {
-        ResourcePath path = ResourcePath.of("/foo");
-        Raml raml = new Raml();
-        Resource old = new Resource();
-        raml.getResources().put("/foo", old);
-        Resource resource = new Resource();
-
-        path.setResource(raml, resource);
-
-        assertThat(raml.getResources()).containsOnlyKeys("/foo");
-        assertThat(old.getResources()).isEmpty();
-        assertThat(resource.getResources()).isEmpty();
-        then.assertThat(resource) //
-                .hasUri("/foo") //
-                .hasRelativeUri("/foo") //
-                .hasParentUri("") //
-                .hasParentResource(null) //
-                ;
-        then.assertThat(raml.getResource("/foo")) //
-                .isNotSameAs(old) //
-                .isSameAs(resource) //
-                ;
-    }
-
-    @Test
     public void shouldCreateNewRootResourceWhenSettingSubResource() {
         Raml raml = new Raml();
         ResourcePath path = ResourcePath.of("/foo/bar");
-        Resource bar = new Resource();
 
-        path.setResource(raml, bar);
+        Resource bar = path.resource(raml);
 
         assertThat(raml.getResources()).containsOnlyKeys("/foo");
         Resource foo = raml.getResource("/foo");
@@ -242,11 +215,9 @@ public class ResourcePathTest {
     public void shouldReuseRootResourceWhenSettingSubResource() {
         Raml raml = new Raml();
         ResourcePath path = ResourcePath.of("/foo");
-        Resource foo = new Resource();
-        path.setResource(raml, foo);
-        Resource bar = new Resource();
+        Resource foo = path.resource(raml);
 
-        path.and("/bar").setResource(raml, bar);
+        Resource bar = path.and("/bar").resource(raml);
 
         assertThat(raml.getResources()).containsOnlyKeys("/foo");
         assertThat(foo.getResources()).containsOnlyKeys("/bar");
@@ -268,9 +239,8 @@ public class ResourcePathTest {
     public void shouldCreateNewParentResourceWhenSettingSubSubResource() {
         Raml raml = new Raml();
         ResourcePath path = ResourcePath.of("/foo/bar/baz");
-        Resource baz = new Resource();
 
-        path.setResource(raml, baz);
+        Resource baz = path.resource(raml);
 
         Resource foo = raml.getResource("/foo");
         Resource bar = raml.getResource("/foo/bar");
@@ -311,8 +281,8 @@ public class ResourcePathTest {
     public void shouldReuseSubResourceWhenSettingSubSubResource() {
         Raml raml = new Raml();
 
-        ResourcePath.of("/foo/bar/baz").setResource(raml, new Resource());
-        ResourcePath.of("/foo/bar/bib").setResource(raml, new Resource());
+        ResourcePath.of("/foo/bar/baz").resource(raml);
+        ResourcePath.of("/foo/bar/bib").resource(raml);
 
         assertThat(raml.getResources()).containsOnlyKeys("/foo");
         Resource foo = raml.getResource("/foo");
@@ -367,10 +337,8 @@ public class ResourcePathTest {
     @Test
     public void shouldAddParentResourceWithPattern() {
         Raml raml = new Raml();
-        ResourcePath methodPath = ResourcePath.of("/{foo:a}/{bar}");
-        Resource resource = new Resource();
 
-        methodPath.setResource(raml, resource);
+        ResourcePath.of("/{foo:a}/{bar}").resource(raml);
 
         Resource foo = raml.getResource("/{foo}");
         Resource bar = raml.getResource("/{foo}/{bar}");
