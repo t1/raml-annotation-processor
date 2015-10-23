@@ -3,6 +3,7 @@ package com.github.t1.ramlap;
 import static com.github.t1.ramlap.ProblemDetail.*;
 import static javax.ws.rs.core.Response.Status.*;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 import java.io.*;
 import java.net.URI;
@@ -14,10 +15,15 @@ import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXB;
 
 import org.junit.*;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.slf4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.*;
 
+@RunWith(MockitoJUnitRunner.class)
 public class ProblemDetailTest {
     public static class FooProblem extends ProblemDetail {}
 
@@ -27,6 +33,9 @@ public class ProblemDetailTest {
 
     private final URI instanceUrn = URI.create("dummy:" + UUID.randomUUID());
 
+    @Mock
+    Logger logger;
+
     // @Rule
     // public final MementoRule<Function<Class<? extends ProblemDetail>, URI>> typeUriFactoryMemento =
     // new MementoRule<>(() -> TYPE_URI_FACTORY, v -> TYPE_URI_FACTORY = v, t -> instanceUrn);
@@ -34,6 +43,10 @@ public class ProblemDetailTest {
     @Rule
     public final MementoRule<Function<Class<? extends ProblemDetail>, URI>> instanceUriFactoryMemento =
             new MementoRule<>(() -> INSTANCE_URI_FACTORY, v -> INSTANCE_URI_FACTORY = v, t -> instanceUrn);
+
+    @Rule
+    public final MementoRule<Function<ProblemDetail, Logger>> loggerFactoryMemento =
+            new MementoRule<>(() -> LOGGER, v -> LOGGER = v, t -> logger);
 
     private URI problemUrn(Class<? extends ProblemDetail> type) {
         return URI.create(URN_PROBLEM_JAVA_PREFIX + type.getName());
@@ -227,6 +240,33 @@ public class ProblemDetailTest {
     public void shouldCoverHashCode() {
         new FooProblem().detail("foo").hashCode();
         new ProblemDetail().type(null).title(null).detail(null).status(null).instance(null).hashCode();
+    }
+
+    @Test
+    public void shouldLogWhenBuildingResponse() {
+        ProblemDetail problem = new FooProblem().detail("foo");
+
+        problem.toResponse();
+
+        verify(logger).info("{}", problem);
+    }
+
+    @Test
+    public void shouldLogWhenBuildingResponseBuilder() {
+        ProblemDetail problem = new FooProblem().detail("foo");
+
+        problem.toResponseBuilder();
+
+        verify(logger).info("{}", problem);
+    }
+
+    @Test
+    public void shouldLogWhenBuildingWebException() {
+        ProblemDetail problem = new FooProblem().detail("foo");
+
+        problem.toWebException();
+
+        verify(logger).info("{}", problem);
     }
 
     // TODO problem detail headers

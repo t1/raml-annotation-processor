@@ -16,6 +16,8 @@ import javax.ws.rs.core.Response.*;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
+import org.slf4j.*;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.t1.exap.reflection.Type;
@@ -45,7 +47,9 @@ import com.github.t1.exap.reflection.Type;
  * {@link #badRequest(String)}, as well a generic factory method {@link #webException(Status, String)}.
  * <p>
  * The {@link #toResponse()} is for use directly in the boundary, when you already return a Response.<br>
- * The {@link #toWebException()} is for nested validation code.
+ * The {@link #toWebException()} is for nested validation code.<br>
+ * These methods log the problem detail on INFO, so you can quickly find the {@link #instance()}. You may want to set
+ * the {@link #LOGGER} factory, so your application log file is used.
  * 
  * @see <a href="https://tools.ietf.org/html/draft-ietf-appsawg-http-problem-01">IETF: Problem Details for HTTP APIs</a>
  */
@@ -140,6 +144,8 @@ public class ProblemDetail implements Cloneable {
 
     static Function<Class<? extends ProblemDetail>, URI> INSTANCE_URI_FACTORY =
             (t -> URI.create(URN_PROBLEM_INSTANCE_PREFIX + UUID.randomUUID()));
+
+    static Function<ProblemDetail, Logger> LOGGER = (t -> LoggerFactory.getLogger("problemdetail"));
 
     /**
      * A URI reference [RFC3986] that identifies the problem type. When dereferenced, it is encouraged to provide
@@ -271,6 +277,7 @@ public class ProblemDetail implements Cloneable {
     }
 
     public ResponseBuilder toResponseBuilder() {
+        log();
         return Response.status(status) //
                 .entity(this) //
                 .type(APPLICATION_PROBLEM_JSON_TYPE) // TODO support xml/yaml/etc.
@@ -278,10 +285,16 @@ public class ProblemDetail implements Cloneable {
     }
 
     public WebApplicationException toWebException() {
+        Response response = toResponse();
         if (status.getFamily() == SERVER_ERROR)
-            return new WebApplicationException(toResponse());
-        return new WebApplicationApplicationException(toResponse());
+            return new WebApplicationException(response);
+        return new WebApplicationApplicationException(response);
     }
+
+    public void log() {
+        LOGGER.apply(this).info("{}", this);
+    }
+
 
     @Override
     public int hashCode() {
