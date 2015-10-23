@@ -45,19 +45,8 @@ public class MethodScanner {
 
         scanParams();
         scanResponses();
-    }
 
-    private Action action(ActionType actionType) {
-        Action action = resource.getAction(actionType);
-        if (action == null) {
-            action = new Action();
-            action.setType(actionType);
-            action.setResource(resource);
-            resource.getActions().put(actionType, action);
-        } else {
-            method.note("path not unique");
-        }
-        return action;
+        log.debug("scanned {} {}", actionType, resource.getUri());
     }
 
     private ActionType actionType() {
@@ -82,6 +71,19 @@ public class MethodScanner {
         if (method.isAnnotated(Path.class))
             path = path.and(method.getAnnotation(Path.class).value());
         return path;
+    }
+
+    private Action action(ActionType actionType) {
+        Action action = resource.getAction(actionType);
+        if (action == null) {
+            action = new Action();
+            action.setType(actionType);
+            action.setResource(resource);
+            resource.getActions().put(actionType, action);
+        } else {
+            method.note("path not unique");
+        }
+        return action;
     }
 
     private String displayName() {

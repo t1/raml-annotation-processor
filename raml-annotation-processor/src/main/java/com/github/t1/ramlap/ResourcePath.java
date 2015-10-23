@@ -105,7 +105,7 @@ public class ResourcePath implements Iterable<ResourcePath> {
     }
 
     private Resource parentResource(Raml raml) {
-        Resource parentResource = raml.getResource(parent.getSimpleName());
+        Resource parentResource = raml.getResource(parent.toString());
         if (parentResource == null) {
             parentResource = new Resource();
             parent.setResource(raml, parentResource);

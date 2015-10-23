@@ -197,6 +197,65 @@ public class MethodScannerTest extends AbstractScannerTest {
     }
 
     @Test
+    public void shouldScanGETandPUT() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            public void getMethod() {}
+
+            @PUT
+            public void putMethod() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+        then(action) //
+                .hasResource(raml.getResource("/foo")) //
+                .hasType(GET) //
+                .hasDisplayName("get method") //
+                .hasDescription(null) //
+                ;
+
+        then(action(raml, "/foo", PUT)) //
+                .hasResource(raml.getResource("/foo")) //
+                .hasType(PUT) //
+                .hasDisplayName("put method") //
+                .hasDescription(null) //
+                ;
+    }
+
+    @Test
+    public void shouldScanTwoSubPaths() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @Path("/bar/baz")
+            public void getBaz() {}
+
+            @GET
+            @Path("/bar/bib")
+            public void getBib() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        then(action(raml, "/foo/bar/baz", GET)) //
+                .hasResource(raml.getResource("/foo/bar/baz")) //
+                .hasType(GET) //
+                .hasDisplayName("get baz") //
+                .hasDescription(null) //
+                ;
+
+        then(action(raml, "/foo/bar/bib", GET)) //
+                .hasResource(raml.getResource("/foo/bar/bib")) //
+                .hasType(GET) //
+                .hasDisplayName("get bib") //
+                .hasDescription(null) //
+                ;
+    }
+
+    @Test
     public void shouldScanJavaDoc() {
         @Path("/foo")
         class Dummy {

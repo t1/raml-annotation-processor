@@ -308,6 +308,63 @@ public class ResourcePathTest {
     }
 
     @Test
+    public void shouldReuseSubResourceWhenSettingSubSubResource() {
+        Raml raml = new Raml();
+
+        ResourcePath.of("/foo/bar/baz").setResource(raml, new Resource());
+        ResourcePath.of("/foo/bar/bib").setResource(raml, new Resource());
+
+        assertThat(raml.getResources()).containsOnlyKeys("/foo");
+        Resource foo = raml.getResource("/foo");
+        assertThat(foo.getResources()).containsOnlyKeys("/bar");
+        Resource bar = raml.getResource("/foo/bar");
+        assertThat(bar.getResources()).containsOnlyKeys("/baz", "/bib");
+        Resource baz = raml.getResource("/foo/bar/baz");
+        assertThat(baz.getResources()).isEmpty();
+        Resource bib = raml.getResource("/foo/bar/bib");
+        assertThat(bib.getResources()).isEmpty();
+
+        then.assertThat(foo) //
+                .as("newly created root resource") //
+                .isNotSameAs(bar) //
+                .isNotSameAs(baz) //
+                .isNotSameAs(bib) //
+                .hasUri("/foo") //
+                .hasRelativeUri("/foo") //
+                .hasParentUri("") //
+                .hasParentResource(null) //
+                ;
+        then.assertThat(bar) //
+                .as("newly created intermediate resource") //
+                .isNotSameAs(foo) //
+                .isNotSameAs(baz) //
+                .isNotSameAs(bib) //
+                .hasUri("/foo/bar") //
+                .hasRelativeUri("/bar") //
+                .hasParentUri("/foo") //
+                .hasParentResource(foo) //
+                ;
+        then.assertThat(baz) //
+                .isNotSameAs(foo) //
+                .isNotSameAs(bar) //
+                .isNotSameAs(bib) //
+                .hasUri("/foo/bar/baz") //
+                .hasRelativeUri("/baz") //
+                .hasParentUri("/foo/bar") //
+                .hasParentResource(bar) //
+                ;
+        then.assertThat(bib) //
+                .isNotSameAs(foo) //
+                .isNotSameAs(bar) //
+                .isNotSameAs(baz) //
+                .hasUri("/foo/bar/bib") //
+                .hasRelativeUri("/bib") //
+                .hasParentUri("/foo/bar") //
+                .hasParentResource(bar) //
+                ;
+    }
+
+    @Test
     public void shouldAddParentResourceWithPattern() {
         Raml raml = new Raml();
         ResourcePath methodPath = ResourcePath.of("/{foo:a}/{bar}");
