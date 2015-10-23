@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response.Status;
  */
 @Target({ METHOD, TYPE })
 @Retention(RUNTIME)
+@Inherited
 @Repeatable(ApiResponses.class)
 public @interface ApiResponse {
     /**

@@ -2,6 +2,7 @@ package com.github.t1.ramlap;
 
 import static com.github.t1.ramlap.StringTools.*;
 import static javax.ws.rs.core.MediaType.*;
+import static javax.ws.rs.core.Response.Status.*;
 import static javax.ws.rs.core.Response.Status.Family.*;
 import static javax.xml.bind.annotation.XmlAccessType.*;
 
@@ -11,7 +12,7 @@ import java.util.function.Function;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.*;
-import javax.ws.rs.core.Response.StatusType;
+import javax.ws.rs.core.Response.*;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
@@ -40,6 +41,9 @@ import com.github.t1.exap.reflection.Type;
  * </code>
  * </pre>
  * 
+ * Some common convenience types are provided together with factory methods that return a WebApplicationException, e.g.
+ * {@link #badRequest(String)}, as well a generic factory method {@link #webException(Status, String)}.
+ * <p>
  * The {@link #toResponse()} is for use directly in the boundary, when you already return a Response.<br>
  * The {@link #toWebException()} is for nested validation code.
  * 
@@ -49,6 +53,41 @@ import com.github.t1.exap.reflection.Type;
 @XmlAccessorType(NONE)
 @JsonDeserialize(using = ProblemDetailJsonDeserializer.class)
 public class ProblemDetail implements Cloneable {
+    @ApiResponse(status = BAD_REQUEST)
+    public static class BadRequest extends ProblemDetail {}
+
+    public static WebApplicationException badRequest(String detail) {
+        return new BadRequest().detail(detail).toWebException();
+    }
+
+
+    public static class ValidationFailed extends BadRequest {}
+
+    public static WebApplicationException validationFailed(String detail) {
+        return new ValidationFailed().detail(detail).toWebException();
+    }
+
+
+    @ApiResponse(status = NOT_FOUND)
+    public static class NotFound extends ProblemDetail {}
+
+    public static WebApplicationException notFound(String detail) {
+        return new NotFound().detail(detail).toWebException();
+    }
+
+
+    @ApiResponse(status = UNAUTHORIZED)
+    public static class Unauthorized extends ProblemDetail {}
+
+    public static WebApplicationException unauthorized(String detail) {
+        return new Unauthorized().detail(detail).toWebException();
+    }
+
+
+    public static WebApplicationException webException(Status status, String detail) {
+        return new ProblemDetail().status(status).detail(detail).toWebException();
+    }
+
     /** The prefix for problem media types to be completed by <code>+json</code>, etc. */
     public static final String APPLICATION_PROBLEM_TYPE_PREFIX = "application/problem";
 
@@ -228,9 +267,14 @@ public class ProblemDetail implements Cloneable {
     }
 
     public Response toResponse() {
+        return toResponseBuilder().build();
+    }
+
+    public ResponseBuilder toResponseBuilder() {
         return Response.status(status) //
-                .entity(this).type(APPLICATION_PROBLEM_JSON_TYPE) //
-                .build();
+                .entity(this) //
+                .type(APPLICATION_PROBLEM_JSON_TYPE) // TODO support xml/yaml/etc.
+                ;
     }
 
     public WebApplicationException toWebException() {
