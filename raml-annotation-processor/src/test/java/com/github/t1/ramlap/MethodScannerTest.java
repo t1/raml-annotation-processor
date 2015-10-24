@@ -27,6 +27,7 @@ import org.raml.model.*;
 
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Type;
+import com.github.t1.ramlap.ProblemDetail.ValidationFailed;
 
 import io.swagger.annotations.*;
 
@@ -391,6 +392,7 @@ public class MethodScannerTest extends AbstractScannerTest {
         class Dummy {
             @GET
             @ApiResponse(type = FooNotFound.class)
+            @ApiResponse(type = ValidationFailed.class)
             public void getMethod() {
                 throw new FooNotFound().detail("detail-text").toWebException();
             }
@@ -402,8 +404,12 @@ public class MethodScannerTest extends AbstractScannerTest {
 
         Action action = action(raml, "/foo", GET);
         Response notFoundResponse = action.getResponses().get("404");
-        assertThat(notFoundResponse.getBody()).hasSize(1);
         then(notFoundResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
+                .hasType(null) //
+                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
+                ;
+        Response badRequestResponse = action.getResponses().get("400");
+        then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
                 .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
                 ;

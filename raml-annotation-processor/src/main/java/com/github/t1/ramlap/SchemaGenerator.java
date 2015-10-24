@@ -2,6 +2,7 @@ package com.github.t1.ramlap;
 
 import java.io.*;
 import java.lang.annotation.Annotation;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -13,6 +14,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.slf4j.*;
 
+import com.github.t1.exap.LoggingJsonGenerator;
 import com.github.t1.exap.reflection.*;
 
 public class SchemaGenerator {
@@ -44,6 +46,7 @@ public class SchemaGenerator {
         }
 
         public String generate() {
+            log.debug("generate json schema for {}", type.getFullName());
             StringWriter out = new StringWriter();
             try (JsonGenerator json = createJsonGenerator(out)) {
                 this.json = json;
@@ -55,11 +58,15 @@ public class SchemaGenerator {
             return out.toString().trim() + "\n";
         }
 
+        @SuppressWarnings("resource") // the caller closes
         private JsonGenerator createJsonGenerator(StringWriter out) {
             Map<String, Object> properties = new HashMap<>(1);
             properties.put(JsonGenerator.PRETTY_PRINTING, true);
             JsonGeneratorFactory factory = Json.createGeneratorFactory(properties);
-            return factory.createGenerator(out);
+            JsonGenerator generator = factory.createGenerator(out);
+            if (log.isTraceEnabled())
+                generator = LoggingJsonGenerator.of(log, generator);
+            return generator;
         }
 
         public void generate(Type type) {
@@ -109,7 +116,7 @@ public class SchemaGenerator {
                     json.write("type", "object");
                     writeId(type);
                     json.writeStartObject("properties");
-                    for (Field field : type.getFields()) {
+                    for (Field field : type.getAllFields()) {
                         if (field.isStatic() || field.isTransient())
                             continue;
                         json.writeStartObject(field.getName());
@@ -140,7 +147,7 @@ public class SchemaGenerator {
         }
 
         private boolean isStringWrapper(Type type) {
-            if (type.isA(Path.class))
+            if (type.isA(Path.class) || type.isA(URI.class))
                 return true;
             return hasToString(type) && hasFromString(type);
         }

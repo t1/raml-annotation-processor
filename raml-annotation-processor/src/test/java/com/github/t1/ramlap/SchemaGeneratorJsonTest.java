@@ -3,6 +3,7 @@ package com.github.t1.ramlap;
 import static javax.ws.rs.core.MediaType.*;
 import static org.junit.Assert.*;
 
+import java.net.URI;
 import java.nio.file.*;
 import java.util.*;
 
@@ -13,13 +14,13 @@ import com.github.t1.exap.reflection.Type;
 public class SchemaGeneratorJsonTest {
     private static final String SCHEMA = "    \"$schema\":\"http://json-schema.org/schema#\",\n";
 
-    private String json(Class<?> type) {
+    private String jsonSchema(Class<?> type) {
         return SchemaGenerator.schema(Type.of(type), APPLICATION_JSON);
     }
 
     @Test
     public void shouldGenerateString() {
-        String json = json(String.class);
+        String json = jsonSchema(String.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -30,7 +31,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateEnum() {
-        String json = json(AccessMode.class);
+        String json = jsonSchema(AccessMode.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -46,7 +47,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateInteger() {
-        String json = json(Integer.class);
+        String json = jsonSchema(Integer.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -57,7 +58,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateDouble() {
-        String json = json(Double.class);
+        String json = jsonSchema(Double.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -68,7 +69,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateBoolean() {
-        String json = json(boolean.class);
+        String json = jsonSchema(boolean.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -79,7 +80,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateStringArray() {
-        String json = json(String[].class);
+        String json = jsonSchema(String[].class);
 
         assertEquals("" //
                 + "{\n" //
@@ -93,7 +94,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateIntegerArray() {
-        String json = json(Integer[].class);
+        String json = jsonSchema(Integer[].class);
 
         assertEquals("" //
                 + "{\n" //
@@ -113,7 +114,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGeneratePojo() {
-        String json = json(Pojo.class);
+        String json = jsonSchema(Pojo.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -141,7 +142,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGeneratePojoWithList() {
-        String json = json(PojoWithList.class);
+        String json = jsonSchema(PojoWithList.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -180,7 +181,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGeneratePojoWithSet() {
-        String json = json(PojoWithSet.class);
+        String json = jsonSchema(PojoWithSet.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -217,7 +218,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateCodehausToStringPojo() {
-        String json = json(CodehausToStringPojo.class);
+        String json = jsonSchema(CodehausToStringPojo.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -235,7 +236,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateFasterXmlToStringPojo() {
-        String json = json(FasterXmlToStringPojo.class);
+        String json = jsonSchema(FasterXmlToStringPojo.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -252,7 +253,7 @@ public class SchemaGeneratorJsonTest {
     @Test
     @Ignore("requires $ref from json-schema draft-4")
     public void shouldGenerateRecursivePojo() {
-        String json = json(RecursivePojo.class);
+        String json = jsonSchema(RecursivePojo.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -274,7 +275,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateSchemaForClassWithToStringAndFromString() {
-        String json = json(UUID.class);
+        String json = jsonSchema(UUID.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -296,7 +297,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGeneratePojoSchemaForClassWithFromStringButNoToString() {
-        String json = json(PojoWithFromString.class);
+        String json = jsonSchema(PojoWithFromString.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -330,7 +331,7 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateSchemaForClassWithFromStringAndInheritedToString() {
-        String json = json(PojoWithInheritedToString.class);
+        String json = jsonSchema(PojoWithInheritedToString.class);
 
         assertEquals("" //
                 + "{\n" //
@@ -342,13 +343,25 @@ public class SchemaGeneratorJsonTest {
 
     @Test
     public void shouldGenerateSchemaForPath() {
-        String json = json(Path.class);
+        String json = jsonSchema(Path.class);
 
         assertEquals("" //
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"string\",\n" //
                 + "    \"id\":\"urn:jsonschema:java:nio:file:Path\"\n" //
+                + "}\n", json);
+    }
+
+    @Test
+    public void shouldGenerateSchemaForUri() {
+        String json = jsonSchema(URI.class);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"string\",\n" //
+                + "    \"id\":\"urn:jsonschema:java:net:URI\"\n" //
                 + "}\n", json);
     }
 

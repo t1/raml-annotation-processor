@@ -52,13 +52,14 @@ public class TypeInfo {
 
     private String asProblemType(String mediaType) {
         Matcher matcher = MEDIA_TYPE_PATTERN.matcher(mediaType);
-        if (!matcher.matches())
-            return APPLICATION_PROBLEM_JSON;
-        return APPLICATION_PROBLEM_TYPE_PREFIX + "+" + matcher.group("subtype");
+        if (matcher.matches())
+            return APPLICATION_PROBLEM_TYPE_PREFIX + "+" + matcher.group("subtype");
+        return APPLICATION_PROBLEM_JSON;
     }
 
     private void applyTo(MimeType mimeType, String mediaType) {
-        mimeType.setType(isSimple() ? paramType().name().toLowerCase(US) : null);
+        if (isSimple())
+            mimeType.setType(paramType().name().toLowerCase(US));
         // TODO add schema to raml root and link from here
         mimeType.setSchema(schema(mediaType));
     }

@@ -9,6 +9,7 @@ import javax.ws.rs.core.*;
 
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.ramlap.ApiResponse;
+import com.github.t1.ramlap.ProblemDetail.ValidationFailed;
 
 import io.swagger.annotations.ApiOperation;
 
@@ -20,7 +21,9 @@ public class ResourceClass {
     @Path("/{path-param}")
     @ApiOperation("get-op")
     @SuppressWarnings("unused")
-    @ApiResponse(status = BAD_REQUEST, title = "you did it wrong")
+    @ApiResponse(status = OK, title = "everything's fine")
+    @ApiResponse(status = NOT_FOUND, title = "nothing there")
+    @ApiResponse(type = ValidationFailed.class, title = "your data is no good")
     public List<Pojo> doGet( //
             @Context UriInfo uriInfo //
             , //

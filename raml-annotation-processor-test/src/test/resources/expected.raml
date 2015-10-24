@@ -47,8 +47,8 @@ version: test-version
                             }
                         }
             responses: 
-                "400": 
-                    description: you did it wrong
+                "200": 
+                    description: everything's fine
                     body: 
                         application/json: 
                             schema: |
@@ -65,6 +65,59 @@ version: test-version
                                             "bar":{
                                                 "type":"integer"
                                             }
+                                        }
+                                    }
+                                }
+                "404": 
+                    description: nothing there
+                    body: 
+                        application/json: 
+                            schema: |
+                                {
+                                    "$schema":"http://json-schema.org/schema#",
+                                    "type":"array",
+                                    "items":{
+                                        "type":"object",
+                                        "id":"urn:jsonschema:com:github:t1:ramlap:test:Pojo",
+                                        "properties":{
+                                            "foo":{
+                                                "type":"string"
+                                            },
+                                            "bar":{
+                                                "type":"integer"
+                                            }
+                                        }
+                                    }
+                                }
+                "400": 
+                    description: your data is no good
+                    body: 
+                        application/problem+json: 
+                            schema: |
+                                {
+                                    "$schema":"http://json-schema.org/schema#",
+                                    "type":"object",
+                                    "id":"urn:jsonschema:com:github:t1:ramlap:ProblemDetail",
+                                    "properties":{
+                                        "type":{
+                                            "type":"string",
+                                            "id":"urn:jsonschema:java:net:URI"
+                                        },
+                                        "title":{
+                                            "type":"string"
+                                        },
+                                        "status":{
+                                            "type":"object",
+                                            "id":"urn:jsonschema:javax:ws:rs:core:Response$StatusType",
+                                            "properties":{
+                                            }
+                                        },
+                                        "detail":{
+                                            "type":"string"
+                                        },
+                                        "instance":{
+                                            "type":"string",
+                                            "id":"urn:jsonschema:java:net:URI"
                                         }
                                     }
                                 }
