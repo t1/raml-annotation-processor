@@ -129,7 +129,7 @@ public class ParameterScanner {
 
     private void scanJavaDoc(AbstractParam model) {
         if (parameter.isAnnotated(JavaDoc.class)) {
-            model.setDisplayName(parameter.getAnnotation(JavaDoc.class).summary());
+            model.setDisplayName(JavaDoc.SUMMARY.apply(parameter.getAnnotation(JavaDoc.class)));
             model.setDescription(parameter.getAnnotation(JavaDoc.class).value());
         }
     }

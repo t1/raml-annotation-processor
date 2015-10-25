@@ -54,8 +54,8 @@ public class ParameterTest extends AbstractTest {
             @SuppressWarnings("unused")
             public void getMethod( //
                     @PathParam("s") String s, //
-                    @JavaDoc(summary = "i-name", value = "i-desc") @PathParam("i") int i, //
-                    @JavaDoc(summary = "d-name", value = "d-desc") @PathParam("d") double d, //
+                    @JavaDoc(value = "i-name. i-desc") @PathParam("i") int i, //
+                    @JavaDoc(value = "d-name. d-desc") @PathParam("d") double d, //
                     @PathParam("e") AccessMode e //
             ) {}
         }
@@ -82,13 +82,13 @@ public class ParameterTest extends AbstractTest {
         assertThat(pathParams.size()).isEqualTo(3);
         then(pathParams.get("i")) //
                 .hasDisplayName("i-name") //
-                .hasDescription("i-desc") //
+                .hasDescription("i-name. i-desc") //
                 .hasType(INTEGER) //
                 .isRequired() //
                 ;
         then(pathParams.get("d")) //
                 .hasDisplayName("d-name") //
-                .hasDescription("d-desc") //
+                .hasDescription("d-name. d-desc") //
                 .hasType(NUMBER) //
                 .isRequired() //
                 ;
@@ -211,7 +211,7 @@ public class ParameterTest extends AbstractTest {
             @SuppressWarnings("unused")
             public void getMethod( //
                     @QueryParam("q0") String q0, //
-                    @JavaDoc(summary = "q-name", value = "q-desc") @QueryParam("q1") long q1, //
+                    @JavaDoc(value = "q-name. q-desc") @QueryParam("q1") long q1, //
                     @QueryParam("q2") AccessMode q2 //
             ) {}
         }
@@ -229,7 +229,7 @@ public class ParameterTest extends AbstractTest {
                 ;
         then(queryParams.get("q1")) //
                 .hasDisplayName("q-name") //
-                .hasDescription("q-desc") //
+                .hasDescription("q-name. q-desc") //
                 .hasType(INTEGER) //
                 .isNotRequired() //
                 ;
@@ -251,7 +251,7 @@ public class ParameterTest extends AbstractTest {
             @SuppressWarnings("unused")
             public void getMethod( //
                     @HeaderParam("h0") String h0, //
-                    @JavaDoc(summary = "h-name", value = "h-desc") @HeaderParam("h1") long h1 //
+                    @JavaDoc(value = "h-name. h-desc") @HeaderParam("h1") long h1 //
             ) {}
         }
 
@@ -268,7 +268,7 @@ public class ParameterTest extends AbstractTest {
                 ;
         then(headerParams.get("h1")) //
                 .hasDisplayName("h-name") //
-                .hasDescription("h-desc") //
+                .hasDescription("h-name. h-desc") //
                 .hasType(INTEGER) //
                 .isNotRequired() //
                 ;

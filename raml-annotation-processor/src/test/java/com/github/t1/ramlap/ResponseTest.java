@@ -24,6 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.raml.model.*;
 
 import com.github.t1.exap.reflection.Type;
+import com.github.t1.ramlap.ProblemDetail.BadRequest;
 
 import io.swagger.annotations.ResponseHeader;
 
@@ -175,6 +176,29 @@ public class ResponseTest extends AbstractTest {
         Response notFoundResponse = action.getResponses().get("404");
         assertThat(notFoundResponse.getBody()).hasSize(1);
         then(notFoundResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
+                .hasType(null) //
+                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
+                ;
+    }
+
+    @Test
+    public void shouldScanTwoProblemDetailResponsesWithSameStatus() {
+        @Path("/foo")
+        class Dummy {
+            @GET
+            @ApiResponse(type = FooBadRequest.class)
+            @ApiResponse(type = BadRequest.class, title = "bar")
+            public void getMethod() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/foo", GET);
+
+        assertThat(action.getResponses().size()).isEqualTo(1);
+        Response badRequestResponse = action.getResponses().get("400");
+        assertThat(badRequestResponse.getBody()).hasSize(1);
+        then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
                 .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
                 ;

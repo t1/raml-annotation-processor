@@ -285,5 +285,5 @@ public class ProblemDetailTest {
     }
 
     // TODO problem detail headers
-    // TODO problem detail custom fields
+    // TODO problem detail custom fields and detail format (also json & xml)
 }

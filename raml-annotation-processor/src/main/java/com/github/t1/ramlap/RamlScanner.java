@@ -79,7 +79,7 @@ public class RamlScanner {
 
     private String displayName(Type type) {
         if (type.isAnnotated(JavaDoc.class))
-            return type.getAnnotation(JavaDoc.class).summary();
+            return JavaDoc.SUMMARY.apply(type.getAnnotation(JavaDoc.class));
         return camelCaseToWords(type.getSimpleName());
     }
 

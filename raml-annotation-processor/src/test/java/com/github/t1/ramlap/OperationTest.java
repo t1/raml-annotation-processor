@@ -242,7 +242,7 @@ public class OperationTest extends AbstractTest {
     public void shouldScanJavaDoc() {
         @Path("/foo")
         class Dummy {
-            @JavaDoc(summary = "summary", value = "full")
+            @JavaDoc("summary. full")
             @GET
             public void getMethod() {}
         }
@@ -251,7 +251,7 @@ public class OperationTest extends AbstractTest {
 
         then(action(raml, "/foo", GET)) //
                 .hasDisplayName("summary") //
-                .hasDescription("full") //
+                .hasDescription("summary. full") //
                 ;
     }
 

@@ -9,6 +9,7 @@ import java.util.*;
 
 import org.junit.*;
 
+import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Type;
 
 public class SchemaGeneratorJsonTest {
@@ -129,6 +130,43 @@ public class SchemaGeneratorJsonTest {
                 + "            \"type\":\"integer\"\n" //
                 + "        },\n" //
                 + "        \"bool\":{\n" //
+                + "            \"type\":\"boolean\"\n" //
+                + "        }\n" //
+                + "    }\n" //
+                + "}\n", json);
+    }
+
+    @JavaDoc("type-desc")
+    static class PojoWithJavaDoc {
+        /** s-doc */
+        String s;
+        /** i-doc */
+        Long i;
+        /** b-doc */
+        boolean b;
+    }
+
+    @Test
+    public void shouldGeneratePojoWithJavaDoc() {
+        String json = jsonSchema(PojoWithJavaDoc.class);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"object\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithJavaDoc\",\n" //
+        // + " \"description\":\"type-doc\",\n" //
+                + "    \"properties\":{\n" //
+                + "        \"s\":{\n" //
+        // + " \"description\":\"s-doc\"\n" //
+                + "            \"type\":\"string\"\n" //
+                + "        },\n" //
+                + "        \"i\":{\n" //
+        // + " \"description\":\"i-doc\"\n" //
+                + "            \"type\":\"integer\"\n" //
+                + "        },\n" //
+                + "        \"b\":{\n" //
+        // + " \"description\":\"b-doc\"\n" //
                 + "            \"type\":\"boolean\"\n" //
                 + "        }\n" //
                 + "    }\n" //

@@ -70,7 +70,7 @@ public class ResourceTest {
 
     @Test
     public void shouldScanResourceJavaDoc() {
-        @JavaDoc(summary = "first sentence.", value = "full doc.")
+        @JavaDoc(value = "first sentence. full doc.")
         @Path("/foo")
         class Dummy {
             @GET
@@ -81,8 +81,8 @@ public class ResourceTest {
 
         Resource resource = raml.getResource("/foo");
         then(resource) //
-                .hasDisplayName("first sentence.") //
-                .hasDescription("full doc.") //
+                .hasDisplayName("first sentence") //
+                .hasDescription("first sentence. full doc.") //
                 ;
     }
 

@@ -81,7 +81,7 @@ public class MethodScanner {
         if (apiOperation != null && !apiOperation.value().isEmpty())
             return apiOperation.value();
         if (method.isAnnotated(JavaDoc.class))
-            return method.getAnnotation(JavaDoc.class).summary();
+            return JavaDoc.SUMMARY.apply(method.getAnnotation(JavaDoc.class));
         return camelCaseToWords(method.getName());
     }
 

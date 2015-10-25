@@ -16,7 +16,7 @@ import io.swagger.annotations.ApiOperation;
 /** p-resource. something about the p. */
 @Path("/p")
 public class ResourceClass {
-    /** get action */
+    /** get action. method-doGet */
     @GET
     @Path("/{path-param}")
     @ApiOperation("get-op")
@@ -27,13 +27,13 @@ public class ResourceClass {
     public List<Pojo> doGet( //
             @Context UriInfo uriInfo //
             , //
-            @JavaDoc(summary = "p", value = "p-param-descr") //
+            @JavaDoc(value = "p. p-param-descr") //
             @PathParam("path-param") int pathParam //
             , //
-            @JavaDoc(summary = "h", value = "h-param-descr") //
+            @JavaDoc(value = "h. h-param-descr") //
             @HeaderParam("header-param") String headerParam //
             , //
-            @JavaDoc(summary = "q", value = "q-param-descr") //
+            @JavaDoc(value = "q. q-param-descr") //
             @QueryParam("query-param") SomeEnum queryParam //
             , //
             @MatrixParam("matrix-param-0") String matrixParam0 //

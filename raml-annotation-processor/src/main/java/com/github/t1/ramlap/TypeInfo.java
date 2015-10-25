@@ -77,7 +77,7 @@ public class TypeInfo {
     private ParamType paramType() {
         if (type.isBoolean())
             return BOOLEAN;
-        if (type.isDecimal())
+        if (type.isFloating())
             return NUMBER;
         if (type.isInteger())
             return INTEGER;

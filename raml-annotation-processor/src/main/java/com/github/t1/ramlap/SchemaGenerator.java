@@ -78,7 +78,7 @@ public class SchemaGenerator {
                 } else if (type.isInteger()) {
                     log.trace("write integer");
                     json.write("type", "integer");
-                } else if (type.isDecimal()) {
+                } else if (type.isFloating()) {
                     log.trace("write number");
                     json.write("type", "number");
                 } else if (type.isString()) {
@@ -161,7 +161,7 @@ public class SchemaGenerator {
         }
 
         private boolean hasFromString(Type type) {
-            for (Method method : type.getMethods())
+            for (Method method : type.getStaticMethods())
                 if ("fromString".equals(method.getName()) //
                         && method.getParameters().size() == 1 && method.getParameter(0).getType().isString() //
                         && method.isPublic() && method.isStatic())
