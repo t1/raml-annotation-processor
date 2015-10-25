@@ -28,7 +28,7 @@ import com.github.t1.exap.reflection.*;
 import io.swagger.annotations.Api;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ParameterScannerTest extends AbstractScannerTest {
+public class ParameterTest extends AbstractTest {
     @Test
     public void shouldSkipContextParam() {
         @Path("/p")

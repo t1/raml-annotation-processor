@@ -39,6 +39,14 @@ public @interface ApiResponse {
     String title() default "";
 
     /**
+     * The full, human-readable explanation specific to this occurrence of the problem. It MAY change from occurrence to
+     * occurrence of the problem.
+     * 
+     * @see ProblemDetail#detail(String)
+     */
+    String detail() default "";
+
+    /**
      * The type of the response, i.e. the body to be returned. If that class itself is annotated as {@link ApiResponse},
      * the {@link #status()} of that annotation inherited. If the type is not specified, the return type of the method
      * is used.

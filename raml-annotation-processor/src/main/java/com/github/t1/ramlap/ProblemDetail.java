@@ -18,7 +18,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 import org.slf4j.*;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.github.t1.exap.reflection.Type;
 
@@ -36,8 +36,11 @@ import com.github.t1.exap.reflection.Type;
  * &#64;GET
  * &#64;ApiResponse(FooNotFound.class)
  * public Response getFoo() {
- *     if (not found)
- *         throw new FooNotFound().toWebException();
+ *     try {
+ *         ...
+ *     } catch (FileNotFoundException e) {
+ *         throw new FooNotFound().toWebException().causedBy(e);
+ *     }
  *     return new FooNotFound().detail("some detail").toResponse();
  * }
  * </code>
@@ -48,8 +51,9 @@ import com.github.t1.exap.reflection.Type;
  * <p>
  * The {@link #toResponse()} is for use directly in the boundary, when you already return a Response.<br>
  * The {@link #toWebException()} is for nested validation code.<br>
- * These methods log the problem detail on INFO, so you can quickly find the {@link #instance()}. You may want to set
- * the {@link #LOGGER} factory, so your application log file is used.
+ * These methods log the problem detail, so you can quickly find the {@link #instance()}. You may want to set the
+ * {@link #LOGGER} factory, so your application log file is used. The log level is ERROR for 5xx status codes (includes
+ * the stack trace), and INFO for all other codes.
  * 
  * @see <a href="https://tools.ietf.org/html/draft-ietf-appsawg-http-problem-01">IETF: Problem Details for HTTP APIs</a>
  */
@@ -85,6 +89,14 @@ public class ProblemDetail implements Cloneable {
 
     public static WebApplicationException unauthorized(String detail) {
         return new Unauthorized().detail(detail).toWebException();
+    }
+
+
+    @ApiResponse(status = INTERNAL_SERVER_ERROR)
+    public static class InternalServerError extends ProblemDetail {}
+
+    public static WebApplicationException internalServerError(String detail) {
+        return new InternalServerError().detail(detail).toWebException();
     }
 
 
@@ -175,7 +187,8 @@ public class ProblemDetail implements Cloneable {
     private StatusType status;
 
     /**
-     * An human readable explanation specific to this occurrence of the problem.
+     * The full, human-readable explanation specific to this occurrence of the problem. It MAY change from occurrence to
+     * occurrence of the problem.
      */
     @XmlElement
     @JsonProperty
@@ -233,6 +246,12 @@ public class ProblemDetail implements Cloneable {
         return instance;
     }
 
+    @JsonIgnore
+    public boolean isServerError() {
+        return status.getFamily() == SERVER_ERROR;
+    }
+
+
     @Override
     protected ProblemDetail clone() {
         try {
@@ -284,15 +303,19 @@ public class ProblemDetail implements Cloneable {
                 ;
     }
 
-    public WebApplicationException toWebException() {
+    public WebException toWebException() {
         Response response = toResponse();
-        if (status.getFamily() == SERVER_ERROR)
-            return new WebApplicationException(response);
+        if (isServerError())
+            return new WebException(response);
         return new WebApplicationApplicationException(response);
     }
 
     public void log() {
-        LOGGER.apply(this).info("{}", this);
+        Logger logger = LOGGER.apply(this);
+        if (isServerError())
+            logger.error("{}", this);
+        else
+            logger.info("{}", this);
     }
 
 

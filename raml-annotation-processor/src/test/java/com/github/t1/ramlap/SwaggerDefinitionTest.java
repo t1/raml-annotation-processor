@@ -16,7 +16,7 @@ import io.swagger.annotations.*;
 import io.swagger.annotations.SwaggerDefinition.Scheme;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SwaggerDefinitionScannerTest {
+public class SwaggerDefinitionTest {
     @Rule
     public final JUnitSoftAssertions softly = new JUnitSoftAssertions();
 

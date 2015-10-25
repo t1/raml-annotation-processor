@@ -16,7 +16,7 @@ import com.github.t1.exap.reflection.*;
 
 import io.swagger.annotations.SwaggerDefinition;
 
-public abstract class AbstractScannerTest {
+public abstract class AbstractTest {
     @Rule
     public final JUnitSoftAssertions then = new JUnitSoftAssertions();
 

@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.*;
+import com.github.t1.ramlap.ProblemDetail.InternalServerError;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProblemDetailTest {
@@ -61,6 +62,7 @@ public class ProblemDetailTest {
         assertThat(problem.status()).isEqualTo(BAD_REQUEST);
         assertThat(problem.detail()).isNull();
         assertThat(problem.instance()).isEqualTo(instanceUrn);
+        assertThat(problem.isServerError()).isFalse();
     }
 
     @Test
@@ -74,6 +76,7 @@ public class ProblemDetailTest {
         assertThat(problem.status()).isEqualTo(BAD_REQUEST);
         assertThat(problem.detail()).isNull();
         assertThat(problem.instance()).isEqualTo(instanceUrn);
+        assertThat(problem.isServerError()).isFalse();
     }
 
     @Test
@@ -126,6 +129,18 @@ public class ProblemDetailTest {
         assertThat(problem.status()).isEqualTo(UNAUTHORIZED);
         assertThat(problem.detail()).isEqualTo("my detail");
         assertThat(problem.instance()).isEqualTo(instanceUrn);
+    }
+
+    @Test
+    public void shouldConstructInternalServerError() {
+        ProblemDetail problem = new InternalServerError();
+
+        assertThat(problem.type()).isEqualTo(problemUrn(InternalServerError.class));
+        assertThat(problem.title()).isEqualTo("internal server error");
+        assertThat(problem.status()).isEqualTo(INTERNAL_SERVER_ERROR);
+        assertThat(problem.detail()).isNull();
+        assertThat(problem.instance()).isEqualTo(instanceUrn);
+        assertThat(problem.isServerError()).isTrue();
     }
 
     @Test

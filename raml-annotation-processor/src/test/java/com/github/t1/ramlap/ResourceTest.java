@@ -14,7 +14,7 @@ import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Type;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TypeScannerTest {
+public class ResourceTest {
     @Rule
     public final JUnitSoftAssertions then = new JUnitSoftAssertions();
 

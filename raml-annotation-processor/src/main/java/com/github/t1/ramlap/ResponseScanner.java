@@ -1,5 +1,6 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.ramlap.StringTools.*;
 import static java.util.Arrays.*;
 import static java.util.Collections.*;
 import static javax.ws.rs.core.Response.Status.*;
@@ -114,7 +115,19 @@ public abstract class ResponseScanner {
 
         @Override
         public String description() {
-            return annotationWrapper.getStringProperty("title");
+            String title = annotationWrapper.getStringProperty("title");
+            String detail = annotationWrapper.getStringProperty("detail");
+            if (!title.isEmpty())
+                return concat(title, " ", detail);
+            Type type = annotationWrapper.getTypeProperty("type");
+            if (type.isVoid())
+                return detail.isEmpty() ? null : detail;
+            title = camelCaseToWords(type.getSimpleName());
+            return concat(title, ": ", detail);
+        }
+
+        private String concat(String title, String delimiter, String detail) {
+            return detail.isEmpty() ? title : title + delimiter + detail;
         }
 
         @Override
@@ -189,13 +202,13 @@ public abstract class ResponseScanner {
 
     public abstract StatusType status();
 
+    public String statusCodeString() {
+        return Integer.toString(status().getStatusCode());
+    }
+
     public abstract String description();
 
     public abstract List<ResponseHeaderScanner> responseHeaders();
 
     public abstract Type responseType();
-
-    public String statusCodeString() {
-        return Integer.toString(status().getStatusCode());
-    }
 }
