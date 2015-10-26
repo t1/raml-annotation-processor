@@ -122,8 +122,8 @@ public class ParameterScanner {
     private List<String> mediaTypes() {
         if (parameter.getMethod().isAnnotated(Consumes.class))
             return asList(parameter.getMethod().getAnnotation(Consumes.class).value());
-        if (parameter.getMethod().getContainerType().isAnnotated(Consumes.class))
-            return asList(parameter.getMethod().getContainerType().getAnnotation(Consumes.class).value());
+        if (parameter.getMethod().getDeclaringType().isAnnotated(Consumes.class))
+            return asList(parameter.getMethod().getDeclaringType().getAnnotation(Consumes.class).value());
         return singletonList(APPLICATION_JSON);
     }
 

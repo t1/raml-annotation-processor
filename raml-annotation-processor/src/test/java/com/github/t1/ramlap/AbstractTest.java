@@ -23,7 +23,7 @@ public abstract class AbstractTest {
     protected Raml scanTypes(Class<?>... containers) {
         RamlScanner scanner = new RamlScanner();
         for (Class<?> container : containers) {
-            Type type = Type.of(container);
+            Type type = ENV.type(container);
             if (type.isAnnotated(SwaggerDefinition.class))
                 scanner.scan(type.getAnnotation(SwaggerDefinition.class));
             scanner.scanJaxRsType(type);

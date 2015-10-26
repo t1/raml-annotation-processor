@@ -1,6 +1,7 @@
 package com.github.t1.ramlap;
 
 import static com.github.t1.exap.reflection.Message.*;
+import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
 import static com.github.t1.ramlap.Pojo.*;
 import static javax.tools.Diagnostic.Kind.*;
 import static javax.ws.rs.core.MediaType.*;
@@ -175,7 +176,7 @@ public class ParameterTest extends AbstractTest {
         }
 
         RamlScanner scanner = new RamlScanner();
-        Type type = Type.of(Dummy.class);
+        Type type = ENV.type(Dummy.class);
 
         scanner.scanJaxRsType(type);
 
@@ -196,7 +197,7 @@ public class ParameterTest extends AbstractTest {
         Raml raml = scanTypes(Dummy.class);
         assertEquals(asSet("bar"), raml.getResource("/{foo}").getUriParameters().keySet());
 
-        Method method = Type.of(Dummy.class).getMethod("getMethod");
+        Method method = ENV.type(Dummy.class).getMethod("getMethod");
         assertMessage(WARNING, method, "no path param annotated as 'foo' found, but required in GET of '/{foo}'");
         assertMessage(WARNING, method.getParameter(0),
                 "annotated path param name 'bar' not defined in GET of '/{foo}'");
@@ -410,7 +411,7 @@ public class ParameterTest extends AbstractTest {
         assertThat(action.getResource().getUriParameters().size()).isEqualTo(1);
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
 
-        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getParameter(0), //
+        assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getParameter(0), //
                 "method parameters can be only be annotated as one of " //
                         + "path, query, header, cookie, bean, form, or matrix parameter");
     }
@@ -431,7 +432,7 @@ public class ParameterTest extends AbstractTest {
         assertThat(action.getHeaders().size()).isEqualTo(1);
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
 
-        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getParameter(0),
+        assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getParameter(0),
                 "method parameters can be only be annotated as one of " //
                         + "path, query, header, cookie, bean, form, or matrix parameter");
     }
@@ -454,7 +455,7 @@ public class ParameterTest extends AbstractTest {
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
         assertThat(action.getHeaders().size()).isEqualTo(1);
 
-        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getParameter(0),
+        assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getParameter(0),
                 "method parameters can be only be annotated as one of " //
                         + "path, query, header, cookie, bean, form, or matrix parameter");
     }

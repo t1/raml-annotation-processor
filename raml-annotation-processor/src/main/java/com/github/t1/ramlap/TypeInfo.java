@@ -66,7 +66,7 @@ public class TypeInfo {
 
     private String schema(String mediaType) {
         if (isProblemDetail())
-            return SchemaGenerator.schema(Type.of(ProblemDetail.class), mediaType);
+            return SchemaGenerator.schema(type, mediaType);
         return isSimple() || isUnspecific() ? null : SchemaGenerator.schema(type, mediaType);
     }
 

@@ -57,7 +57,7 @@ public class MethodScanner {
     }
 
     private Resource resource() {
-        ResourcePath path = ResourcePath.of(method.getContainerType());
+        ResourcePath path = ResourcePath.of(method.getDeclaringType());
         if (method.isAnnotated(Path.class))
             path = path.and(method.getAnnotation(Path.class).value());
         return path.resource(raml);

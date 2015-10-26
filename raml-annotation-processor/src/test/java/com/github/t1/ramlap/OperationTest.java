@@ -1,6 +1,7 @@
 package com.github.t1.ramlap;
 
 import static com.github.t1.exap.reflection.Message.*;
+import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
 import static java.lang.annotation.RetentionPolicy.*;
 import static javax.tools.Diagnostic.Kind.*;
 import static javax.ws.rs.core.MediaType.*;
@@ -505,7 +506,7 @@ public class OperationTest extends AbstractTest {
             public void bar() {}
         }
         RamlScanner scanner = new RamlScanner();
-        Type type = Type.of(Foo.class);
+        Type type = ENV.type(Foo.class);
 
         scanner.scanJaxRsType(type);
 
@@ -526,9 +527,9 @@ public class OperationTest extends AbstractTest {
             public void bar() {}
         }
         RamlScanner scanner = new RamlScanner();
-        Type foo = Type.of(Foo.class);
+        Type foo = ENV.type(Foo.class);
         scanner.scanJaxRsType(foo);
-        Type bar = Type.of(Bar.class);
+        Type bar = ENV.type(Bar.class);
         scanner.scanJaxRsType(bar);
 
         assertMessage(NOTE, ANY_ELEMENT, "path not unique");

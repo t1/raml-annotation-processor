@@ -1,5 +1,6 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
 import static com.github.t1.ramlap.Pojo.*;
 import static com.github.t1.ramlap.ProblemDetail.*;
 import static javax.tools.Diagnostic.Kind.*;
@@ -23,7 +24,6 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.raml.model.*;
 
-import com.github.t1.exap.reflection.Type;
 import com.github.t1.ramlap.ProblemDetail.BadRequest;
 
 import io.swagger.annotations.ResponseHeader;
@@ -39,6 +39,10 @@ public class ResponseTest extends AbstractTest {
         WebApplicationApplicationException throwable = (WebApplicationApplicationException) catchThrowable(callable);
         assertThat(throwable.getResponse().getStatusInfo()).isEqualTo(expectedStatus);
         return ProblemDetail.of(throwable);
+    }
+
+    private String jsonSchema(Class<? extends ProblemDetail> type) {
+        return SchemaGenerator.schema(ENV.type(type), APPLICATION_JSON);
     }
 
     @Test
@@ -141,7 +145,7 @@ public class ResponseTest extends AbstractTest {
         Response notFoundResponse = action.getResponses().get("404");
         then(notFoundResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
-                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
+                .hasSchema(jsonSchema(FooNotFound.class)) //
                 ;
     }
 
@@ -170,14 +174,14 @@ public class ResponseTest extends AbstractTest {
         assertThat(badRequestResponse.getBody()).hasSize(1);
         then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
-                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
+                .hasSchema(jsonSchema(FooBadRequest.class)) //
                 ;
 
         Response notFoundResponse = action.getResponses().get("404");
         assertThat(notFoundResponse.getBody()).hasSize(1);
         then(notFoundResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
-                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
+                .hasSchema(jsonSchema(FooNotFound.class)) //
                 ;
     }
 
@@ -198,9 +202,10 @@ public class ResponseTest extends AbstractTest {
         assertThat(action.getResponses().size()).isEqualTo(1);
         Response badRequestResponse = action.getResponses().get("400");
         assertThat(badRequestResponse.getBody()).hasSize(1);
+        then(badRequestResponse).hasDescription("bar");
         then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
-                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
+                .hasSchema(jsonSchema(BadRequest.class)) //
                 ;
     }
 
@@ -346,7 +351,7 @@ public class ResponseTest extends AbstractTest {
         Response response = action.getResponses().get("201");
         then(response).hasDescription("created").doesNotHaveBody();
 
-        assertMessage(ERROR, Type.of(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
+        assertMessage(ERROR, ENV.type(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
                 "Conflicting specification of status Unauthorized and status code 201. You should just use the status.");
     }
 
@@ -365,7 +370,7 @@ public class ResponseTest extends AbstractTest {
         Response response = action.getResponses().get("201");
         then(response).hasDescription("okay").doesNotHaveBody();
 
-        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
+        assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
                 "Status code 201 is defined as Created. You should use that instead.");
     }
 
@@ -384,7 +389,7 @@ public class ResponseTest extends AbstractTest {
         Response response = action.getResponses().get("201");
         then(response).hasDescription("okay").doesNotHaveBody();
 
-        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
+        assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
                 "Status code 201 is defined as Created. You should use that instead.");
     }
 
@@ -403,7 +408,7 @@ public class ResponseTest extends AbstractTest {
         Response response = action.getResponses().get("201");
         then(response).hasDescription("okay").doesNotHaveBody();
 
-        assertMessage(WARNING, Type.of(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
+        assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
                 "Status code 201 is defined as Created. You should use that instead.");
     }
 
@@ -449,14 +454,14 @@ public class ResponseTest extends AbstractTest {
         assertThat(okResponse.getBody()).hasSize(1);
         then(okResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
-                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
+                .hasSchema(jsonSchema(FooBadRequest.class)) //
                 ;
 
         Response badRequestResponse = action.getResponses().get("400");
         assertThat(badRequestResponse.getBody()).hasSize(1);
         then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
                 .hasType(null) //
-                .hasSchema(APPLICATION_PROBLEM_JSON_SCHEMA) //
+                .hasSchema(jsonSchema(FooBadRequest.class)) //
                 ;
     }
 

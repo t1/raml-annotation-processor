@@ -1,5 +1,6 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.raml.model.BddAssertions.*;
 
@@ -21,7 +22,7 @@ public class ResourceTest {
     private Raml scanTypes(Class<?>... containers) {
         RamlScanner scanner = new RamlScanner();
         for (Class<?> container : containers) {
-            Type type = Type.of(container);
+            Type type = ENV.type(container);
             scanner.scanJaxRsType(type);
         }
         return scanner.getResult();

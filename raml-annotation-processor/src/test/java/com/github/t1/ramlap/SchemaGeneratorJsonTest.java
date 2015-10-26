@@ -1,5 +1,6 @@
 package com.github.t1.ramlap;
 
+import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
 import static javax.ws.rs.core.MediaType.*;
 import static org.junit.Assert.*;
 
@@ -10,13 +11,12 @@ import java.util.*;
 import org.junit.*;
 
 import com.github.t1.exap.JavaDoc;
-import com.github.t1.exap.reflection.Type;
 
 public class SchemaGeneratorJsonTest {
     private static final String SCHEMA = "    \"$schema\":\"http://json-schema.org/schema#\",\n";
 
     private String jsonSchema(Class<?> type) {
-        return SchemaGenerator.schema(Type.of(type), APPLICATION_JSON);
+        return SchemaGenerator.schema(ENV.type(type), APPLICATION_JSON);
     }
 
     @Test
@@ -136,13 +136,13 @@ public class SchemaGeneratorJsonTest {
                 + "}\n", json);
     }
 
-    @JavaDoc("type-desc")
+    @JavaDoc("type-doc")
     static class PojoWithJavaDoc {
-        /** s-doc */
+        @JavaDoc("s-doc")
         String s;
-        /** i-doc */
+        @JavaDoc("i-doc")
         Long i;
-        /** b-doc */
+        @JavaDoc("b-doc")
         boolean b;
     }
 
@@ -155,19 +155,19 @@ public class SchemaGeneratorJsonTest {
                 + SCHEMA //
                 + "    \"type\":\"object\",\n" //
                 + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithJavaDoc\",\n" //
-        // + " \"description\":\"type-doc\",\n" //
+                + "    \"description\":\"type-doc\",\n" //
                 + "    \"properties\":{\n" //
                 + "        \"s\":{\n" //
-        // + " \"description\":\"s-doc\"\n" //
-                + "            \"type\":\"string\"\n" //
+                + "            \"type\":\"string\",\n" //
+                + "            \"description\":\"s-doc\"\n" //
                 + "        },\n" //
                 + "        \"i\":{\n" //
-        // + " \"description\":\"i-doc\"\n" //
-                + "            \"type\":\"integer\"\n" //
+                + "            \"type\":\"integer\",\n" //
+                + "            \"description\":\"i-doc\"\n" //
                 + "        },\n" //
                 + "        \"b\":{\n" //
-        // + " \"description\":\"b-doc\"\n" //
-                + "            \"type\":\"boolean\"\n" //
+                + "            \"type\":\"boolean\",\n" //
+                + "            \"description\":\"b-doc\"\n" //
                 + "        }\n" //
                 + "    }\n" //
                 + "}\n", json);

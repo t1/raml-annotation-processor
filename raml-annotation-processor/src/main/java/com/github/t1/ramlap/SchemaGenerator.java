@@ -14,7 +14,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.slf4j.*;
 
-import com.github.t1.exap.LoggingJsonGenerator;
+import com.github.t1.exap.*;
 import com.github.t1.exap.reflection.*;
 
 public class SchemaGenerator {
@@ -115,12 +115,16 @@ public class SchemaGenerator {
                     log.trace("write object");
                     json.write("type", "object");
                     writeId(type);
+                    if (type.isAnnotated(JavaDoc.class))
+                        json.write("description", type.getAnnotation(JavaDoc.class).value());
                     json.writeStartObject("properties");
                     for (Field field : type.getAllFields()) {
                         if (field.isStatic() || field.isTransient())
                             continue;
                         json.writeStartObject(field.getName());
                         generate(field.getType());
+                        if (field.isAnnotated(JavaDoc.class))
+                            json.write("description", field.getAnnotation(JavaDoc.class).value());
                         json.writeEnd();
                     }
                     json.writeEnd();
@@ -154,8 +158,9 @@ public class SchemaGenerator {
 
         private boolean hasToString(Type type) {
             for (Method method : type.getAllMethods())
-                if ("toString".equals(method.getName()) && method.getParameters().isEmpty() //
-                        && !method.getContainerType().equals(Type.of(Object.class)))
+                if ("toString".equals(method.getName()) //
+                        && method.getParameters().isEmpty() //
+                        && !method.getDeclaringType().getFullName().equals(Object.class.getName()))
                     return true;
             return false;
         }
