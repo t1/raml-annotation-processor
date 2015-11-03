@@ -5,6 +5,7 @@ import static com.github.t1.ramlap.StringTools.*;
 import java.util.TreeMap;
 
 import org.raml.model.*;
+import org.raml.model.Resource;
 import org.raml.model.parameter.UriParameter;
 import org.slf4j.*;
 

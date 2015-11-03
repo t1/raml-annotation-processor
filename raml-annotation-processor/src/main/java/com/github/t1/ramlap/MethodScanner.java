@@ -10,6 +10,7 @@ import java.util.*;
 import javax.ws.rs.*;
 
 import org.raml.model.*;
+import org.raml.model.Resource;
 import org.raml.model.parameter.Header;
 import org.slf4j.*;
 

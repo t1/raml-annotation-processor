@@ -1,20 +1,18 @@
 package com.github.t1.ramlap;
 
 import static javax.lang.model.SourceVersion.*;
-import static javax.tools.StandardLocation.*;
 
 import java.io.*;
 import java.util.List;
 
 import javax.annotation.processing.SupportedSourceVersion;
-import javax.tools.FileObject;
 import javax.ws.rs.Path;
 
 import org.raml.emitter.RamlEmitter;
 import org.slf4j.*;
 
 import com.github.t1.exap.*;
-import com.github.t1.exap.reflection.Type;
+import com.github.t1.exap.reflection.*;
 
 import io.swagger.annotations.SwaggerDefinition;
 
@@ -33,7 +31,7 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
         scanTypes(round.typesAnnotatedWith(Path.class));
 
         if (round.isLast() && scanner.isWorthWriting())
-            writeRaml();
+            writeRaml(round);
 
         return false;
     }
@@ -65,12 +63,12 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
             scanner.scanJaxRsType(type);
     }
 
-    private void writeRaml() throws IOException {
-        FileObject fileObject = filer().createResource(CLASS_OUTPUT, "doc", "api.raml");
-        log.debug("write {}", fileObject.getName());
-        try (Writer writer = fileObject.openWriter()) {
+    private void writeRaml(Round round) throws IOException {
+        Resource resource = round.createResource("doc", "api.raml");
+        log.debug("write {}", resource.getName());
+        try (Writer writer = resource.openWriter()) {
             writer.write(new RamlEmitter().dump(scanner.getResult()));
         }
-        log.info("created {}", fileObject.getName());
+        log.info("created {}", resource.getName());
     }
 }

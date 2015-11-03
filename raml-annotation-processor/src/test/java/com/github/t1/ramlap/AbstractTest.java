@@ -11,6 +11,7 @@ import javax.tools.Diagnostic;
 
 import org.junit.*;
 import org.raml.model.*;
+import org.raml.model.Resource;
 
 import com.github.t1.exap.reflection.*;
 
