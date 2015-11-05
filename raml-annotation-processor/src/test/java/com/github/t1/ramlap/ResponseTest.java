@@ -371,7 +371,7 @@ public class ResponseTest extends AbstractTest {
         then(response).hasDescription("okay").doesNotHaveBody();
 
         assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
-                "Status code 201 is defined as Created. You should use that instead.");
+                "Status code 201 is defined as 'Created'. You should use the constant instead.");
     }
 
     @Test
@@ -390,7 +390,7 @@ public class ResponseTest extends AbstractTest {
         then(response).hasDescription("okay").doesNotHaveBody();
 
         assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
-                "Status code 201 is defined as Created. You should use that instead.");
+                "Status code 201 is defined as 'Created'. You should use the constant instead.");
     }
 
     @Test
@@ -409,7 +409,7 @@ public class ResponseTest extends AbstractTest {
         then(response).hasDescription("okay").doesNotHaveBody();
 
         assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getAnnotationWrapper(ApiResponse.class),
-                "Status code 201 is defined as Created. You should use that instead.");
+                "Status code 201 is defined as 'Created'. You should use the constant instead.");
     }
 
     @Test

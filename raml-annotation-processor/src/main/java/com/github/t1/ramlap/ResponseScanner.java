@@ -142,8 +142,8 @@ public abstract class ResponseScanner {
                     annotationWrapper.error("Conflicting specification of status " + statusFromAnnotation
                             + " and status code " + code + ". You should just use the status.");
                 else
-                    annotationWrapper.warning("Status code " + code + " is defined as " + statusFromCode
-                            + ". You should use that instead.");
+                    annotationWrapper.warning("Status code " + code + " is defined as '" + statusFromCode + "'. "
+                            + "You should use the constant instead.");
                 return statusFromCode;
             }
             return getStatus();
