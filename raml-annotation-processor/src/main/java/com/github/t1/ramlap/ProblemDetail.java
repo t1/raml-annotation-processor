@@ -26,7 +26,7 @@ import com.github.t1.exap.JavaDoc;
  * to invent new error response formats for HTTP APIs.
  * <p>
  * Best practice:
- * 
+ *
  * <pre>
  * <code>
  * &#64;ApiResponse(status = NOT_FOUND)
@@ -44,8 +44,8 @@ import com.github.t1.exap.JavaDoc;
  * }
  * </code>
  * </pre>
- * 
- * Some common convenience types are provided together with factory methods that return a WebApplicationException, e.g.
+ *
+ * Some common convenience types are provided together with factory methods that return a {@link WebException}, e.g.
  * {@link #badRequest(String)}, as well a generic factory method {@link #webException(Status, String)}.
  * <p>
  * The {@link #toResponse()} is for use directly in the boundary, when you already return a Response.<br>
@@ -53,7 +53,7 @@ import com.github.t1.exap.JavaDoc;
  * These methods log the problem detail, so you can quickly find the {@link #instance()}. You may want to set the
  * {@link #LOGGER} factory, so your application log file is used. The log level is ERROR for 5xx status codes (includes
  * the stack trace), and INFO for all other codes.
- * 
+ *
  * @see <a href="https://tools.ietf.org/html/draft-ietf-appsawg-http-problem-01">IETF: Problem Details for HTTP APIs</a>
  */
 @XmlRootElement
