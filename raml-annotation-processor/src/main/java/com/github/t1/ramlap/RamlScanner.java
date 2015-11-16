@@ -92,6 +92,13 @@ public class RamlScanner {
         return raml.getTitle() != null || !raml.getResources().isEmpty();
     }
 
+    public String getFileName() {
+        String title = raml.getTitle();
+        if (title == null)
+            title = "api";
+        return title.toLowerCase().replaceAll("/;: ", "-") + ".raml";
+    }
+
     public Raml getResult() {
         return raml;
     }

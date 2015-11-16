@@ -64,7 +64,8 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
     }
 
     private void writeRaml(Round round) throws IOException {
-        Resource resource = round.createResource("doc", "api.raml");
+        String relativeName = scanner.getFileName();
+        Resource resource = round.createResource("doc", relativeName);
         log.debug("write {}", resource.getName());
         try (Writer writer = resource.openWriter()) {
             writer.write(new RamlEmitter().dump(scanner.getResult()));
