@@ -17,6 +17,8 @@ import org.slf4j.*;
 import com.github.t1.exap.*;
 import com.github.t1.exap.reflection.*;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class SchemaGenerator {
     private static final Logger log = LoggerFactory.getLogger(SchemaGenerator.class);
 
@@ -123,8 +125,7 @@ public class SchemaGenerator {
                             continue;
                         json.writeStartObject(field.getName());
                         generate(field.getType());
-                        if (field.isAnnotated(JavaDoc.class))
-                            json.write("description", field.getAnnotation(JavaDoc.class).value());
+                        writeDescription(field);
                         json.writeEnd();
                     }
                     json.writeEnd();
@@ -176,6 +177,13 @@ public class SchemaGenerator {
 
         private void writeId(Type type) {
             json.write("id", "urn:jsonschema:" + type.getFullName().replace('.', ':'));
+        }
+
+        private void writeDescription(Field field) {
+            if (field.isAnnotated(JavaDoc.class))
+                json.write("description", field.getAnnotation(JavaDoc.class).value());
+            else if (field.isAnnotated(ApiModelProperty.class))
+                json.write("description", field.getAnnotation(ApiModelProperty.class).value());
         }
     }
 

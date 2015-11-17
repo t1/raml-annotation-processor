@@ -12,6 +12,8 @@ import org.junit.*;
 
 import com.github.t1.exap.JavaDoc;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class SchemaGeneratorJsonTest {
     private static final String SCHEMA = "    \"$schema\":\"http://json-schema.org/schema#\",\n";
 
@@ -168,6 +170,29 @@ public class SchemaGeneratorJsonTest {
                 + "        \"b\":{\n" //
                 + "            \"type\":\"boolean\",\n" //
                 + "            \"description\":\"b-doc\"\n" //
+                + "        }\n" //
+                + "    }\n" //
+                + "}\n", json);
+    }
+
+    static class PojoWithApiModelProperty {
+        @ApiModelProperty("value-description")
+        String value;
+    }
+
+    @Test
+    public void shouldGeneratePojoWithApiModelPropertyDescription() {
+        String json = jsonSchema(PojoWithApiModelProperty.class);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"object\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithApiModelProperty\",\n" //
+                + "    \"properties\":{\n" //
+                + "        \"value\":{\n" //
+                + "            \"type\":\"string\",\n" //
+                + "            \"description\":\"value-description\"\n" //
                 + "        }\n" //
                 + "    }\n" //
                 + "}\n", json);
