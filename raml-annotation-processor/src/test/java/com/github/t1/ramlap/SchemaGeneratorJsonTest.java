@@ -8,6 +8,8 @@ import java.net.URI;
 import java.nio.file.*;
 import java.util.*;
 
+import javax.ws.rs.core.Response.*;
+
 import org.junit.*;
 
 import com.github.t1.exap.JavaDoc;
@@ -123,7 +125,7 @@ public class SchemaGeneratorJsonTest {
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$Pojo\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:Pojo\",\n" //
                 + "    \"properties\":{\n" //
                 + "        \"value\":{\n" //
                 + "            \"type\":\"string\"\n" //
@@ -156,7 +158,7 @@ public class SchemaGeneratorJsonTest {
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithJavaDoc\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:PojoWithJavaDoc\",\n" //
                 + "    \"description\":\"type-doc\",\n" //
                 + "    \"properties\":{\n" //
                 + "        \"s\":{\n" //
@@ -188,7 +190,7 @@ public class SchemaGeneratorJsonTest {
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithApiModelProperty\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:PojoWithApiModelProperty\",\n" //
                 + "    \"properties\":{\n" //
                 + "        \"value\":{\n" //
                 + "            \"type\":\"string\",\n" //
@@ -211,11 +213,11 @@ public class SchemaGeneratorJsonTest {
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithList\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:PojoWithList\",\n" //
                 + "    \"properties\":{\n" //
                 + "        \"pojo\":{\n" //
                 + "            \"type\":\"object\",\n" //
-                + "            \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$Pojo\",\n" //
+                + "            \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:Pojo\",\n" //
                 + "            \"properties\":{\n" //
                 + "                \"value\":{\n" //
                 + "                    \"type\":\"string\"\n" //
@@ -250,13 +252,13 @@ public class SchemaGeneratorJsonTest {
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithSet\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:PojoWithSet\",\n" //
                 + "    \"properties\":{\n" //
                 + "        \"set\":{\n" //
                 + "            \"type\":\"array\",\n" //
                 + "            \"items\":{\n" //
                 + "                \"type\":\"object\",\n" //
-                + "                \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$Pojo\",\n" //
+                + "                \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:Pojo\",\n" //
                 + "                \"properties\":{\n" //
                 + "                    \"value\":{\n" //
                 + "                        \"type\":\"string\"\n" //
@@ -287,7 +289,7 @@ public class SchemaGeneratorJsonTest {
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"string\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$CodehausToStringPojo\"\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:CodehausToStringPojo\"\n" //
                 + "}\n", json);
     }
 
@@ -305,7 +307,7 @@ public class SchemaGeneratorJsonTest {
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"string\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$FasterXmlToStringPojo\"\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:FasterXmlToStringPojo\"\n" //
                 + "}\n", json);
     }
 
@@ -322,7 +324,7 @@ public class SchemaGeneratorJsonTest {
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$RecursivePojo\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:RecursivePojo\",\n" //
                 + "    \"properties\":{\n" //
                 + "        \"pojo\":{\n" //
                 + "            \"type\":\"object\",\n" //
@@ -366,7 +368,7 @@ public class SchemaGeneratorJsonTest {
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithFromString\",\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:PojoWithFromString\",\n" //
                 + "    \"properties\":{\n" //
                 + "        \"value\":{\n" //
                 + "            \"type\":\"string\"\n" //
@@ -400,7 +402,7 @@ public class SchemaGeneratorJsonTest {
                 + "{\n" //
                 + SCHEMA //
                 + "    \"type\":\"string\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest$PojoWithInheritedToString\"\n" //
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:SchemaGeneratorJsonTest:PojoWithInheritedToString\"\n" //
                 + "}\n", json);
     }
 
@@ -425,6 +427,30 @@ public class SchemaGeneratorJsonTest {
                 + SCHEMA //
                 + "    \"type\":\"string\",\n" //
                 + "    \"id\":\"urn:jsonschema:java:net:URI\"\n" //
+                + "}\n", json);
+    }
+
+    @Test
+    public void shouldGenerateSchemaForStatus() {
+        String json = jsonSchema(Status.class);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"integer\",\n" //
+                + "    \"id\":\"urn:jsonschema:javax:ws:rs:core:Response:Status\"\n" //
+                + "}\n", json);
+    }
+
+    @Test
+    public void shouldGenerateSchemaForStatusType() {
+        String json = jsonSchema(StatusType.class);
+
+        assertEquals("" //
+                + "{\n" //
+                + SCHEMA //
+                + "    \"type\":\"integer\",\n" //
+                + "    \"id\":\"urn:jsonschema:javax:ws:rs:core:Response:StatusType\"\n" //
                 + "}\n", json);
     }
 

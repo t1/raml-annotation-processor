@@ -46,6 +46,11 @@ version: test-version
                                 }
                             }
                         }
+                    example: |
+                        {
+                            "foo":"foo",
+                            "bar":12345
+                        }
             responses: 
                 "200": 
                     description: everything's fine
@@ -68,6 +73,13 @@ version: test-version
                                         }
                                     }
                                 }
+                            example: |
+                                [
+                                    {
+                                        "foo":"foo",
+                                        "bar":12345
+                                    }
+                                ]
                 "404": 
                     description: nothing there
                     body: 
@@ -89,6 +101,13 @@ version: test-version
                                         }
                                     }
                                 }
+                            example: |
+                                [
+                                    {
+                                        "foo":"foo",
+                                        "bar":12345
+                                    }
+                                ]
                 "400": 
                     description: your data is no good
                     body: 
@@ -102,7 +121,7 @@ version: test-version
                                         "type":{
                                             "type":"string",
                                             "id":"urn:jsonschema:java:net:URI",
-                                            "description":"A URI reference [RFC3986] that identifies the problem type. When dereferenced, it is encouraged to provide human-readable documentation for the problem type (e.g., using HTML [W3C.REC-html401-19991224]). When this member is not present, its value is assumed to be \"about:blank\". <p> Defaults to the {@link #URN_PROBLEM_PREFIX} + \"java:\" + fully qualified class name."
+                                            "description":"A URI reference [RFC3986] that identifies the problem type. When dereferenced, it is encouraged to provide human-readable documentation for the problem type (e.g., using HTML [W3C.REC-html401-19991224]).<p>Defaults to the {@link #URN_PROBLEM_PREFIX} + \"java:\" + fully qualified class name."
                                         },
                                         "title":{
                                             "type":"string",
@@ -125,4 +144,13 @@ version: test-version
                                             "description":"A URI reference that identifies the specific occurrence of the problem. It may or may not yield further information if dereferenced."
                                         }
                                     }
+                                }
+                            example: |
+                                {
+                                    "type":"https://example.com/probs/out-of-credit",
+                                    "title":"You do not have enough credit.",
+                                    "status":{
+                                    },
+                                    "detail":"Your current balance is 30, but that costs 50.",
+                                    "instance":"urn:problem-instance:233e7b05-0500-4b0d-a7d8-f4b90dbfa40e"
                                 }

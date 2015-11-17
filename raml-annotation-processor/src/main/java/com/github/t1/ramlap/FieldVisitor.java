@@ -5,17 +5,20 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.util.Collection;
 
+import javax.ws.rs.core.Response.*;
+
 import com.github.t1.exap.reflection.*;
 
-public class PropertyVisitor {
+// TODO this should be merged into the com.github.t1.exap.reflection.TypeVisitor
+public class FieldVisitor {
     protected void visit(Type type) {
         try {
             if (type.isBoolean()) {
-                visitBoolean();
-            } else if (type.isInteger()) {
-                visitInteger();
+                visitBoolean(type);
+            } else if (type.isInteger() || isIntegerWrapper(type)) {
+                visitInteger(type);
             } else if (type.isFloating()) {
-                visitFloating();
+                visitFloating(type);
             } else if (type.isString() || isStringWrapper(type) || isJacksonToString(type)) {
                 visitString(type);
             } else if (type.isEnum()) {
@@ -34,19 +37,39 @@ public class PropertyVisitor {
         }
     }
 
-    protected void visitBoolean() {}
+    protected void visitBoolean(Type type) {
+        visitScalar(type);
+    }
 
-    protected void visitInteger() {}
+    protected void visitInteger(Type type) {
+        visitScalar(type);
+    }
 
-    protected void visitFloating() {}
+    protected void visitFloating(Type type) {
+        visitScalar(type);
+    }
 
-    protected void visitString(@SuppressWarnings("unused") Type type) {}
+    protected void visitString(Type type) {
+        visitScalar(type);
+    }
 
-    protected void visitEnum(@SuppressWarnings("unused") Type type) {}
+    protected void visitEnum(Type type) {
+        visitScalar(type);
+    }
 
-    protected void visitArray(@SuppressWarnings("unused") Type type) {}
+    protected void visitScalar(@SuppressWarnings("unused") Type type) {}
 
-    protected void visitCollection(@SuppressWarnings("unused") Type type) {}
+    protected void visitArray(Type type) {
+        visitSequence(type.elementType());
+    }
+
+    protected void visitCollection(Type type) {
+        visitSequence(type.getTypeParameters().get(0));
+    }
+
+    protected void visitSequence(Type type) {
+        visit(type);
+    }
 
     protected void visitObject(Type type) {
         for (Field field : type.getAllFields()) {
@@ -56,7 +79,9 @@ public class PropertyVisitor {
         }
     }
 
-    protected void visitField(@SuppressWarnings("unused") Field field) {}
+    protected void visitField(Field field) {
+        visit(field.getType());
+    }
 
     private boolean isJacksonToString(Type type) {
         return isUsing(type, org.codehaus.jackson.map.annotate.JsonSerialize.class,
@@ -71,8 +96,12 @@ public class PropertyVisitor {
                         .contentEquals(type.getAnnotationWrapper(annotation).getTypeProperty("using").getFullName());
     }
 
+    private boolean isIntegerWrapper(Type type) {
+        return type.isA(StatusType.class);
+    }
+
     private boolean isStringWrapper(Type type) {
-        if (type.isA(Path.class) || type.isA(URI.class))
+        if (type.isA(Path.class) || type.isA(URI.class) || type.isA(Status.class) || type.isA(StatusType.class))
             return true;
         return hasToString(type) && hasFromString(type);
     }

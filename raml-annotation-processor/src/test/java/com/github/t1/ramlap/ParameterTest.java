@@ -379,8 +379,10 @@ public class ParameterTest extends AbstractTest {
         then(body.get(APPLICATION_JSON)) //
                 .hasType(null) //
                 .hasSchema(POJO_JSON_SCHEMA) //
-                .hasExample(null) // TODO json example
-                ;
+                .hasExample("{" //
+                        + "\n    \"value\":\"example-value\"\n" //
+                        + "}\n") //
+                        ;
         then(body.get(APPLICATION_XML)) //
                 .hasType(null) //
                 .hasSchema(POJO_XML_SCHEMA) //

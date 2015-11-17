@@ -1,5 +1,7 @@
 package com.github.t1.ramlap;
 
+import io.swagger.annotations.ApiModelProperty;
+
 public class Pojo {
     public static final String POJO_JSON_SCHEMA = "{\n" //
             + "    \"$schema\":\"http://json-schema.org/schema#\",\n" //
@@ -22,6 +24,7 @@ public class Pojo {
             + "</xs:schema>\n" //
             ;
 
+    @ApiModelProperty(example = "example-value")
     private String value;
 
     public String getValue() {

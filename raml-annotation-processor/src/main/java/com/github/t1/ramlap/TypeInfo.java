@@ -10,10 +10,13 @@ import java.util.regex.*;
 
 import org.raml.model.*;
 import org.raml.model.parameter.AbstractParam;
+import org.slf4j.*;
 
 import com.github.t1.exap.reflection.Type;
 
 public class TypeInfo {
+    private static final Logger log = LoggerFactory.getLogger(TypeInfo.class);
+
     static final Pattern MEDIA_TYPE_PATTERN = Pattern.compile("(?<type>[^/]*)/(?<subtype>[^;]*)(;(?<params>.*))?");
 
     private final Type type;
@@ -62,11 +65,10 @@ public class TypeInfo {
             mimeType.setType(paramType().name().toLowerCase(US));
         // TODO add schema to raml root and link from here
         mimeType.setSchema(schema(mediaType));
+        mimeType.setExample(example(mediaType));
     }
 
     private String schema(String mediaType) {
-        if (isProblemDetail())
-            return SchemaGenerator.schema(type, mediaType);
         return isSimple() || isUnspecific() ? null : SchemaGenerator.schema(type, mediaType);
     }
 
@@ -86,6 +88,19 @@ public class TypeInfo {
 
     private boolean isSimple() {
         return type.isBoolean() || type.isNumber() || type.isString();
+    }
+
+    private String example(String mediaType) {
+        if (isSimple() || isUnspecific())
+            return null;
+        try {
+            return ExampleGenerator.example(type, mediaType);
+        } catch (RuntimeException e) {
+            String message = "failed to generate example for " + type + ": " + e.getMessage();
+            log.warn(message, e);
+            type.warning(message);
+            return null;
+        }
     }
 
     @Override

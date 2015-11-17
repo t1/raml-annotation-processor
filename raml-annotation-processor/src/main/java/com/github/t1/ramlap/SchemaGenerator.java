@@ -1,17 +1,14 @@
 package com.github.t1.ramlap;
 
 import java.io.*;
-import java.util.*;
 
-import javax.json.Json;
-import javax.json.stream.*;
 import javax.xml.bind.*;
 import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 
 import org.slf4j.*;
 
-import com.github.t1.exap.*;
+import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.*;
 
 import io.swagger.annotations.ApiModelProperty;
@@ -22,7 +19,7 @@ public class SchemaGenerator {
     /** we don't use the MediaType class, as that would require a dependency on e.g. the glassfish RI */
     public static String schema(Type type, String mediaType) {
         if (isMediaType(mediaType, "json"))
-            return new JsonSchemaGenerator(type).generate();
+            return new JsonSchemaGenerator().generate(type);
         if (isMediaType(mediaType, "xml"))
             return new XmlSchemaGenerator(type).generate();
         return null;
@@ -36,36 +33,21 @@ public class SchemaGenerator {
     /**
      * @see <a href="http://spacetelescope.github.io/understanding-json-schema/index.html">web</a>
      */
-    private static class JsonSchemaGenerator extends PropertyVisitor {
-        private final Type type;
-        private JsonGenerator json;
-
-        public JsonSchemaGenerator(Type type) {
-            this.type = type;
+    private static class JsonSchemaGenerator extends PropertiesToJsonGenerator {
+        public JsonSchemaGenerator() {
+            super(log);
         }
 
-        public String generate() {
+        @Override
+        protected void writeStart(Type type) {
             log.debug("generate json schema for {}", type.getFullName());
-            StringWriter out = new StringWriter();
-            try (JsonGenerator json = createJsonGenerator(out)) {
-                this.json = json;
-                json.writeStartObject();
-                json.write("$schema", "http://json-schema.org/schema#");
-                visit(type);
-                json.writeEnd();
-            }
-            return out.toString().trim() + "\n";
+            json.writeStartObject();
+            json.write("$schema", "http://json-schema.org/schema#");
         }
 
-        @SuppressWarnings("resource") // the caller closes
-        private JsonGenerator createJsonGenerator(StringWriter out) {
-            Map<String, Object> properties = new HashMap<>(1);
-            properties.put(JsonGenerator.PRETTY_PRINTING, true);
-            JsonGeneratorFactory factory = Json.createGeneratorFactory(properties);
-            JsonGenerator generator = factory.createGenerator(out);
-            if (log.isTraceEnabled())
-                generator = LoggingJsonGenerator.of(log, generator);
-            return generator;
+        @Override
+        protected void writeEnd() {
+            json.writeEnd();
         }
 
         @Override
@@ -76,19 +58,21 @@ public class SchemaGenerator {
         }
 
         @Override
-        protected void visitBoolean() {
+        protected void visitBoolean(Type type) {
             log.trace("write boolean");
             json.write("type", "boolean");
         }
 
         @Override
-        protected void visitInteger() {
+        protected void visitInteger(Type type) {
             log.trace("write integer");
             json.write("type", "integer");
+            if (!type.isInteger())
+                writeId(type);
         }
 
         @Override
-        protected void visitFloating() {
+        protected void visitFloating(Type type) {
             log.trace("write number");
             json.write("type", "number");
         }
@@ -97,7 +81,7 @@ public class SchemaGenerator {
         protected void visitString(Type type) {
             log.trace("write string");
             json.write("type", "string");
-            if (!type.isString())
+            if (!type.isA(CharSequence.class))
                 writeId(type);
         }
 
@@ -116,7 +100,7 @@ public class SchemaGenerator {
             log.trace("write array");
             json.write("type", "array");
             json.writeStartObject("items");
-            visit(type.elementType());
+            super.visitArray(type);
             json.writeEnd();
         }
 
@@ -125,7 +109,7 @@ public class SchemaGenerator {
             log.trace("write collection");
             json.write("type", "array");
             json.writeStartObject("items");
-            visit(type.getTypeParameters().get(0));
+            super.visitCollection(type);
             json.writeEnd();
         }
 
@@ -144,20 +128,23 @@ public class SchemaGenerator {
         @Override
         protected void visitField(Field field) {
             json.writeStartObject(field.getName());
-            visit(field.getType());
+            super.visitField(field);
             writeDescription(field);
             json.writeEnd();
         }
 
         private void writeId(Type type) {
-            json.write("id", "urn:jsonschema:" + type.getFullName().replace('.', ':'));
+            json.write("id", "urn:jsonschema:" + type.getFullName().replace('.', ':').replace('$', ':'));
         }
 
         private void writeDescription(Field field) {
             if (field.isAnnotated(JavaDoc.class))
                 json.write("description", field.getAnnotation(JavaDoc.class).value());
-            else if (field.isAnnotated(ApiModelProperty.class))
-                json.write("description", field.getAnnotation(ApiModelProperty.class).value());
+            else if (field.isAnnotated(ApiModelProperty.class)) {
+                String value = field.getAnnotation(ApiModelProperty.class).value();
+                if (!value.isEmpty())
+                    json.write("description", value);
+            }
         }
     }
 
