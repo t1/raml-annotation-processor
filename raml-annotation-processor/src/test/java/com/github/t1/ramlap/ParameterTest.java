@@ -26,7 +26,7 @@ import org.raml.model.parameter.*;
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.*;
 
-import io.swagger.annotations.Api;
+import io.swagger.annotations.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ParameterTest extends AbstractTest {
@@ -124,6 +124,68 @@ public class ParameterTest extends AbstractTest {
                 .hasDisplayName("p") //
                 .hasType(STRING) //
                 ;
+    }
+
+    @Test
+    public void shouldScanApiPathParam() {
+        @Path("")
+        class Dummy {
+            @GET
+            @Path("/{p}")
+            @SuppressWarnings("unused")
+            public void getMethod(@PathParam("p") @ApiParam(value = "p-desc") String p) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/{p}", GET);
+        Map<String, UriParameter> params = action.getResource().getUriParameters();
+        assertThat(params.size()).isEqualTo(1);
+        then(params.get("p")) //
+                .hasDisplayName("p") //
+                .hasType(STRING) //
+                .hasDescription("p-desc") //
+        // TODO name?
+        // TODO defaultValue
+        // TODO allowableValues
+        // TODO required
+        // TODO access
+        // TODO allowMultiple
+        // TODO hidden
+        ;
+    }
+
+    @ApiModel(value = "foo-num", description = "foo-num-desc")
+    enum FooNum {
+        one,
+        two,
+        three
+    }
+
+    @Test
+    public void shouldScanApiModelParam() {
+        @Path("")
+        class Dummy {
+            @GET
+            @Path("/{p}")
+            @SuppressWarnings("unused")
+            public void getMethod(@PathParam("p") FooNum p) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/{p}", GET);
+        Map<String, UriParameter> params = action.getResource().getUriParameters();
+        assertThat(params.size()).isEqualTo(1);
+        then(params.get("p")) //
+                .hasType(STRING) //
+                .hasDisplayName("foo-num") //
+                .hasDescription("foo-num-desc") //
+        // TODO parent
+        // TODO discriminator
+        // TODO subTypes
+        // TODO reference
+        ;
     }
 
     @Test

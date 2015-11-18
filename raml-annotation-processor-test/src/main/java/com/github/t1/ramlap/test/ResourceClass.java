@@ -30,7 +30,6 @@ public class ResourceClass {
             @JavaDoc(value = "h. h-param-descr") //
             @HeaderParam("header-param") String headerParam //
             , //
-            @JavaDoc(value = "q. q-param-descr") //
             @QueryParam("query-param") SomeEnum queryParam //
             , //
             @MatrixParam("matrix-param-0") String matrixParam0 //

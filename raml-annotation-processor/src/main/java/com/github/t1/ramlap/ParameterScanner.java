@@ -15,6 +15,8 @@ import org.raml.model.parameter.*;
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Parameter;
 
+import io.swagger.annotations.*;
+
 public class ParameterScanner {
     private final Raml raml;
     private final Action action;
@@ -45,7 +47,7 @@ public class ParameterScanner {
         paramAnnotationCount++;
         UriParameter uriParam = uriParameter(pathParam.value());
         typeInfo().applyTo(uriParam);
-        scanJavaDoc(uriParam);
+        scanDoc(uriParam);
     }
 
     private UriParameter uriParameter(String uriParamName) {
@@ -82,7 +84,7 @@ public class ParameterScanner {
             action.getQueryParameters().put(parameterId, queryParamModel);
         }
         typeInfo().applyTo(queryParamModel);
-        scanJavaDoc(queryParamModel);
+        scanDoc(queryParamModel);
     }
 
     private void scan(HeaderParam headerParamAnnotation) {
@@ -97,7 +99,7 @@ public class ParameterScanner {
             action.getHeaders().put(parameterId, headerParamModel);
         }
         typeInfo().applyTo(headerParamModel);
-        scanJavaDoc(headerParamModel);
+        scanDoc(headerParamModel);
     }
 
     private void scanBody() {
@@ -127,10 +129,18 @@ public class ParameterScanner {
         return singletonList(APPLICATION_JSON);
     }
 
-    private void scanJavaDoc(AbstractParam model) {
-        if (parameter.isAnnotated(JavaDoc.class)) {
-            model.setDisplayName(JavaDoc.SUMMARY.apply(parameter.getAnnotation(JavaDoc.class)));
-            model.setDescription(parameter.getAnnotation(JavaDoc.class).value());
+    private void scanDoc(AbstractParam model) {
+        if (parameter.isAnnotated(ApiParam.class)) {
+            ApiParam apiParam = parameter.getAnnotation(ApiParam.class);
+            model.setDescription(apiParam.value());
+        } else if (parameter.getType().isAnnotated(ApiModel.class)) {
+            ApiModel apiModel = parameter.getType().getAnnotation(ApiModel.class);
+            model.setDisplayName(apiModel.value());
+            model.setDescription(apiModel.description());
+        } else if (parameter.isAnnotated(JavaDoc.class)) {
+            JavaDoc javadoc = parameter.getAnnotation(JavaDoc.class);
+            model.setDisplayName(JavaDoc.SUMMARY.apply(javadoc));
+            model.setDescription(javadoc.value());
         }
     }
 }
