@@ -11,15 +11,12 @@ import com.github.t1.exap.JavaDoc;
 import com.github.t1.ramlap.ApiResponse;
 import com.github.t1.ramlap.ProblemDetail.ValidationFailed;
 
-import io.swagger.annotations.ApiOperation;
-
 /** p-resource. something about the p. */
 @Path("/p")
 public class ResourceClass {
     /** get action. method-doGet */
     @GET
     @Path("/{path-param}")
-    @ApiOperation("get-op")
     @SuppressWarnings("unused")
     @ApiResponse(status = OK, title = "everything's fine")
     @ApiResponse(status = NOT_FOUND, title = "nothing there")
