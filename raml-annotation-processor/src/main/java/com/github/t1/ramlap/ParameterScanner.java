@@ -135,8 +135,10 @@ public class ParameterScanner {
             model.setDescription(apiParam.value());
         } else if (parameter.getType().isAnnotated(ApiModel.class)) {
             ApiModel apiModel = parameter.getType().getAnnotation(ApiModel.class);
-            model.setDisplayName(apiModel.value());
-            model.setDescription(apiModel.description());
+            if (!apiModel.value().isEmpty())
+                model.setDisplayName(apiModel.value());
+            if (!apiModel.description().isEmpty())
+                model.setDescription(apiModel.description());
         } else if (parameter.isAnnotated(JavaDoc.class)) {
             JavaDoc javadoc = parameter.getAnnotation(JavaDoc.class);
             model.setDisplayName(JavaDoc.SUMMARY.apply(javadoc));

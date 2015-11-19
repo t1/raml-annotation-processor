@@ -287,6 +287,23 @@ public class OperationTest extends AbstractTest {
                 ;
     }
 
+    @Test
+    public void shouldScanApiOperationValueOnly() {
+        @Path("/foo")
+        class Dummy {
+            @ApiOperation("summary")
+            @GET
+            public void getMethod() {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        then(action(raml, "/foo", GET)) //
+                .hasDisplayName("summary") //
+                .hasDescription(null) //
+                ;
+    }
+
     // TODO {*} request header names
     // TODO replace methodName, resourcePath, resourcePathName, and mediaTypeExtension
     // TODO form params

@@ -174,7 +174,9 @@ public class ExampleGenerator {
 
         private String exampleValue(Field field) {
             String example = null;
-            if (field.isAnnotated(ApiModelProperty.class))
+            if (field.isAnnotated(ApiExample.class))
+                example = field.getAnnotation(ApiExample.class).value();
+            else if (field.isAnnotated(ApiModelProperty.class))
                 example = field.getAnnotation(ApiModelProperty.class).example();
             if (example == null || example.isEmpty())
                 example = generatedExample(field.getType());

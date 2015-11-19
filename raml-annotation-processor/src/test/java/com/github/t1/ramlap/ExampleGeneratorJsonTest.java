@@ -146,7 +146,7 @@ public class ExampleGeneratorJsonTest {
         AnnotatedNestedNestedPojo n;
     }
 
-    static class AnnotatedExamplesPojo {
+    static class ApiModelPropertyAnnotatedExamplesPojo {
         @ApiModelProperty(example = "true")
         boolean b;
 
@@ -184,8 +184,8 @@ public class ExampleGeneratorJsonTest {
     }
 
     @Test
-    public void shouldProduceScalarAnnotatedExamples() {
-        Type type = ENV.type(AnnotatedExamplesPojo.class);
+    public void shouldProduceApiModelPropertyAnnotatedExamples() {
+        Type type = ENV.type(ApiModelPropertyAnnotatedExamplesPojo.class);
 
         String example = ExampleGenerator.example(type, APPLICATION_JSON);
 
@@ -214,6 +214,77 @@ public class ExampleGeneratorJsonTest {
                 + "    }\n" //
                 + "}\n");
     }
+
+    static class ApiExampleAnnotatedExamplesPojo {
+        @ApiExample("true")
+        boolean b;
+
+        @ApiExample("9876")
+        int i;
+
+        @ApiExample("98.76")
+        double d;
+
+        @ApiExample("xs")
+        String s;
+
+        @ApiExample("xu")
+        URI u;
+
+        @ApiExample("xp")
+        Path p;
+
+        @ApiExample("403")
+        Status h;
+
+        @ApiExample("403")
+        StatusType j;
+
+        @ApiExample("xm")
+        AccessMode m;
+
+        @ApiExample("xa")
+        AccessMode[] a;
+
+        @ApiExample("xc")
+        List<String> c;
+
+        AnnotatedNestedPojo o;
+    }
+
+    @Test
+    public void shouldProduceApiExampleAnnotatedExamples() {
+        Type type = ENV.type(ApiExampleAnnotatedExamplesPojo.class);
+
+        String example = ExampleGenerator.example(type, APPLICATION_JSON);
+
+        assertThat(example).isEqualTo("{\n" //
+                + "    \"b\":true,\n" //
+                + "    \"i\":9876,\n" //
+                + "    \"d\":98.76,\n" //
+                + "    \"s\":\"xs\",\n" //
+                + "    \"u\":\"xu\",\n" //
+                + "    \"p\":\"xp\",\n" //
+                + "    \"h\":403,\n" //
+                + "    \"j\":403,\n" //
+                + "    \"m\":\"xm\",\n" //
+                + "    \"a\":[\n" //
+                + "        \"xa\"\n" //
+                + "    ],\n" //
+                + "    \"c\":[\n" //
+                + "        \"xc\"\n" //
+                + "    ],\n" //
+                + "    \"o\":{\n" //
+                + "        \"x\":\"xx\",\n" //
+                + "        \"y\":\"xy\",\n" //
+                + "        \"n\":{\n" //
+                + "            \"z\":\"xz\"\n" //
+                + "        }\n" //
+                + "    }\n" //
+                + "}\n");
+        // TODO RAML 1.0: example displayName, description, annotations, serialized examples, and strict
+    }
+
 
     @Test
     public void shouldProduceStringArrayExample() {

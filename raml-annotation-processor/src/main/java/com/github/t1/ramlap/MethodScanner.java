@@ -88,12 +88,8 @@ public class MethodScanner {
 
     private String description() {
         ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
-        if (apiOperation != null) {
-            if (!apiOperation.notes().isEmpty())
-                return apiOperation.notes();
-            if (!apiOperation.value().isEmpty())
-                return apiOperation.value();
-        }
+        if (apiOperation != null && !apiOperation.notes().isEmpty())
+            return apiOperation.notes();
         return (method.isAnnotated(JavaDoc.class)) ? method.getAnnotation(JavaDoc.class).value() : null;
     }
 
