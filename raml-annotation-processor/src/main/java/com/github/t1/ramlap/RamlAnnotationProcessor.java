@@ -21,6 +21,10 @@ import io.swagger.annotations.SwaggerDefinition;
 public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
     private static final Logger log = LoggerFactory.getLogger(RamlAnnotationProcessor.class);
 
+    public static boolean isStrict() {
+        return false; // TODO this should be configurable
+    }
+
     private final RamlScanner scanner = new RamlScanner();
 
     @Override

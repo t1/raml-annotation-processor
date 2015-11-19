@@ -97,8 +97,13 @@ public class TypeInfo {
             return ExampleGenerator.example(type, mediaType);
         } catch (RuntimeException e) {
             String message = "failed to generate example for " + type + ": " + e.getMessage();
-            log.warn(message, e);
-            type.warning(message);
+            if (RamlAnnotationProcessor.isStrict()) {
+                log.error(message, e);
+                type.error(message);
+            } else {
+                log.warn(message, e);
+                type.warning(message);
+            }
             return null;
         }
     }

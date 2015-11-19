@@ -18,7 +18,7 @@ import io.swagger.annotations.ApiModelProperty;
  *
  * @since RAML 1.0
  */
-@Target({ FIELD })
+@Target({ FIELD, PARAMETER })
 @Retention(RUNTIME)
 @Inherited
 @Repeatable(ApiExamples.class)

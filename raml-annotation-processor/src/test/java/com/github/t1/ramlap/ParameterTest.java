@@ -17,7 +17,7 @@ import java.util.*;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.raml.model.*;
@@ -77,7 +77,6 @@ public class ParameterTest extends AbstractTest {
         // TODO minimum : BigDecimal
         // TODO maximum : BigDecimal
         // TODO defaultValue : String
-        // TODO example : String
         ;
         Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
         assertThat(pathParams.size()).isEqualTo(3);
@@ -338,7 +337,7 @@ public class ParameterTest extends AbstractTest {
     }
 
     @Test
-    public void shouldScanBodyParam() {
+    public void shouldScanStringBodyParam() {
         @Api
         @Path("/p")
         class Dummy {
@@ -356,7 +355,32 @@ public class ParameterTest extends AbstractTest {
         then(body.get(APPLICATION_JSON)) //
                 .hasType("string") //
                 .hasSchema(null) //
-                .hasExample(null) // TODO example
+                .hasExample(null) //
+                ;
+        // TODO form params
+    }
+
+    @Test
+    @Ignore("removing isSimple() from TypeInfo#example throws EmptyStackException")
+    public void shouldScanStringBodyParamAnnotatedAsApiExample() {
+        @Api
+        @Path("/p")
+        class Dummy {
+            @GET
+            @SuppressWarnings("unused")
+            @Consumes(APPLICATION_JSON)
+            public void getMethod(@ApiExample("sample") String body) {}
+        }
+
+        Raml raml = scanTypes(Dummy.class);
+
+        Action action = action(raml, "/p", GET);
+        Map<String, MimeType> body = action.getBody();
+        assertThat(body.size()).isEqualTo(1);
+        then(body.get(APPLICATION_JSON)) //
+                .hasType("string") //
+                .hasSchema(null) //
+                .hasExample("sample") //
                 ;
         // TODO form params
     }
@@ -423,7 +447,7 @@ public class ParameterTest extends AbstractTest {
     }
 
     @Test
-    public void shouldScanBodyParamWithSchemaType() {
+    public void shouldScanPojoBodyParam() {
         @Api
         @Path("/p")
         class Dummy {
