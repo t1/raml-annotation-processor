@@ -68,7 +68,7 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
     }
 
     private void writeRaml(Round round) throws IOException {
-        String relativeName = scanner.getFileName();
+        String relativeName = scanner.getFileName().replace(' ', '-');
         Resource resource = round.createResource("doc", relativeName);
         log.debug("write {}", resource.getName());
         try (Writer writer = resource.openWriter()) {

@@ -54,6 +54,17 @@ public class SwaggerDefinitionTest {
     }
 
     @Test
+    public void shouldScanTitleWithSpace() {
+        @SwaggerDefinition(info = @Info(title = "ti tle", version = "") )
+        class Dummy {}
+
+        Raml raml = scanSwaggerDefinition(Dummy.class);
+
+        softly.assertThat(raml.getTitle()).isEqualTo("ti tle");
+        softly.assertThat(raml.getVersion()).isNull();
+    }
+
+    @Test
     public void shouldScanBasePath() {
         @SwaggerDefinition(basePath = "http://{host}/{path}", schemes = Scheme.HTTPS)
         class Dummy {}
