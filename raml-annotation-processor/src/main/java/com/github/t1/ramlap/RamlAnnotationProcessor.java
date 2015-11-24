@@ -13,6 +13,7 @@ import org.slf4j.*;
 
 import com.github.t1.exap.*;
 import com.github.t1.exap.reflection.*;
+import com.github.t1.ramlap.scanner.RamlScanner;
 
 import io.swagger.annotations.SwaggerDefinition;
 

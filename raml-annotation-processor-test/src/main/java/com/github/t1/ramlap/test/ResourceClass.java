@@ -8,8 +8,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
 import com.github.t1.exap.JavaDoc;
-import com.github.t1.ramlap.ApiResponse;
-import com.github.t1.ramlap.ProblemDetail.ValidationFailed;
+import com.github.t1.ramlap.annotations.ApiResponse;
+import com.github.t1.ramlap.tools.ProblemDetail.ValidationFailed;
 
 /** p-resource. something about the p. */
 @Path("/p")

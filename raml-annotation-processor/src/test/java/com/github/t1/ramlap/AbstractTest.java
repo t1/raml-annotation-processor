@@ -14,6 +14,7 @@ import org.raml.model.*;
 import org.raml.model.Resource;
 
 import com.github.t1.exap.reflection.*;
+import com.github.t1.ramlap.scanner.RamlScanner;
 
 import io.swagger.annotations.SwaggerDefinition;
 

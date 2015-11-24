@@ -39,7 +39,7 @@
                          <param>com.github.t1.ramlap.ProblemDetail</param>
                          throws ClassNotFoundException: org.glassfish.jersey.internal.RuntimeDelegateImpl
                         -->
-                        <param>com.github.t1.ramlap.ResourcePath</param>
+                        <param>com.github.t1.ramlap.tools.ResourcePath</param>
                     </classes>
                     <hierarchical>true</hierarchical>
                 </configuration>
