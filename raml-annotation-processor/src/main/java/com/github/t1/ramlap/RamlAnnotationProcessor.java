@@ -13,6 +13,9 @@ import org.slf4j.*;
 
 import com.github.t1.exap.*;
 import com.github.t1.exap.reflection.*;
+import com.github.t1.exap.reflection.Package;
+import com.github.t1.ramlap.annotations.ApiGenerate;
+import com.github.t1.ramlap.generator.ApiGenerator;
 import com.github.t1.ramlap.scanner.RamlScanner;
 
 import io.swagger.annotations.SwaggerDefinition;
@@ -32,6 +35,7 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
     public boolean process(Round round) throws IOException {
         log.debug("process {}", round);
 
+        generateApis(round.packagesAnnotatedWith(ApiGenerate.class));
         scanSwaggerDefinitions(round.typesAnnotatedWith(SwaggerDefinition.class));
         scanTypes(round.typesAnnotatedWith(Path.class));
 
@@ -39,6 +43,11 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
             writeRaml(round);
 
         return false;
+    }
+
+    private void generateApis(List<Package> packages) {
+        for (Package pkg : packages)
+            new ApiGenerator(pkg).generate();
     }
 
     public void scanSwaggerDefinitions(List<Type> elements) {
