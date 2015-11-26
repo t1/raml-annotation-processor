@@ -79,7 +79,11 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
     }
 
     private boolean isGeneratedApi(Type type) {
-        return type.getPackage().isAnnotated(ApiGenerate.class);
+        boolean isApiGenerated = type.getPackage().isAnnotated(ApiGenerate.class);
+        if (isApiGenerated)
+            log.debug("skipping {}, as its package is annotated {}",
+                    type, type.getPackage().getAnnotation(ApiGenerate.class));
+        return isApiGenerated;
     }
 
     private void writeRaml(Round round) throws IOException {

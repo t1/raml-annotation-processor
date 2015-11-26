@@ -4,15 +4,11 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 @Path("/root")
-public class RootResource {
+public interface RootResource {
     @GET
-    public Response getString() {
-        return null;
-    }
+    public Response getString();
 
     @PUT
-    public Response putString() {
-        return null;
-    }
+    public Response putString();
 
 }

@@ -1,5 +1,6 @@
 package com.github.t1.ramlap.generator;
 
+import static com.github.t1.exap.generator.TypeKind.*;
 import static com.github.t1.ramlap.tools.StringTools.*;
 
 import java.io.*;
@@ -72,6 +73,7 @@ public class ApiGenerator {
             String typeName = typeName();
             log.debug("generate {}", typeName);
             try (TypeGenerator generator = pkg.openTypeGenerator(typeName)) {
+                generator.kind(INTERFACE);
                 generator.annotation(type(Path.class)).set("value", resource.getUri());
                 for (ActionType actionType : ActionType.values()) {
                     Action action = resource.getAction(actionType);
@@ -80,7 +82,6 @@ public class ApiGenerator {
                     MethodGenerator method = generator.addMethod(methodName(action));
                     method.annotation(actionAnnotation(actionType));
                     method.returnType(type(Response.class));
-                    method.body("return null;");
                 }
             }
         }
