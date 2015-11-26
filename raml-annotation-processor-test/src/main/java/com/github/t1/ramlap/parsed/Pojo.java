@@ -1,4 +1,4 @@
-package com.github.t1.ramlap.test;
+package com.github.t1.ramlap.parsed;
 
 import java.io.Serializable;
 

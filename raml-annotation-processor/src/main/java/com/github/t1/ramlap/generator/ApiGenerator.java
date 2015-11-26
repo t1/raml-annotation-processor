@@ -1,15 +1,13 @@
 package com.github.t1.ramlap.generator;
 
 import static com.github.t1.ramlap.tools.StringTools.*;
-import static org.raml.model.ActionType.*;
 
 import java.io.*;
-import java.nio.file.*;
 
-import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
-import org.raml.model.Raml;
+import org.raml.model.*;
 import org.raml.model.Resource;
 import org.raml.parser.loader.*;
 import org.raml.parser.visitor.YamlDocumentBuilder;
@@ -38,48 +36,73 @@ public class ApiGenerator {
             return;
         for (String ramlFileName : apiGenerate.from()) {
             log.debug("generate Api from {}", ramlFileName);
-            new Generator(ramlFileName).generate();
-        }
-    }
-
-    private class Generator {
-        private final String ramlFileName;
-        private final Raml raml;
-
-        public Generator(String ramlFileName) {
-            this.ramlFileName = ramlFileName;
-            this.raml = loadRaml(ramlFileName);
-        }
-
-        private Raml loadRaml(String ramlFileName) {
-            Path path = Paths.get(ramlFileName);
-            ResourceLoader loader = new DefaultResourceLoader();
-            YamlDocumentBuilder<Raml> builder = new YamlDocumentBuilder<>(Raml.class, loader);
-            try (FileReader reader = new FileReader(path.toFile())) {
-                return builder.build(reader, path.getParent().toString());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        public void generate() {
+            Raml raml = loadRaml(ramlFileName);
+            log.debug("generate {} {}", raml.getTitle(), raml.getVersion());
             for (Resource resource : raml.getResources().values()) {
-                String typeName = toUpperCamelCase(raml.getTitle());
-                log.debug("generate {}", typeName);
-                try (TypeGenerator generator = pkg.openTypeGenerator(typeName)) {
-                    MethodGenerator method = generator.addMethod(methodName(resource));
-                    method.annotation(type(GET.class));
-                    method.returnType(type(Response.class));
-                    method.body("return null;");
+                try {
+                    new ResourceGenerator(resource).generate();
                 } catch (RuntimeException e) {
-                    log.error("failed to process api {} in {}", ramlFileName, pkg);
+                    log.error("failed to generate resource " + resource.getUri() //
+                            + " from " + ramlFileName + " in " + pkg, e);
                     pkg.error(RamlAnnotationProcessor.class.getName() + ": " + e.toString());
                 }
             }
         }
+    }
 
-        private String methodName(Resource resource) {
-            return toLowerCamelCase(resource.getAction(GET).getDisplayName());
+    private Raml loadRaml(String ramlFileName) {
+        java.nio.file.Path path = java.nio.file.Paths.get(ramlFileName);
+        ResourceLoader loader = new DefaultResourceLoader();
+        YamlDocumentBuilder<Raml> builder = new YamlDocumentBuilder<>(Raml.class, loader);
+        try (FileReader reader = new FileReader(path.toFile())) {
+            return builder.build(reader, path.getParent().toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private class ResourceGenerator {
+        private final Resource resource;
+
+        public ResourceGenerator(Resource resource) {
+            this.resource = resource;
+        }
+
+        public void generate() {
+            String typeName = typeName();
+            log.debug("generate {}", typeName);
+            try (TypeGenerator generator = pkg.openTypeGenerator(typeName)) {
+                generator.annotation(type(Path.class)).set("value", resource.getUri());
+                for (ActionType actionType : ActionType.values()) {
+                    Action action = resource.getAction(actionType);
+                    if (action == null)
+                        continue;
+                    MethodGenerator method = generator.addMethod(methodName(action));
+                    method.annotation(actionAnnotation(actionType));
+                    method.returnType(type(Response.class));
+                    method.body("return null;");
+                }
+            }
+        }
+
+        private Type actionAnnotation(ActionType actionType) {
+            Class<?> type;
+            try {
+                type = Class.forName("javax.ws.rs." + actionType);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            return type(type);
+        }
+
+        private String typeName() {
+            String name = resource.getDisplayName();
+            return toUpperCamelCase(name);
+        }
+
+        private String methodName(
+                Action action) {
+            return toLowerCamelCase(action.getDisplayName());
         }
     }
 }

@@ -20,12 +20,14 @@ public class ApiGeneratorTest {
                         pkg, className, ENV.getCreatedResources());
     }
 
+    private File source(Class<RootResource> type) {
+        return new File("src/test/java/" + type.getName().replace('.', '/') + ".java");
+    }
+
     @Test
     public void shouldGenerateTestApi() {
         new ApiGenerator(PACKAGE).generate();
 
-        assertThatGeneratedClass(PACKAGE, "TestApi")
-                .isEqualTo(contentOf(new File(
-                        "src/test/java/" + getClass().getPackage().getName().replace('.', '/') + "/TestApi.java")));
+        assertThatGeneratedClass(PACKAGE, "RootResource").isEqualTo(contentOf(source(RootResource.class)));
     }
 }

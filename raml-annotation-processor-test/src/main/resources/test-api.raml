@@ -1,9 +1,17 @@
 #%RAML 0.8
 title: test-api
-version: test-version
+version: v1
 /root:
+  displayName: root resource
   get:
     displayName: getString
+    responses:
+      200:
+        description: root get description
+        body:
+          application/json:
+  put:
+    displayName: putString
     responses:
       200:
         description: root get description

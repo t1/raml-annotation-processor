@@ -1,11 +1,17 @@
 package com.github.t1.ramlap.generator;
 
-import javax.ws.rs.GET;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
-public class TestApi {
+@Path("/root")
+public class RootResource {
     @GET
     public Response getString() {
+        return null;
+    }
+
+    @PUT
+    public Response putString() {
         return null;
     }
 

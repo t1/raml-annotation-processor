@@ -21,7 +21,7 @@ import com.github.t1.ramlap.scanner.RamlScanner;
 import io.swagger.annotations.SwaggerDefinition;
 
 @SupportedSourceVersion(RELEASE_8)
-@SupportedAnnotationClasses({ Path.class })
+@SupportedAnnotationClasses({ ApiGenerate.class, SwaggerDefinition.class, Path.class })
 public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
     private static final Logger log = LoggerFactory.getLogger(RamlAnnotationProcessor.class);
 
@@ -35,9 +35,9 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
     public boolean process(Round round) throws IOException {
         log.debug("process {}", round);
 
-        generateApis(round.packagesAnnotatedWith(ApiGenerate.class));
         scanSwaggerDefinitions(round.typesAnnotatedWith(SwaggerDefinition.class));
         scanTypes(round.typesAnnotatedWith(Path.class));
+        generateApis(round.packagesAnnotatedWith(ApiGenerate.class));
 
         if (round.isLast() && scanner.isWorthWriting())
             writeRaml(round);
@@ -74,7 +74,12 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
 
     private void scanTypes(List<Type> types) {
         for (Type type : types)
-            scanner.scanJaxRsType(type);
+            if (!isGeneratedApi(type))
+                scanner.scanJaxRsType(type);
+    }
+
+    private boolean isGeneratedApi(Type type) {
+        return type.getPackage().isAnnotated(ApiGenerate.class);
     }
 
     private void writeRaml(Round round) throws IOException {

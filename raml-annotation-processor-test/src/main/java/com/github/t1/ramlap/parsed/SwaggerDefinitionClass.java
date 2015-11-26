@@ -1,4 +1,4 @@
-package com.github.t1.ramlap.test;
+package com.github.t1.ramlap.parsed;
 
 import static javax.ws.rs.core.MediaType.*;
 
