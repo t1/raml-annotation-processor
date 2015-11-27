@@ -73,6 +73,7 @@ public class ApiGenerator {
             String typeName = typeName();
             log.debug("generate {}", typeName);
             try (TypeGenerator generator = pkg.openTypeGenerator(typeName)) {
+                generator.javaDoc(resource.getDescription());
                 generator.kind(INTERFACE);
                 generator.annotation(type(Path.class)).set("value", resource.getUri());
                 for (ActionType actionType : ActionType.values()) {
@@ -80,6 +81,7 @@ public class ApiGenerator {
                     if (action == null)
                         continue;
                     MethodGenerator method = generator.addMethod(methodName(action));
+                    method.javaDoc(action.getDescription());
                     method.annotation(actionAnnotation(actionType));
                     method.returnType(type(Response.class));
                 }
@@ -98,6 +100,8 @@ public class ApiGenerator {
 
         private String typeName() {
             String name = resource.getDisplayName();
+            if (name == null)
+                name = resource.getUri().replace('/', ' ') + " Resource";
             return toUpperCamelCase(name);
         }
 
