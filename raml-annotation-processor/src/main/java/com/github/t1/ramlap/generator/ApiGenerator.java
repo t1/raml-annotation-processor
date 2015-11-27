@@ -40,13 +40,7 @@ public class ApiGenerator {
             Raml raml = loadRaml(ramlFileName);
             log.debug("generate {} {}", raml.getTitle(), raml.getVersion());
             for (Resource resource : raml.getResources().values()) {
-                try {
-                    new ResourceGenerator(resource).generate();
-                } catch (RuntimeException e) {
-                    log.error("failed to generate resource " + resource.getUri() //
-                            + " from " + ramlFileName + " in " + pkg, e);
-                    pkg.error(RamlAnnotationProcessor.class.getName() + ": " + e.toString());
-                }
+                new ResourceGenerator(resource).generate();
             }
         }
     }
@@ -70,32 +64,27 @@ public class ApiGenerator {
         }
 
         public void generate() {
-            String typeName = typeName();
-            log.debug("generate {}", typeName);
-            try (TypeGenerator generator = pkg.openTypeGenerator(typeName)) {
-                generator.javaDoc(resource.getDescription());
-                generator.kind(INTERFACE);
-                generator.annotation(type(Path.class)).set("value", resource.getUri());
-                for (ActionType actionType : ActionType.values()) {
-                    Action action = resource.getAction(actionType);
-                    if (action == null)
-                        continue;
-                    MethodGenerator method = generator.addMethod(methodName(action));
-                    method.javaDoc(action.getDescription());
-                    method.annotation(actionAnnotation(actionType));
-                    method.returnType(type(Response.class));
+            String typeUri = resource.getUri();
+            try {
+                String typeName = typeName();
+                log.debug("generate {}", typeName);
+                try (TypeGenerator typeGenerator = pkg.openTypeGenerator(typeName)) {
+                    typeGenerator.javaDoc(resource.getDescription());
+                    typeGenerator.kind(INTERFACE);
+                    typeGenerator.annotation(type(Path.class)).set("value", typeUri);
+                    generateMethods(typeUri, typeGenerator, resource);
                 }
+            } catch (RuntimeException e) {
+                log.error("failed to generate resource " + typeUri + " in " + pkg, e);
+                pkg.error(RamlAnnotationProcessor.class.getName() + ": " + e.toString());
             }
         }
 
-        private Type actionAnnotation(ActionType actionType) {
-            Class<?> type;
-            try {
-                type = Class.forName("javax.ws.rs." + actionType);
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            return type(type);
+        private void generateMethods(String typeUri, TypeGenerator typeGenerator, Resource resource) {
+            for (Action action : resource.getActions().values())
+                generateMethod(typeGenerator, typeUri, action);
+            for (Resource subResource : resource.getResources().values())
+                generateMethods(typeUri, typeGenerator, subResource);
         }
 
         private String typeName() {
@@ -105,9 +94,36 @@ public class ApiGenerator {
             return toUpperCamelCase(name);
         }
 
-        private String methodName(
-                Action action) {
-            return toLowerCamelCase(action.getDisplayName());
+        private void generateMethod(TypeGenerator typeGenerator, String typeUri, Action action) {
+            MethodGenerator method = typeGenerator.addMethod(methodName(typeUri, action));
+            method.javaDoc(action.getDescription());
+            method.annotation(actionAnnotation(action.getType()));
+            String methodPath = methodPath(typeUri, action);
+            if (!methodPath.isEmpty())
+                method.annotation(type(Path.class)).set("value", methodPath);
+            method.returnType(type(Response.class));
+        }
+
+        private String methodName(String typeUri, Action action) {
+            String name = action.getDisplayName();
+            if (name == null)
+                name = methodPath(typeUri, action) + " " + action.getType().toString().toLowerCase();
+            return toLowerCamelCase(name);
+        }
+
+        private Type actionAnnotation(ActionType actionType) {
+            try {
+                Class<?> type = Class.forName("javax.ws.rs." + actionType);
+                return type(type);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private String methodPath(String typeUri, Action action) {
+            String actionUri = action.getResource().getUri();
+            assert actionUri.startsWith(typeUri);
+            return actionUri.substring(typeUri.length());
         }
     }
 }

@@ -16,7 +16,7 @@ public class StringTools {
         return out.toString();
     }
 
-    private static final Set<Character> WORD_BREAKS = new HashSet<>(asList(' ', '-'));
+    private static final Set<Character> WORD_BREAKS = new HashSet<>(asList(' ', '-', '/'));
 
     public static String toUpperCamelCase(String in) {
         return toCamelCase(in, true);
@@ -31,7 +31,8 @@ public class StringTools {
         for (int i = 0; i < in.length(); i++) {
             char c = in.charAt(i);
             if (WORD_BREAKS.contains(c)) {
-                cap = true;
+                if (out.length() > 0)
+                    cap = true;
             } else if (cap) {
                 cap = false;
                 out.append(Character.toUpperCase(c));

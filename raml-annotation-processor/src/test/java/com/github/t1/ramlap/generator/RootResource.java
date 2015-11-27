@@ -16,4 +16,20 @@ public interface RootResource {
     @PUT
     public Response putString();
 
+    @GET
+    @Path("/sub")
+    public Response subGet();
+
+    @GET
+    @Path("/sub/sub")
+    public Response subSubGet();
+
+    @GET
+    @Path("/sub/sub/sub")
+    public Response subSubSubGet();
+
+    @GET
+    @Path("/othersub")
+    public Response othersubGet();
+
 }

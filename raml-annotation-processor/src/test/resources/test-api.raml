@@ -19,3 +19,14 @@ version: v1
       200:
         body:
           application/json:
+  /sub:
+    get:
+      displayName: sub get
+    /sub:
+      get:
+        displayName: sub sub get
+      /sub:
+        get:
+          displayName: sub sub sub get
+  /othersub:
+    get:
