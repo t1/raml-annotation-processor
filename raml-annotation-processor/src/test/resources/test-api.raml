@@ -30,3 +30,10 @@ version: v1
           displayName: sub sub sub get
   /othersub:
     get:
+  /{path-param}:
+    uriParameters:
+      path-param:
+        type: string
+        displayName: pathParam
+    get:
+      displayName: getWithPathParam

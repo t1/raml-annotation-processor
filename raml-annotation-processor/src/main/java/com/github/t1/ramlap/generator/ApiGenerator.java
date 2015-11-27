@@ -4,12 +4,14 @@ import static com.github.t1.exap.generator.TypeKind.*;
 import static com.github.t1.ramlap.tools.StringTools.*;
 
 import java.io.*;
+import java.util.Map.Entry;
 
-import javax.ws.rs.Path;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
 import org.raml.model.*;
 import org.raml.model.Resource;
+import org.raml.model.parameter.UriParameter;
 import org.raml.parser.loader.*;
 import org.raml.parser.visitor.YamlDocumentBuilder;
 
@@ -102,6 +104,7 @@ public class ApiGenerator {
             if (!methodPath.isEmpty())
                 method.annotation(type(Path.class)).set("value", methodPath);
             method.returnType(type(Response.class));
+            generateParameters(typeGenerator, method, action);
         }
 
         private String methodName(String typeUri, Action action) {
@@ -124,6 +127,16 @@ public class ApiGenerator {
             String actionUri = action.getResource().getUri();
             assert actionUri.startsWith(typeUri);
             return actionUri.substring(typeUri.length());
+        }
+
+        private void generateParameters(TypeGenerator container, MethodGenerator method, Action action) {
+            for (Entry<String, UriParameter> entry : action.getResource().getUriParameters().entrySet()) {
+                String key = entry.getKey();
+                UriParameter ramlParam = entry.getValue();
+                ParameterGenerator paramGenerator = method.addParameter(ramlParam.getDisplayName());
+                paramGenerator.type(new TypeExpressionGenerator(container, "String"));
+                paramGenerator.annotation(type(PathParam.class)).set("value", key);
+            }
         }
     }
 }

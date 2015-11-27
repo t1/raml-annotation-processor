@@ -32,4 +32,8 @@ public interface RootResource {
     @Path("/othersub")
     public Response othersubGet();
 
+    @GET
+    @Path("/{path-param}")
+    public Response getWithPathParam(@PathParam("path-param") String pathParam);
+
 }
