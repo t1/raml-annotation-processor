@@ -5,21 +5,21 @@ import static com.github.t1.ramlap.tools.StringTools.*;
 
 import java.io.*;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
 
-import org.raml.model.*;
-import org.raml.model.Resource;
-import org.raml.model.parameter.UriParameter;
-import org.raml.parser.loader.*;
-import org.raml.parser.visitor.YamlDocumentBuilder;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.nodes.Tag;
+import org.yaml.snakeyaml.representer.Representer;
 
 import com.github.t1.exap.generator.*;
 import com.github.t1.exap.reflection.*;
 import com.github.t1.exap.reflection.Package;
 import com.github.t1.ramlap.RamlAnnotationProcessor;
 import com.github.t1.ramlap.annotations.ApiGenerate;
+import com.github.t1.ramlap.model.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,11 +27,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class ApiGenerator {
+    private static final Tag RESOURCE_PATH_TAG = new Tag("!resourcePath");
+
     private static Type type(Class<?> klass) {
         return ReflectionProcessingEnvironment.ENV.type(klass);
     }
 
     private final Package pkg;
+    private final Yaml yaml = yaml();
+
+    private static Yaml yaml() {
+        Representer representer = new Representer();
+        representer.addClassTag(ResourcePath2.class, RESOURCE_PATH_TAG);
+
+        Yaml yaml = new Yaml(representer);
+
+        yaml.addImplicitResolver(RESOURCE_PATH_TAG, Pattern.compile("/.*"), "/");
+        return yaml;
+    }
 
     public void generate() {
         ApiGenerate apiGenerate = pkg.getAnnotation(ApiGenerate.class);
@@ -41,7 +54,7 @@ public class ApiGenerator {
             log.debug("generate Api from {}", ramlFileName);
             Raml raml = loadRaml(ramlFileName);
             log.debug("generate {} {}", raml.getTitle(), raml.getVersion());
-            for (Resource resource : raml.getResources().values()) {
+            for (RamlResource resource : raml.getResources().values()) {
                 new ResourceGenerator(resource).generate();
             }
         }
@@ -49,21 +62,16 @@ public class ApiGenerator {
 
     private Raml loadRaml(String ramlFileName) {
         java.nio.file.Path path = java.nio.file.Paths.get(ramlFileName);
-        ResourceLoader loader = new DefaultResourceLoader();
-        YamlDocumentBuilder<Raml> builder = new YamlDocumentBuilder<>(Raml.class, loader);
         try (FileReader reader = new FileReader(path.toFile())) {
-            return builder.build(reader, path.getParent().toString());
+            return yaml.loadAs(reader, Raml.class);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    @RequiredArgsConstructor
     private class ResourceGenerator {
-        private final Resource resource;
-
-        public ResourceGenerator(Resource resource) {
-            this.resource = resource;
-        }
+        private final RamlResource resource;
 
         public void generate() {
             String typeUri = resource.getUri();
@@ -82,10 +90,10 @@ public class ApiGenerator {
             }
         }
 
-        private void generateMethods(String typeUri, TypeGenerator typeGenerator, Resource resource) {
-            for (Action action : resource.getActions().values())
+        private void generateMethods(String typeUri, TypeGenerator typeGenerator, RamlResource resource) {
+            for (RamlAction action : resource.getActions().values())
                 generateMethod(typeGenerator, typeUri, action);
-            for (Resource subResource : resource.getResources().values())
+            for (RamlResource subResource : resource.getResources().values())
                 generateMethods(typeUri, typeGenerator, subResource);
         }
 
@@ -96,7 +104,7 @@ public class ApiGenerator {
             return toUpperCamelCase(name);
         }
 
-        private void generateMethod(TypeGenerator typeGenerator, String typeUri, Action action) {
+        private void generateMethod(TypeGenerator typeGenerator, String typeUri, RamlAction action) {
             MethodGenerator method = typeGenerator.addMethod(methodName(typeUri, action));
             method.javaDoc(action.getDescription());
             method.annotation(actionAnnotation(action.getType()));
@@ -107,7 +115,7 @@ public class ApiGenerator {
             generateParameters(typeGenerator, method, action);
         }
 
-        private String methodName(String typeUri, Action action) {
+        private String methodName(String typeUri, RamlAction action) {
             String name = action.getDisplayName();
             if (name == null)
                 name = methodPath(typeUri, action) + " " + action.getType().toString().toLowerCase();
@@ -123,13 +131,13 @@ public class ApiGenerator {
             }
         }
 
-        private String methodPath(String typeUri, Action action) {
+        private String methodPath(String typeUri, RamlAction action) {
             String actionUri = action.getResource().getUri();
             assert actionUri.startsWith(typeUri);
             return actionUri.substring(typeUri.length());
         }
 
-        private void generateParameters(TypeGenerator container, MethodGenerator method, Action action) {
+        private void generateParameters(TypeGenerator container, MethodGenerator method, RamlAction action) {
             for (Entry<String, UriParameter> entry : action.getResource().getUriParameters().entrySet()) {
                 String key = entry.getKey();
                 UriParameter ramlParam = entry.getValue();
