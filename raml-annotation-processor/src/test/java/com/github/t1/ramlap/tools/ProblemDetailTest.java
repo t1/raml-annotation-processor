@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.*;
-import com.github.t1.deployer.tools.MementoRule;
 import com.github.t1.ramlap.annotations.ApiResponse;
 import com.github.t1.ramlap.tools.ProblemDetail.InternalServerError;
+import com.github.t1.testtools.MementoRule;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProblemDetailTest {
