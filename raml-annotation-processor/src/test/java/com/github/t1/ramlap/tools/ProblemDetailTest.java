@@ -1,36 +1,35 @@
 package com.github.t1.ramlap.tools;
 
-import static com.github.t1.ramlap.tools.ProblemDetail.*;
-import static javax.ws.rs.core.Response.Status.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import java.io.*;
-import java.net.URI;
-import java.util.UUID;
-import java.util.function.Function;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import javax.xml.bind.JAXB;
-
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.*;
+import com.github.t1.ramlap.annotations.ApiResponse;
+import com.github.t1.ramlap.tools.ProblemDetail.*;
+import com.github.t1.testtools.MementoRule;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.slf4j.Logger;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import com.fasterxml.jackson.databind.*;
-import com.github.t1.ramlap.annotations.ApiResponse;
-import com.github.t1.ramlap.tools.ProblemDetail.InternalServerError;
-import com.github.t1.testtools.MementoRule;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXB;
+import java.io.*;
+import java.net.URI;
+import java.util.UUID;
+import java.util.function.Function;
 
+import static com.github.t1.ramlap.tools.ProblemDetail.*;
+import static javax.ws.rs.core.Response.Status.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@SuppressWarnings({ "ResultOfMethodCallIgnored", "ThrowableResultOfMethodCallIgnored" })
 @RunWith(MockitoJUnitRunner.class)
 public class ProblemDetailTest {
     public static class FooProblem extends ProblemDetail {}
 
-    private final ObjectMapper mapper = new ObjectMapper() //
+    private final ObjectMapper mapper = new ObjectMapper()
             .setSerializationInclusion(Include.NON_EMPTY)
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
@@ -211,11 +210,11 @@ public class ProblemDetailTest {
     }
 
     private String json(FooProblem problem) {
-        return "{" //
-                + "\"type\":\"" + problemUrn(FooProblem.class) + "\"," //
-                + "\"title\":\"foo problem\"," //
-                + "\"status\":\"BAD_REQUEST\"," //
-                + "\"instance\":\"" + problem.instance() + "\"" //
+        return "{"
+                + "\"type\":\"" + problemUrn(FooProblem.class) + "\","
+                + "\"title\":\"foo problem\","
+                + "\"status\":\"BAD_REQUEST\","
+                + "\"instance\":\"" + problem.instance() + "\""
                 + "}";
     }
 
@@ -239,11 +238,11 @@ public class ProblemDetailTest {
     }
 
     private String xml(ProblemDetail problem) {
-        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" //
-                + "<problemDetail>\n" //
-                + "    <type>" + problemUrn(ProblemDetail.class) + "</type>\n" //
-                + "    <status>BAD_REQUEST</status>\n" //
-                + "    <instance>" + problem.instance() + "</instance>\n" //
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
+                + "<problemDetail>\n"
+                + "    <type>" + problemUrn(ProblemDetail.class) + "</type>\n"
+                + "    <status>BAD_REQUEST</status>\n"
+                + "    <instance>" + problem.instance() + "</instance>\n"
                 + "</problemDetail>\n";
     }
 
@@ -281,9 +280,10 @@ public class ProblemDetailTest {
     public void shouldLogWhenBuildingWebException() {
         ProblemDetail problem = new FooProblem().detail("foo");
 
-        problem.toWebException();
+        WebException webException = problem.toWebException();
 
         verify(logger).info("{}", problem);
+        assertThat(webException.getMessage()).isEqualTo("HTTP 400 Bad Request");
     }
 
     // TODO problem detail headers

@@ -4,7 +4,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 /**
- * A {@link WebApplicationException} with a more fluent {@link #initCause(Throwable)} named {@link #causedBy(Throwable)}
+ * A {@link WebApplicationException} with a fluent {@link #initCause(Throwable)} named {@link #causedBy(Throwable)}
  * .
  */
 public class WebException extends WebApplicationException {
@@ -14,7 +14,7 @@ public class WebException extends WebApplicationException {
         super(response);
     }
 
-    /** More fluent alias to {@link #initCause(Throwable)} with non-checked type. */
+    /** Fluent alias to {@link #initCause(Throwable)} with non-checked type. */
     public WebException causedBy(Throwable cause) {
         super.initCause(cause);
         return this;

@@ -1,13 +1,11 @@
 package com.github.t1.ramlap.tools;
 
-import java.util.*;
-import java.util.regex.*;
-
-import javax.ws.rs.Path;
-
+import com.github.t1.exap.reflection.Type;
 import org.raml.model.*;
 
-import com.github.t1.exap.reflection.Type;
+import javax.ws.rs.Path;
+import java.util.*;
+import java.util.regex.*;
 
 // Immutable
 // maybe not optimal implementation but okay given that paths are < 10 items in practice

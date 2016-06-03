@@ -1,20 +1,18 @@
 package com.github.t1.ramlap.scanner;
 
-import static com.github.t1.ramlap.tools.StringTools.*;
-
-import java.util.TreeMap;
-
+import com.github.t1.exap.JavaDoc;
+import com.github.t1.exap.reflection.*;
+import com.github.t1.ramlap.tools.*;
+import io.swagger.annotations.SwaggerDefinition;
+import io.swagger.annotations.SwaggerDefinition.Scheme;
 import org.raml.model.*;
 import org.raml.model.Resource;
 import org.raml.model.parameter.UriParameter;
 import org.slf4j.*;
 
-import com.github.t1.exap.JavaDoc;
-import com.github.t1.exap.reflection.*;
-import com.github.t1.ramlap.tools.*;
+import java.util.TreeMap;
 
-import io.swagger.annotations.SwaggerDefinition;
-import io.swagger.annotations.SwaggerDefinition.Scheme;
+import static com.github.t1.ramlap.tools.StringTools.*;
 
 public class RamlScanner {
     private static final Logger log = LoggerFactory.getLogger(RamlScanner.class);
@@ -48,7 +46,7 @@ public class RamlScanner {
             try {
                 raml.getProtocols().add(Protocol.valueOf(scheme.name()));
             } catch (IllegalArgumentException e) {
-                continue;
+                // continue
             }
     }
 

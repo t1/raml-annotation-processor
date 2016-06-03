@@ -1,24 +1,21 @@
 package com.github.t1.ramlap;
 
-import static javax.lang.model.SourceVersion.*;
-
-import java.io.*;
-import java.util.List;
-
-import javax.annotation.processing.SupportedSourceVersion;
-import javax.ws.rs.Path;
-
-import org.raml.emitter.RamlEmitter;
-import org.slf4j.*;
-
 import com.github.t1.exap.*;
-import com.github.t1.exap.reflection.*;
 import com.github.t1.exap.reflection.Package;
+import com.github.t1.exap.reflection.*;
 import com.github.t1.ramlap.annotations.ApiGenerate;
 import com.github.t1.ramlap.generator.ApiGenerator;
 import com.github.t1.ramlap.scanner.RamlScanner;
-
 import io.swagger.annotations.SwaggerDefinition;
+import org.raml.emitter.RamlEmitter;
+import org.slf4j.*;
+
+import javax.annotation.processing.SupportedSourceVersion;
+import javax.ws.rs.Path;
+import java.io.*;
+import java.util.List;
+
+import static javax.lang.model.SourceVersion.*;
 
 @SupportedSourceVersion(RELEASE_8)
 @SupportedAnnotationClasses({ ApiGenerate.class, SwaggerDefinition.class, Path.class })
@@ -50,7 +47,7 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
             new ApiGenerator(pkg).generate();
     }
 
-    public void scanSwaggerDefinitions(List<Type> elements) {
+    private void scanSwaggerDefinitions(List<Type> elements) {
         Type swaggerType = firstSwaggerDefinition(elements);
         if (swaggerType == null)
             return;
@@ -73,17 +70,15 @@ public class RamlAnnotationProcessor extends ExtendedAbstractProcessor {
     }
 
     private void scanTypes(List<Type> types) {
-        for (Type type : types)
-            if (!isGeneratedApi(type))
-                scanner.scanJaxRsType(type);
+        types.stream().filter(this::notGeneratedApi).forEach(scanner::scanJaxRsType);
     }
 
-    private boolean isGeneratedApi(Type type) {
+    private boolean notGeneratedApi(Type type) {
         boolean isApiGenerated = type.getPackage().isAnnotated(ApiGenerate.class);
         if (isApiGenerated)
             log.debug("skipping {}, as its package is annotated {}",
                     type, type.getPackage().getAnnotation(ApiGenerate.class));
-        return isApiGenerated;
+        return !isApiGenerated;
     }
 
     private void writeRaml(Round round) throws IOException {

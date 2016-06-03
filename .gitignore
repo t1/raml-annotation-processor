@@ -1,12 +1,8 @@
+target/
+
+.classpath
 .project
 .settings/
 
-raml-annotation-processor/.classpath
-raml-annotation-processor/.settings/
-raml-annotation-processor/target/
-
-raml-annotation-processor-test/.classpath
-raml-annotation-processor-test/.settings/
-raml-annotation-processor-test/target/
 .idea/
 *.iml
