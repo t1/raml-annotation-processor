@@ -21,7 +21,6 @@ import org.raml.model.*;
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Type;
 import com.github.t1.ramlap.AbstractTest;
-import com.github.t1.ramlap.scanner.RamlScanner;
 import com.github.t1.ramlap.tools.ProblemDetail;
 
 import io.swagger.annotations.ApiOperation;

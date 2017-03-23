@@ -26,8 +26,6 @@ import org.raml.model.*;
 
 import com.github.t1.ramlap.*;
 import com.github.t1.ramlap.annotations.*;
-import com.github.t1.ramlap.scanner.SchemaGenerator;
-import com.github.t1.ramlap.tools.*;
 import com.github.t1.ramlap.tools.ProblemDetail.BadRequest;
 
 import io.swagger.annotations.ResponseHeader;

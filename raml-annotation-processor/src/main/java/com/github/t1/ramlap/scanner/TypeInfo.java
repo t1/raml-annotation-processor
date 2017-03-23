@@ -1,20 +1,19 @@
 package com.github.t1.ramlap.scanner;
 
-import static com.github.t1.ramlap.tools.ProblemDetail.*;
-import static java.util.Locale.*;
-import static java.util.Objects.*;
-import static org.raml.model.ParamType.*;
-
-import java.util.*;
-import java.util.regex.*;
-
+import com.github.t1.exap.reflection.Type;
+import com.github.t1.problem.ProblemDetail;
+import com.github.t1.ramlap.RamlAnnotationProcessor;
 import org.raml.model.*;
 import org.raml.model.parameter.AbstractParam;
 import org.slf4j.*;
 
-import com.github.t1.exap.reflection.Type;
-import com.github.t1.ramlap.RamlAnnotationProcessor;
-import com.github.t1.ramlap.tools.ProblemDetail;
+import java.util.*;
+import java.util.regex.*;
+
+import static com.github.t1.problem.ProblemDetail.*;
+import static java.util.Locale.*;
+import static java.util.Objects.*;
+import static org.raml.model.ParamType.*;
 
 public class TypeInfo {
     private static final Logger log = LoggerFactory.getLogger(TypeInfo.class);
