@@ -1,9 +1,9 @@
 package com.github.t1.ramlap.tools;
 
-import static org.assertj.core.api.Assertions.*;
-
 import org.junit.*;
 import org.raml.model.*;
+
+import static org.assertj.core.api.Assertions.*;
 
 public class ResourcePathTest {
     @Rule
@@ -13,10 +13,10 @@ public class ResourcePathTest {
     public void shouldBuildEmpty() {
         ResourcePath path = ResourcePath.of("");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(1) //
-                .hasSimpleName("/") //
-                .hasToString("/") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(1)
+                .hasSimpleName("/")
+                .hasToString("/")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/");
         assertThat(path.items()).containsExactly("/");
@@ -26,10 +26,10 @@ public class ResourcePathTest {
     public void shouldBuildSlashOnly() {
         ResourcePath path = ResourcePath.of("/");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(1) //
-                .hasSimpleName("/") //
-                .hasToString("/") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(1)
+                .hasSimpleName("/")
+                .hasToString("/")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/");
         assertThat(path.items()).containsExactly("/");
@@ -39,10 +39,10 @@ public class ResourcePathTest {
     public void shouldBuildOneItemWithoutSlash() {
         ResourcePath path = ResourcePath.of("foo");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(1) //
-                .hasSimpleName("/foo") //
-                .hasToString("/foo") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(1)
+                .hasSimpleName("/foo")
+                .hasToString("/foo")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo");
         assertThat(path.items()).containsExactly("/foo");
@@ -52,10 +52,10 @@ public class ResourcePathTest {
     public void shouldBuildOneItemWithSlash() {
         ResourcePath path = ResourcePath.of("/foo");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(1) //
-                .hasSimpleName("/foo") //
-                .hasToString("/foo") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(1)
+                .hasSimpleName("/foo")
+                .hasToString("/foo")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo");
         assertThat(path.items()).containsExactly("/foo");
@@ -65,10 +65,10 @@ public class ResourcePathTest {
     public void shouldBuildOneItemWhenConcatenatingFromEmpty() {
         ResourcePath path = ResourcePath.of("").and("/foo");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(1) //
-                .hasSimpleName("/foo") //
-                .hasToString("/foo") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(1)
+                .hasSimpleName("/foo")
+                .hasToString("/foo")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo");
         assertThat(path.items()).containsExactly("/foo");
@@ -78,10 +78,10 @@ public class ResourcePathTest {
     public void shouldBuildOneItemWhenConcatenatingFromSlash() {
         ResourcePath path = ResourcePath.of("/").and("/foo");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(1) //
-                .hasSimpleName("/foo") //
-                .hasToString("/foo") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(1)
+                .hasSimpleName("/foo")
+                .hasToString("/foo")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo");
         assertThat(path.items()).containsExactly("/foo");
@@ -91,10 +91,10 @@ public class ResourcePathTest {
     public void shouldBuildTwoItems() {
         ResourcePath path = ResourcePath.of("/foo/bar");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(2) //
-                .hasSimpleName("/bar") //
-                .hasToString("/foo/bar") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(2)
+                .hasSimpleName("/bar")
+                .hasToString("/foo/bar")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar");
         assertThat(path.items()).containsExactly("/foo", "/bar");
@@ -104,10 +104,10 @@ public class ResourcePathTest {
     public void shouldBuildWithAnd() {
         ResourcePath path = ResourcePath.of("/foo").and("/bar");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(2) //
-                .hasSimpleName("/bar") //
-                .hasToString("/foo/bar") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(2)
+                .hasSimpleName("/bar")
+                .hasToString("/foo/bar")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar");
         assertThat(path.items()).containsExactly("/foo", "/bar");
@@ -117,10 +117,10 @@ public class ResourcePathTest {
     public void shouldBuildWithTwoAnd() {
         ResourcePath path = ResourcePath.of("/foo").and("/bar").and("/baz");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(3) //
-                .hasSimpleName("/baz") //
-                .hasToString("/foo/bar/baz") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(3)
+                .hasSimpleName("/baz")
+                .hasToString("/foo/bar/baz")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar", "/baz");
         assertThat(path.items()).containsExactly("/foo", "/bar", "/baz");
@@ -130,10 +130,10 @@ public class ResourcePathTest {
     public void shouldBuildWithAndContainingSlash() {
         ResourcePath path = ResourcePath.of("/foo").and("/bar/baz");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(3) //
-                .hasSimpleName("/baz") //
-                .hasToString("/foo/bar/baz") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(3)
+                .hasSimpleName("/baz")
+                .hasToString("/foo/bar/baz")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar", "/baz");
         assertThat(path.items()).containsExactly("/foo", "/bar", "/baz");
@@ -143,10 +143,10 @@ public class ResourcePathTest {
     public void shouldBuildFromSlashWithAndContainingSlash() {
         ResourcePath path = ResourcePath.of("/").and("/foo/bar/baz");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(3) //
-                .hasSimpleName("/baz") //
-                .hasToString("/foo/bar/baz") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(3)
+                .hasSimpleName("/baz")
+                .hasToString("/foo/bar/baz")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar", "/baz");
         assertThat(path.items()).containsExactly("/foo", "/bar", "/baz");
@@ -156,10 +156,10 @@ public class ResourcePathTest {
     public void shouldBuildThreeItems() {
         ResourcePath path = ResourcePath.of("/foo/bar/baz");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(3) //
-                .hasSimpleName("/baz") //
-                .hasToString("/foo/bar/baz") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(3)
+                .hasSimpleName("/baz")
+                .hasToString("/foo/bar/baz")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/foo", "/bar", "/baz");
         assertThat(path.items()).containsExactly("/foo", "/bar", "/baz");
@@ -174,12 +174,12 @@ public class ResourcePathTest {
 
         assertThat(raml.getResources()).containsOnlyKeys("/");
         assertThat(resource.getResources()).isEmpty();
-        then.assertThat(resource) //
-                .hasUri("/") //
-                .hasRelativeUri("/") //
-                .hasParentResource(null) //
-                .hasParentUri("") //
-                .isSameAs(raml.getResource("/")) //
+        then.assertThat(resource)
+                .hasUri("/")
+                .hasRelativeUri("/")
+                .hasParentResource(null)
+                .hasParentUri("")
+                .isSameAs(raml.getResource("/"))
                 ;
     }
 
@@ -194,20 +194,20 @@ public class ResourcePathTest {
         Resource foo = raml.getResource("/foo");
         assertThat(foo.getResources()).containsOnlyKeys("/bar");
         assertThat(bar.getResources()).isEmpty();
-        then.assertThat(foo) //
-                .as("newly created root resource") //
-                .isNotSameAs(bar) //
-                .hasUri("/foo") //
-                .hasRelativeUri("/foo") //
-                .hasParentUri("") //
-                .hasParentResource(null) //
+        then.assertThat(foo)
+                .as("newly created root resource")
+                .isNotSameAs(bar)
+                .hasUri("/foo")
+                .hasRelativeUri("/foo")
+                .hasParentUri("")
+                .hasParentResource(null)
                 ;
-        then.assertThat(bar) //
-                .hasUri("/foo/bar") //
-                .hasRelativeUri("/bar") //
-                .hasParentUri("/foo") //
-                .hasParentResource(foo) //
-                .isSameAs(raml.getResource("/foo/bar")) //
+        then.assertThat(bar)
+                .hasUri("/foo/bar")
+                .hasRelativeUri("/bar")
+                .hasParentUri("/foo")
+                .hasParentResource(foo)
+                .isSameAs(raml.getResource("/foo/bar"))
                 ;
     }
 
@@ -222,16 +222,16 @@ public class ResourcePathTest {
         assertThat(raml.getResources()).containsOnlyKeys("/foo");
         assertThat(foo.getResources()).containsOnlyKeys("/bar");
         assertThat(bar.getResources()).isEmpty();
-        then.assertThat(bar) //
-                .hasUri("/foo/bar") //
-                .hasRelativeUri("/bar") //
-                .hasParentUri("/foo") //
-                .hasParentResource(foo) //
-                .isSameAs(raml.getResource("/foo/bar")) //
+        then.assertThat(bar)
+                .hasUri("/foo/bar")
+                .hasRelativeUri("/bar")
+                .hasParentUri("/foo")
+                .hasParentResource(foo)
+                .isSameAs(raml.getResource("/foo/bar"))
                 ;
-        then.assertThat(raml.getResource("/foo")) //
-                .isSameAs(foo) //
-                .isNotSameAs(bar) //
+        then.assertThat(raml.getResource("/foo"))
+                .isSameAs(foo)
+                .isNotSameAs(bar)
                 ;
     }
 
@@ -248,32 +248,32 @@ public class ResourcePathTest {
         assertThat(foo.getResources()).containsOnlyKeys("/bar");
         assertThat(bar.getResources()).containsOnlyKeys("/baz");
         assertThat(baz.getResources()).isEmpty();
-        then.assertThat(foo) //
-                .as("newly created root resource") //
-                .isNotSameAs(bar) //
-                .isNotSameAs(baz) //
-                .hasUri("/foo") //
-                .hasRelativeUri("/foo") //
-                .hasParentUri("") //
-                .hasParentResource(null) //
+        then.assertThat(foo)
+                .as("newly created root resource")
+                .isNotSameAs(bar)
+                .isNotSameAs(baz)
+                .hasUri("/foo")
+                .hasRelativeUri("/foo")
+                .hasParentUri("")
+                .hasParentResource(null)
                 ;
-        then.assertThat(bar) //
-                .as("newly created intermediate resource") //
-                .isNotSameAs(foo) //
-                .isNotSameAs(baz) //
-                .hasUri("/foo/bar") //
-                .hasRelativeUri("/bar") //
-                .hasParentUri("/foo") //
-                .hasParentResource(foo) //
+        then.assertThat(bar)
+                .as("newly created intermediate resource")
+                .isNotSameAs(foo)
+                .isNotSameAs(baz)
+                .hasUri("/foo/bar")
+                .hasRelativeUri("/bar")
+                .hasParentUri("/foo")
+                .hasParentResource(foo)
                 ;
-        then.assertThat(baz) //
-                .isNotSameAs(foo) //
-                .isNotSameAs(bar) //
-                .hasUri("/foo/bar/baz") //
-                .hasRelativeUri("/baz") //
-                .hasParentUri("/foo/bar") //
-                .hasParentResource(bar) //
-                .isSameAs(raml.getResource("/foo/bar/baz")) //
+        then.assertThat(baz)
+                .isNotSameAs(foo)
+                .isNotSameAs(bar)
+                .hasUri("/foo/bar/baz")
+                .hasRelativeUri("/baz")
+                .hasParentUri("/foo/bar")
+                .hasParentResource(bar)
+                .isSameAs(raml.getResource("/foo/bar/baz"))
                 ;
     }
 
@@ -294,43 +294,43 @@ public class ResourcePathTest {
         Resource bib = raml.getResource("/foo/bar/bib");
         assertThat(bib.getResources()).isEmpty();
 
-        then.assertThat(foo) //
-                .as("newly created root resource") //
-                .isNotSameAs(bar) //
-                .isNotSameAs(baz) //
-                .isNotSameAs(bib) //
-                .hasUri("/foo") //
-                .hasRelativeUri("/foo") //
-                .hasParentUri("") //
-                .hasParentResource(null) //
+        then.assertThat(foo)
+                .as("newly created root resource")
+                .isNotSameAs(bar)
+                .isNotSameAs(baz)
+                .isNotSameAs(bib)
+                .hasUri("/foo")
+                .hasRelativeUri("/foo")
+                .hasParentUri("")
+                .hasParentResource(null)
                 ;
-        then.assertThat(bar) //
-                .as("newly created intermediate resource") //
-                .isNotSameAs(foo) //
-                .isNotSameAs(baz) //
-                .isNotSameAs(bib) //
-                .hasUri("/foo/bar") //
-                .hasRelativeUri("/bar") //
-                .hasParentUri("/foo") //
-                .hasParentResource(foo) //
+        then.assertThat(bar)
+                .as("newly created intermediate resource")
+                .isNotSameAs(foo)
+                .isNotSameAs(baz)
+                .isNotSameAs(bib)
+                .hasUri("/foo/bar")
+                .hasRelativeUri("/bar")
+                .hasParentUri("/foo")
+                .hasParentResource(foo)
                 ;
-        then.assertThat(baz) //
-                .isNotSameAs(foo) //
-                .isNotSameAs(bar) //
-                .isNotSameAs(bib) //
-                .hasUri("/foo/bar/baz") //
-                .hasRelativeUri("/baz") //
-                .hasParentUri("/foo/bar") //
-                .hasParentResource(bar) //
+        then.assertThat(baz)
+                .isNotSameAs(foo)
+                .isNotSameAs(bar)
+                .isNotSameAs(bib)
+                .hasUri("/foo/bar/baz")
+                .hasRelativeUri("/baz")
+                .hasParentUri("/foo/bar")
+                .hasParentResource(bar)
                 ;
-        then.assertThat(bib) //
-                .isNotSameAs(foo) //
-                .isNotSameAs(bar) //
-                .isNotSameAs(baz) //
-                .hasUri("/foo/bar/bib") //
-                .hasRelativeUri("/bib") //
-                .hasParentUri("/foo/bar") //
-                .hasParentResource(bar) //
+        then.assertThat(bib)
+                .isNotSameAs(foo)
+                .isNotSameAs(bar)
+                .isNotSameAs(baz)
+                .hasUri("/foo/bar/bib")
+                .hasRelativeUri("/bib")
+                .hasParentUri("/foo/bar")
+                .hasParentResource(bar)
                 ;
     }
 
@@ -345,21 +345,21 @@ public class ResourcePathTest {
         assertThat(raml.getResources()).containsOnlyKeys("/{foo}");
         assertThat(foo.getResources()).containsOnlyKeys("/{bar}");
         assertThat(bar.getResources()).isEmpty();
-        then.assertThat(foo) //
-                .as("newly created root resource") //
-                .isNotSameAs(bar) //
-                .hasUri("/{foo}") //
-                .hasRelativeUri("/{foo}") //
-                .hasParentUri("") //
-                .hasParentResource(null) //
+        then.assertThat(foo)
+                .as("newly created root resource")
+                .isNotSameAs(bar)
+                .hasUri("/{foo}")
+                .hasRelativeUri("/{foo}")
+                .hasParentUri("")
+                .hasParentResource(null)
                 ;
-        then.assertThat(bar) //
-                .as("newly created intermediate resource") //
-                .isNotSameAs(foo) //
-                .hasUri("/{foo}/{bar}") //
-                .hasRelativeUri("/{bar}") //
-                .hasParentUri("/{foo}") //
-                .hasParentResource(foo) //
+        then.assertThat(bar)
+                .as("newly created intermediate resource")
+                .isNotSameAs(foo)
+                .hasUri("/{foo}/{bar}")
+                .hasRelativeUri("/{bar}")
+                .hasParentUri("/{foo}")
+                .hasParentResource(foo)
                 ;
     }
 
@@ -367,10 +367,10 @@ public class ResourcePathTest {
     public void shouldScanVariable() {
         ResourcePath path = ResourcePath.of("/{foo}");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(1) //
-                .hasSimpleName("/{foo}") //
-                .hasToString("/{foo}") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(1)
+                .hasSimpleName("/{foo}")
+                .hasToString("/{foo}")
                 ;
         assertThat(path.iterator()).extracting("name").containsExactly("/{foo}");
         assertThat(path.items()).containsExactly("/{foo}");
@@ -381,10 +381,10 @@ public class ResourcePathTest {
     public void shouldStripRegexFromName() {
         ResourcePath path = ResourcePath.of("/{foo:.*}");
 
-        ResourcePathAssert.assertThat(path) //
-                .hasLength(1) //
-                .hasSimpleName("/{foo}") //
-                .hasToString("/{foo:.*}") //
+        ResourcePathAssert.assertThat(path)
+                .hasLength(1)
+                .hasSimpleName("/{foo}")
+                .hasToString("/{foo:.*}")
                 ;
         assertThat(path.iterator()).containsExactly(ResourcePath.of("/{foo:.*}"));
         assertThat(path.items()).containsExactly("/{foo}");

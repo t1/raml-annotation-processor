@@ -1,23 +1,19 @@
 package com.github.t1.ramlap.scanner;
 
-import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
-import static javax.ws.rs.core.MediaType.*;
-import static org.assertj.core.api.Assertions.*;
+import com.github.t1.exap.reflection.Type;
+import com.github.t1.ramlap.Pojo;
+import com.github.t1.ramlap.annotations.ApiExample;
+import io.swagger.annotations.ApiModelProperty;
+import org.junit.*;
 
+import javax.ws.rs.core.Response.*;
 import java.net.URI;
 import java.nio.file.*;
 import java.util.List;
 
-import javax.ws.rs.core.Response.*;
-
-import org.junit.*;
-
-import com.github.t1.exap.reflection.Type;
-import com.github.t1.ramlap.Pojo;
-import com.github.t1.ramlap.annotations.ApiExample;
-import com.github.t1.ramlap.scanner.ExampleGenerator;
-
-import io.swagger.annotations.ApiModelProperty;
+import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
+import static javax.ws.rs.core.MediaType.*;
+import static org.assertj.core.api.Assertions.*;
 
 public class ExampleGeneratorJsonTest {
     static class ScalarsPojo {
@@ -38,16 +34,16 @@ public class ExampleGeneratorJsonTest {
 
         String example = ExampleGenerator.example(type, APPLICATION_JSON);
 
-        assertThat(example).isEqualTo("{\n" //
-                + "    \"b\":false,\n" //
-                + "    \"i\":12345,\n" //
-                + "    \"d\":123.45,\n" //
-                + "    \"s\":\"foo\",\n" //
-                + "    \"u\":\"http://example.org/foo\",\n" //
-                + "    \"p\":\"/foo/bar\",\n" //
-                + "    \"h\":400,\n" //
-                + "    \"j\":400,\n" //
-                + "    \"m\":\"READ\"\n" //
+        assertThat(example).isEqualTo("{\n"
+                + "    \"b\":false,\n"
+                + "    \"i\":12345,\n"
+                + "    \"d\":123.45,\n"
+                + "    \"s\":\"foo\",\n"
+                + "    \"u\":\"http://example.org/foo\",\n"
+                + "    \"p\":\"/foo/bar\",\n"
+                + "    \"h\":400,\n"
+                + "    \"j\":400,\n"
+                + "    \"m\":\"READ\"\n"
                 + "}\n");
     }
 
@@ -62,13 +58,13 @@ public class ExampleGeneratorJsonTest {
 
         String example = ExampleGenerator.example(type, APPLICATION_JSON);
 
-        assertThat(example).isEqualTo("{\n" //
-                + "    \"a\":[\n" //
-                + "        \"READ\"\n" //
-                + "    ],\n" //
-                + "    \"c\":[\n" //
-                + "        \"foo\"\n" //
-                + "    ]\n" //
+        assertThat(example).isEqualTo("{\n"
+                + "    \"a\":[\n"
+                + "        \"READ\"\n"
+                + "    ],\n"
+                + "    \"c\":[\n"
+                + "        \"foo\"\n"
+                + "    ]\n"
                 + "}\n");
     }
 
@@ -84,23 +80,23 @@ public class ExampleGeneratorJsonTest {
 
         String example = ExampleGenerator.example(type, APPLICATION_JSON);
 
-        assertThat(example).isEqualTo("{\n" //
-                + "    \"sa\":[\n" //
-                + "        \"a\":[\n" //
-                + "            \"READ\"\n" //
-                + "        ],\n" //
-                + "        \"c\":[\n" //
-                + "            \"foo\"\n" //
-                + "        ]\n" //
-                + "    ],\n" //
-                + "    \"l\":[\n" //
-                + "        \"a\":[\n" //
-                + "            \"READ\"\n" //
-                + "        ],\n" //
-                + "        \"c\":[\n" //
-                + "            \"foo\"\n" //
-                + "        ]\n" //
-                + "    ]\n" //
+        assertThat(example).isEqualTo("{\n"
+                + "    \"sa\":[\n"
+                + "        \"a\":[\n"
+                + "            \"READ\"\n"
+                + "        ],\n"
+                + "        \"c\":[\n"
+                + "            \"foo\"\n"
+                + "        ]\n"
+                + "    ],\n"
+                + "    \"l\":[\n"
+                + "        \"a\":[\n"
+                + "            \"READ\"\n"
+                + "        ],\n"
+                + "        \"c\":[\n"
+                + "            \"foo\"\n"
+                + "        ]\n"
+                + "    ]\n"
                 + "}\n");
     }
 
@@ -123,14 +119,14 @@ public class ExampleGeneratorJsonTest {
 
         String example = ExampleGenerator.example(type, APPLICATION_JSON);
 
-        assertThat(example).isEqualTo("{\n" //
-                + "    \"o\":{\n" //
-                + "        \"x\":\"foo\",\n" //
-                + "        \"y\":\"foo\",\n" //
-                + "        \"n\":{\n" //
-                + "            \"z\":\"foo\"\n" //
-                + "        }\n" //
-                + "    }\n" //
+        assertThat(example).isEqualTo("{\n"
+                + "    \"o\":{\n"
+                + "        \"x\":\"foo\",\n"
+                + "        \"y\":\"foo\",\n"
+                + "        \"n\":{\n"
+                + "            \"z\":\"foo\"\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n");
     }
 
@@ -192,29 +188,29 @@ public class ExampleGeneratorJsonTest {
 
         String example = ExampleGenerator.example(type, APPLICATION_JSON);
 
-        assertThat(example).isEqualTo("{\n" //
-                + "    \"b\":true,\n" //
-                + "    \"i\":9876,\n" //
-                + "    \"d\":98.76,\n" //
-                + "    \"s\":\"xs\",\n" //
-                + "    \"u\":\"xu\",\n" //
-                + "    \"p\":\"xp\",\n" //
-                + "    \"h\":403,\n" //
-                + "    \"j\":403,\n" //
-                + "    \"m\":\"xm\",\n" //
-                + "    \"a\":[\n" //
-                + "        \"xa\"\n" //
-                + "    ],\n" //
-                + "    \"c\":[\n" //
-                + "        \"xc\"\n" //
-                + "    ],\n" //
-                + "    \"o\":{\n" //
-                + "        \"x\":\"xx\",\n" //
-                + "        \"y\":\"xy\",\n" //
-                + "        \"n\":{\n" //
-                + "            \"z\":\"xz\"\n" //
-                + "        }\n" //
-                + "    }\n" //
+        assertThat(example).isEqualTo("{\n"
+                + "    \"b\":true,\n"
+                + "    \"i\":9876,\n"
+                + "    \"d\":98.76,\n"
+                + "    \"s\":\"xs\",\n"
+                + "    \"u\":\"xu\",\n"
+                + "    \"p\":\"xp\",\n"
+                + "    \"h\":403,\n"
+                + "    \"j\":403,\n"
+                + "    \"m\":\"xm\",\n"
+                + "    \"a\":[\n"
+                + "        \"xa\"\n"
+                + "    ],\n"
+                + "    \"c\":[\n"
+                + "        \"xc\"\n"
+                + "    ],\n"
+                + "    \"o\":{\n"
+                + "        \"x\":\"xx\",\n"
+                + "        \"y\":\"xy\",\n"
+                + "        \"n\":{\n"
+                + "            \"z\":\"xz\"\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n");
     }
 
@@ -261,29 +257,29 @@ public class ExampleGeneratorJsonTest {
 
         String example = ExampleGenerator.example(type, APPLICATION_JSON);
 
-        assertThat(example).isEqualTo("{\n" //
-                + "    \"b\":true,\n" //
-                + "    \"i\":9876,\n" //
-                + "    \"d\":98.76,\n" //
-                + "    \"s\":\"xs\",\n" //
-                + "    \"u\":\"xu\",\n" //
-                + "    \"p\":\"xp\",\n" //
-                + "    \"h\":403,\n" //
-                + "    \"j\":403,\n" //
-                + "    \"m\":\"xm\",\n" //
-                + "    \"a\":[\n" //
-                + "        \"xa\"\n" //
-                + "    ],\n" //
-                + "    \"c\":[\n" //
-                + "        \"xc\"\n" //
-                + "    ],\n" //
-                + "    \"o\":{\n" //
-                + "        \"x\":\"xx\",\n" //
-                + "        \"y\":\"xy\",\n" //
-                + "        \"n\":{\n" //
-                + "            \"z\":\"xz\"\n" //
-                + "        }\n" //
-                + "    }\n" //
+        assertThat(example).isEqualTo("{\n"
+                + "    \"b\":true,\n"
+                + "    \"i\":9876,\n"
+                + "    \"d\":98.76,\n"
+                + "    \"s\":\"xs\",\n"
+                + "    \"u\":\"xu\",\n"
+                + "    \"p\":\"xp\",\n"
+                + "    \"h\":403,\n"
+                + "    \"j\":403,\n"
+                + "    \"m\":\"xm\",\n"
+                + "    \"a\":[\n"
+                + "        \"xa\"\n"
+                + "    ],\n"
+                + "    \"c\":[\n"
+                + "        \"xc\"\n"
+                + "    ],\n"
+                + "    \"o\":{\n"
+                + "        \"x\":\"xx\",\n"
+                + "        \"y\":\"xy\",\n"
+                + "        \"n\":{\n"
+                + "            \"z\":\"xz\"\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n");
         // TODO RAML 1.0: example displayName, description, annotations, serialized examples, and strict
     }
@@ -295,8 +291,8 @@ public class ExampleGeneratorJsonTest {
 
         String example = ExampleGenerator.example(stringArray, APPLICATION_JSON);
 
-        assertThat(example).isEqualTo("[\n" //
-                + "    \"foo\"\n" //
+        assertThat(example).isEqualTo("[\n"
+                + "    \"foo\"\n"
                 + "]\n");
     }
 
@@ -310,8 +306,8 @@ public class ExampleGeneratorJsonTest {
 
         String example = ExampleGenerator.example(stringList, APPLICATION_JSON);
 
-        assertThat(example).isEqualTo("[\n" //
-                + "    \"foo\"\n" //
+        assertThat(example).isEqualTo("[\n"
+                + "    \"foo\"\n"
                 + "]\n");
     }
 
@@ -321,10 +317,10 @@ public class ExampleGeneratorJsonTest {
 
         String example = ExampleGenerator.example(pojoArray, APPLICATION_JSON);
 
-        assertThat(example).isEqualTo("[\n" //
-                + "    {\n" //
-                + "        \"value\":\"example-value\"\n" //
-                + "    }\n" //
+        assertThat(example).isEqualTo("[\n"
+                + "    {\n"
+                + "        \"value\":\"example-value\"\n"
+                + "    }\n"
                 + "]\n");
     }
 
@@ -338,10 +334,10 @@ public class ExampleGeneratorJsonTest {
 
         String example = ExampleGenerator.example(pojoList, APPLICATION_JSON);
 
-        assertThat(example).isEqualTo("[\n" //
-                + "    {\n" //
-                + "        \"value\":\"example-value\"\n" //
-                + "    }\n" //
+        assertThat(example).isEqualTo("[\n"
+                + "    {\n"
+                + "        \"value\":\"example-value\"\n"
+                + "    }\n"
                 + "]\n");
     }
 }

@@ -1,5 +1,24 @@
 package com.github.t1.ramlap.scanner;
 
+import com.github.t1.exap.JavaDoc;
+import com.github.t1.exap.reflection.Type;
+import com.github.t1.ramlap.AbstractTest;
+import com.github.t1.ramlap.tools.ProblemDetail;
+import io.swagger.annotations.ApiOperation;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.raml.model.*;
+
+import javax.ws.rs.*;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import java.lang.annotation.Retention;
+
 import static com.github.t1.exap.reflection.Message.*;
 import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
 import static java.lang.annotation.RetentionPolicy.*;
@@ -8,22 +27,6 @@ import static javax.ws.rs.core.MediaType.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
-
-import java.lang.annotation.Retention;
-
-import javax.ws.rs.*;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.raml.model.*;
-
-import com.github.t1.exap.JavaDoc;
-import com.github.t1.exap.reflection.Type;
-import com.github.t1.ramlap.AbstractTest;
-import com.github.t1.ramlap.tools.ProblemDetail;
-
-import io.swagger.annotations.ApiOperation;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OperationTest extends AbstractTest {
@@ -40,11 +43,11 @@ public class OperationTest extends AbstractTest {
         Raml raml = scanTypes(Dummy.class);
 
         Action action = action(raml, "/foo", GET);
-        then(action) //
-                .hasResource(raml.getResource("/foo")) //
-                .hasType(GET) //
-                .hasDisplayName("get method") //
-                .hasDescription(null) //
+        then(action)
+                .hasResource(raml.getResource("/foo"))
+                .hasType(GET)
+                .hasDisplayName("get method")
+                .hasDescription(null)
                 ;
     }
 
@@ -58,11 +61,11 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo", POST)) //
-                .hasResource(raml.getResource("/foo")) //
-                .hasType(POST) //
-                .hasDisplayName("post method") //
-                .hasDescription(null) //
+        then(action(raml, "/foo", POST))
+                .hasResource(raml.getResource("/foo"))
+                .hasType(POST)
+                .hasDisplayName("post method")
+                .hasDescription(null)
                 ;
     }
 
@@ -76,11 +79,11 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo", PUT)) //
-                .hasResource(raml.getResource("/foo")) //
-                .hasType(PUT) //
-                .hasDisplayName("put method") //
-                .hasDescription(null) //
+        then(action(raml, "/foo", PUT))
+                .hasResource(raml.getResource("/foo"))
+                .hasType(PUT)
+                .hasDisplayName("put method")
+                .hasDescription(null)
                 ;
     }
 
@@ -94,11 +97,11 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo", DELETE)) //
-                .hasResource(raml.getResource("/foo")) //
-                .hasType(DELETE) //
-                .hasDisplayName("delete method") //
-                .hasDescription(null) //
+        then(action(raml, "/foo", DELETE))
+                .hasResource(raml.getResource("/foo"))
+                .hasType(DELETE)
+                .hasDisplayName("delete method")
+                .hasDescription(null)
                 ;
     }
 
@@ -112,11 +115,11 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo", HEAD)) //
-                .hasResource(raml.getResource("/foo")) //
-                .hasType(HEAD) //
-                .hasDisplayName("head method") //
-                .hasDescription(null) //
+        then(action(raml, "/foo", HEAD))
+                .hasResource(raml.getResource("/foo"))
+                .hasType(HEAD)
+                .hasDisplayName("head method")
+                .hasDescription(null)
                 ;
     }
 
@@ -130,11 +133,11 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo", OPTIONS)) //
-                .hasResource(raml.getResource("/foo")) //
-                .hasType(OPTIONS) //
-                .hasDisplayName("options method") //
-                .hasDescription(null) //
+        then(action(raml, "/foo", OPTIONS))
+                .hasResource(raml.getResource("/foo"))
+                .hasType(OPTIONS)
+                .hasDisplayName("options method")
+                .hasDescription(null)
                 ;
     }
 
@@ -152,11 +155,11 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo", TRACE)) //
-                .hasResource(raml.getResource("/foo")) //
-                .hasType(TRACE) //
-                .hasDisplayName("trace method") //
-                .hasDescription(null) //
+        then(action(raml, "/foo", TRACE))
+                .hasResource(raml.getResource("/foo"))
+                .hasType(TRACE)
+                .hasDisplayName("trace method")
+                .hasDescription(null)
                 ;
     }
 
@@ -174,11 +177,11 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo", PATCH)) //
-                .hasResource(raml.getResource("/foo")) //
-                .hasType(PATCH) //
-                .hasDisplayName("patch method") //
-                .hasDescription(null) //
+        then(action(raml, "/foo", PATCH))
+                .hasResource(raml.getResource("/foo"))
+                .hasType(PATCH)
+                .hasDisplayName("patch method")
+                .hasDescription(null)
                 ;
     }
 
@@ -196,18 +199,18 @@ public class OperationTest extends AbstractTest {
         Raml raml = scanTypes(Dummy.class);
 
         Action action = action(raml, "/foo", GET);
-        then(action) //
-                .hasResource(raml.getResource("/foo")) //
-                .hasType(GET) //
-                .hasDisplayName("get method") //
-                .hasDescription(null) //
+        then(action)
+                .hasResource(raml.getResource("/foo"))
+                .hasType(GET)
+                .hasDisplayName("get method")
+                .hasDescription(null)
                 ;
 
-        then(action(raml, "/foo", PUT)) //
-                .hasResource(raml.getResource("/foo")) //
-                .hasType(PUT) //
-                .hasDisplayName("put method") //
-                .hasDescription(null) //
+        then(action(raml, "/foo", PUT))
+                .hasResource(raml.getResource("/foo"))
+                .hasType(PUT)
+                .hasDisplayName("put method")
+                .hasDescription(null)
                 ;
     }
 
@@ -226,18 +229,18 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo/bar/baz", GET)) //
-                .hasResource(raml.getResource("/foo/bar/baz")) //
-                .hasType(GET) //
-                .hasDisplayName("get baz") //
-                .hasDescription(null) //
+        then(action(raml, "/foo/bar/baz", GET))
+                .hasResource(raml.getResource("/foo/bar/baz"))
+                .hasType(GET)
+                .hasDisplayName("get baz")
+                .hasDescription(null)
                 ;
 
-        then(action(raml, "/foo/bar/bib", GET)) //
-                .hasResource(raml.getResource("/foo/bar/bib")) //
-                .hasType(GET) //
-                .hasDisplayName("get bib") //
-                .hasDescription(null) //
+        then(action(raml, "/foo/bar/bib", GET))
+                .hasResource(raml.getResource("/foo/bar/bib"))
+                .hasType(GET)
+                .hasDisplayName("get bib")
+                .hasDescription(null)
                 ;
     }
 
@@ -252,9 +255,9 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo", GET)) //
-                .hasDisplayName("summary") //
-                .hasDescription("summary. full") //
+        then(action(raml, "/foo", GET))
+                .hasDisplayName("summary")
+                .hasDescription("summary. full")
                 ;
     }
 
@@ -283,9 +286,9 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo", GET)) //
-                .hasDisplayName("summary") //
-                .hasDescription("full") //
+        then(action(raml, "/foo", GET))
+                .hasDisplayName("summary")
+                .hasDescription("full")
                 ;
     }
 
@@ -300,9 +303,9 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then(action(raml, "/foo", GET)) //
-                .hasDisplayName("summary") //
-                .hasDescription(null) //
+        then(action(raml, "/foo", GET))
+                .hasDisplayName("summary")
+                .hasDescription(null)
                 ;
     }
 
@@ -329,15 +332,15 @@ public class OperationTest extends AbstractTest {
 
         assertThat(raml.getResources()).containsOnlyKeys("/foo");
         Resource foo = raml.getResource("/foo");
-        then(foo) //
-                .hasDisplayName("dummy") //
-                .hasDescription(null) //
+        then(foo)
+                .hasDisplayName("dummy")
+                .hasDescription(null)
                 ;
         assertThat(foo.getResources()).containsOnlyKeys("/bar");
         then(raml.getResource("/foo/bar")).hasParentResource(foo);
-        then(raml.getResource("/foo/bar").getAction(GET)) //
-                .hasDisplayName("foobar") //
-                .hasDescription(null) //
+        then(raml.getResource("/foo/bar").getAction(GET))
+                .hasDisplayName("foobar")
+                .hasDescription(null)
                 ;
     }
 
@@ -358,20 +361,20 @@ public class OperationTest extends AbstractTest {
 
         assertThat(raml.getResources()).containsOnlyKeys("/root");
         Resource root = raml.getResource("/root");
-        then(root) //
-                .hasDisplayName("root resource") //
-                .hasDescription(null) //
+        then(root)
+                .hasDisplayName("root resource")
+                .hasDescription(null)
                 ;
         assertThat(root.getResources()).containsOnlyKeys("/foo", "/bar");
         then(raml.getResource("/root/foo")).hasParentResource(root);
-        then(raml.getResource("/root/foo").getAction(GET)) //
-                .hasDisplayName("foo") //
-                .hasDescription(null) //
+        then(raml.getResource("/root/foo").getAction(GET))
+                .hasDisplayName("foo")
+                .hasDescription(null)
                 ;
         then(raml.getResource("/root/bar")).hasParentResource(root);
-        then(raml.getResource("/root/bar").getAction(GET)) //
-                .hasDisplayName("bar") //
-                .hasDescription(null) //
+        then(raml.getResource("/root/bar").getAction(GET))
+                .hasDisplayName("bar")
+                .hasDescription(null)
                 ;
     }
 
@@ -386,9 +389,9 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then.assertThat(raml.getResource("/foo/bar")) //
-                .hasParentUri("/foo") //
-                .hasRelativeUri("/bar") //
+        then.assertThat(raml.getResource("/foo/bar"))
+                .hasParentUri("/foo")
+                .hasRelativeUri("/bar")
                 ;
     }
 
@@ -403,9 +406,9 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then.assertThat(raml.getResource("/foo/bar")) //
-                .hasParentUri("/foo") //
-                .hasRelativeUri("/bar") //
+        then.assertThat(raml.getResource("/foo/bar"))
+                .hasParentUri("/foo")
+                .hasRelativeUri("/bar")
                 ;
     }
 
@@ -420,9 +423,9 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then.assertThat(raml.getResource("/foo/bar")) //
-                .hasParentUri("/foo") //
-                .hasRelativeUri("/bar") //
+        then.assertThat(raml.getResource("/foo/bar"))
+                .hasParentUri("/foo")
+                .hasRelativeUri("/bar")
                 ;
     }
 
@@ -437,9 +440,9 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then.assertThat(raml.getResource("/foo/bar")) //
-                .hasParentUri("/foo") //
-                .hasRelativeUri("/bar") //
+        then.assertThat(raml.getResource("/foo/bar"))
+                .hasParentUri("/foo")
+                .hasRelativeUri("/bar")
                 ;
     }
 
@@ -455,9 +458,9 @@ public class OperationTest extends AbstractTest {
         Raml raml = scanTypes(Dummy.class);
 
 
-        then.assertThat(raml.getResource("/foo")) //
-                .hasRelativeUri("/foo") //
-                .hasParentUri("") //
+        then.assertThat(raml.getResource("/foo"))
+                .hasRelativeUri("/foo")
+                .hasParentUri("")
                 ;
     }
 
@@ -472,9 +475,9 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then.assertThat(raml.getResource("/bar")) //
-                .hasRelativeUri("/bar") //
-                .hasParentUri("") //
+        then.assertThat(raml.getResource("/bar"))
+                .hasRelativeUri("/bar")
+                .hasParentUri("")
                 ;
     }
 
@@ -489,9 +492,9 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then.assertThat(raml.getResource("/foo")) //
-                .hasRelativeUri("/foo") //
-                .hasParentUri("") //
+        then.assertThat(raml.getResource("/foo"))
+                .hasRelativeUri("/foo")
+                .hasParentUri("")
                 ;
     }
 
@@ -506,9 +509,9 @@ public class OperationTest extends AbstractTest {
 
         Raml raml = scanTypes(Dummy.class);
 
-        then.assertThat(raml.getResource("/bar")) //
-                .hasRelativeUri("/bar") //
-                .hasParentUri("") //
+        then.assertThat(raml.getResource("/bar"))
+                .hasRelativeUri("/bar")
+                .hasParentUri("")
                 ;
     }
 
@@ -567,13 +570,13 @@ public class OperationTest extends AbstractTest {
 
         Action action = action(raml, "/", PUT);
         assertThat(action.getBody()).containsOnlyKeys(APPLICATION_XML, APPLICATION_JSON);
-        then(action.getBody().get(APPLICATION_JSON)) //
-                .hasType("integer") //
-                .hasSchema(null) //
+        then(action.getBody().get(APPLICATION_JSON))
+                .hasType("integer")
+                .hasSchema(null)
                 ;
-        then(action.getBody().get(APPLICATION_XML)) //
-                .hasType("integer") //
-                .hasSchema(null) //
+        then(action.getBody().get(APPLICATION_XML))
+                .hasType("integer")
+                .hasSchema(null)
                 ;
     }
 

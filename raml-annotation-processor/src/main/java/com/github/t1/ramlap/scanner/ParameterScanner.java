@@ -1,22 +1,19 @@
 package com.github.t1.ramlap.scanner;
 
-import static java.util.Arrays.*;
-import static java.util.Collections.*;
-import static javax.ws.rs.core.MediaType.*;
-
-import java.util.*;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-
-import org.raml.model.*;
-import org.raml.model.parameter.*;
-
 import com.github.t1.exap.JavaDoc;
 import com.github.t1.exap.reflection.Parameter;
 import com.github.t1.ramlap.tools.*;
-
 import io.swagger.annotations.*;
+import org.raml.model.*;
+import org.raml.model.parameter.*;
+
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import java.util.*;
+
+import static java.util.Arrays.*;
+import static java.util.Collections.*;
+import static javax.ws.rs.core.MediaType.*;
 
 public class ParameterScanner {
     private final Raml raml;
@@ -38,7 +35,7 @@ public class ParameterScanner {
         scanBody();
 
         if (paramAnnotationCount > 1)
-            parameter.warning("method parameters can be only be annotated as one of " //
+            parameter.warning("method parameters can be only be annotated as one of "
                     + "path, query, header, cookie, bean, form, or matrix parameter");
     }
 
@@ -56,7 +53,7 @@ public class ParameterScanner {
         Optional<ResourcePathVariable> var = ResourcePath.of(uri).var(uriParamName);
         Resource resource;
         if (!var.isPresent()) {
-            parameter.warning("annotated path param name '" + uriParamName + "' " //
+            parameter.warning("annotated path param name '" + uriParamName + "' "
                     + "not defined in " + action.getType() + " of '" + uri + "'");
             resource = action.getResource();
         } else {

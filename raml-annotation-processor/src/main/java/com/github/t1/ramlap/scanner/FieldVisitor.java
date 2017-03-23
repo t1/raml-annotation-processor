@@ -1,13 +1,12 @@
 package com.github.t1.ramlap.scanner;
 
+import com.github.t1.exap.reflection.*;
+
+import javax.ws.rs.core.Response.*;
 import java.lang.annotation.Annotation;
 import java.net.URI;
 import java.nio.file.Path;
 import java.util.Collection;
-
-import javax.ws.rs.core.Response.*;
-
-import com.github.t1.exap.reflection.*;
 
 // TODO this should be merged into the com.github.t1.exap.reflection.TypeVisitor
 public class FieldVisitor {
@@ -91,7 +90,7 @@ public class FieldVisitor {
     }
 
     private boolean isUsing(Type type, Class<? extends Annotation> annotation, Class<?> serializer) {
-        return type.isAnnotated(annotation) //
+        return type.isAnnotated(annotation)
                 && serializer.getName()
                         .contentEquals(type.getAnnotationWrapper(annotation).getTypeProperty("using").getFullName());
     }
@@ -108,8 +107,8 @@ public class FieldVisitor {
 
     private boolean hasToString(Type type) {
         for (Method method : type.getAllMethods())
-            if ("toString".equals(method.getName()) //
-                    && method.getParameters().isEmpty() //
+            if ("toString".equals(method.getName())
+                    && method.getParameters().isEmpty()
                     && !method.getDeclaringType().getFullName().equals(Object.class.getName()))
                 return true;
         return false;
@@ -117,8 +116,8 @@ public class FieldVisitor {
 
     private boolean hasFromString(Type type) {
         for (Method method : type.getStaticMethods())
-            if ("fromString".equals(method.getName()) //
-                    && method.getParameters().size() == 1 && method.getParameter(0).getType().isString() //
+            if ("fromString".equals(method.getName())
+                    && method.getParameters().size() == 1 && method.getParameter(0).getType().isString()
                     && method.isPublic() && method.isStatic())
                 return true;
         return false;

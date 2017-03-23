@@ -1,19 +1,17 @@
 package com.github.t1.ramlap.scanner;
 
-import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
-import static org.assertj.core.api.Assertions.*;
-import static org.raml.model.BddAssertions.*;
-
-import javax.ws.rs.*;
-
+import com.github.t1.exap.JavaDoc;
+import com.github.t1.exap.reflection.Type;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.raml.model.*;
 
-import com.github.t1.exap.JavaDoc;
-import com.github.t1.exap.reflection.Type;
-import com.github.t1.ramlap.scanner.RamlScanner;
+import javax.ws.rs.*;
+
+import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
+import static org.assertj.core.api.Assertions.*;
+import static org.raml.model.BddAssertions.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResourceTest {
@@ -39,34 +37,34 @@ public class ResourceTest {
 
         Raml raml = scanTypes(DummyType.class);
 
-        then(raml) //
-                .hasTitle("") //
+        then(raml)
+                .hasTitle("")
                 .hasVersion(null);
         assertThat(raml.getResources()).containsOnlyKeys("/foo");
         Resource foo = raml.getResource("/foo");
-        then(foo).as("foo") //
-                .hasDisplayName(null) //
-                .hasDescription(null) //
-                .hasParentResource(null) //
-                .hasParentUri("") //
-                .hasRelativeUri("/foo") //
-                .hasUri("/foo") //
+        then(foo).as("foo")
+                .hasDisplayName(null)
+                .hasDescription(null)
+                .hasParentResource(null)
+                .hasParentUri("")
+                .hasRelativeUri("/foo")
+                .hasUri("/foo")
                 ;
         Resource bar = raml.getResource("/foo/bar");
-        then(bar).as("bar") //
-                .hasDisplayName("dummy type") //
-                .hasDescription(null) //
-                // TODO .hasBaseUriParameters(null) //
+        then(bar).as("bar")
+                .hasDisplayName("dummy type")
+                .hasDescription(null)
+                // TODO .hasBaseUriParameters(null)
                 // TODO .hasIs(null) // traits
-                .hasParentResource(foo) //
-                .hasParentUri("/foo") //
-                .hasRelativeUri("/bar") //
-                .hasUri("/foo/bar") //
-        // TODO .hasResolvedUriParameters(null) //
-        // TODO .hasResources(null) //
-        // TODO .hasSecuredBy(null) //
-        // TODO .hasType(null) //
-        // TODO .hasUriParameters(null) //
+                .hasParentResource(foo)
+                .hasParentUri("/foo")
+                .hasRelativeUri("/bar")
+                .hasUri("/foo/bar")
+        // TODO .hasResolvedUriParameters(null)
+        // TODO .hasResources(null)
+        // TODO .hasSecuredBy(null)
+        // TODO .hasType(null)
+        // TODO .hasUriParameters(null)
         ;
     }
 
@@ -82,9 +80,9 @@ public class ResourceTest {
         Raml raml = scanTypes(Dummy.class);
 
         Resource resource = raml.getResource("/foo");
-        then(resource) //
-                .hasDisplayName("first sentence") //
-                .hasDescription("first sentence. full doc.") //
+        then(resource)
+                .hasDisplayName("first sentence")
+                .hasDescription("first sentence. full doc.")
                 ;
     }
 

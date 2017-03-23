@@ -1,29 +1,26 @@
 package com.github.t1.ramlap.tools;
 
-import static com.github.t1.ramlap.tools.StringTools.*;
-import static javax.ws.rs.core.Response.Status.*;
-import static javax.ws.rs.core.Response.Status.Family.*;
-import static javax.xml.bind.annotation.XmlAccessType.*;
-
-import java.net.URI;
-import java.util.UUID;
-import java.util.function.Function;
+import com.fasterxml.jackson.annotation.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.github.t1.exap.JavaDoc;
+import com.github.t1.ramlap.annotations.ApiResponse;
+import com.github.t1.ramlap.scanner.StatusTypeXmlAdapter;
+import io.swagger.annotations.ApiModelProperty;
+import org.slf4j.*;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.*;
 import javax.ws.rs.core.Response.*;
 import javax.xml.bind.annotation.*;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.net.URI;
+import java.util.UUID;
+import java.util.function.Function;
 
-import org.slf4j.*;
-
-import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.github.t1.exap.JavaDoc;
-import com.github.t1.ramlap.annotations.ApiResponse;
-import com.github.t1.ramlap.scanner.StatusTypeXmlAdapter;
-
-import io.swagger.annotations.ApiModelProperty;
+import static com.github.t1.ramlap.tools.StringTools.*;
+import static javax.ws.rs.core.Response.Status.*;
+import static javax.ws.rs.core.Response.Status.Family.*;
+import static javax.xml.bind.annotation.XmlAccessType.*;
 
 /**
  * Defines a "problem detail" as a way to carry machine-readable details of errors in a HTTP response, to avoid the need
@@ -159,8 +156,8 @@ public class ProblemDetail implements Cloneable {
     public static Function<ProblemDetail, Logger> LOGGER = (t -> LoggerFactory.getLogger("problemdetail"));
 
     @JavaDoc("A URI reference [RFC3986] that identifies the problem type. When dereferenced, it is encouraged to provide "
-            + "human-readable documentation for the problem type (e.g., using HTML [W3C.REC-html401-19991224])." //
-            + "<p>" //
+            + "human-readable documentation for the problem type (e.g., using HTML [W3C.REC-html401-19991224])."
+            + "<p>"
             + "Defaults to the {@link #URN_PROBLEM_PREFIX} + \"java:\" + fully qualified class name.")
     @ApiModelProperty(example = "https://example.com/probs/out-of-credit")
     @XmlElement
@@ -205,8 +202,8 @@ public class ProblemDetail implements Cloneable {
     }
 
     private String title(Class<? extends ProblemDetail> type) {
-        if (type.isAnnotationPresent(ApiResponse.class) //
-                && !type.getAnnotation(ApiResponse.class).title().isEmpty()) //
+        if (type.isAnnotationPresent(ApiResponse.class)
+                && !type.getAnnotation(ApiResponse.class).title().isEmpty())
             return type.getAnnotation(ApiResponse.class).title();
         if (ProblemDetail.class == type)
             return null; // nothing of interest
@@ -214,8 +211,8 @@ public class ProblemDetail implements Cloneable {
     }
 
     private StatusType status(Class<? extends ProblemDetail> type) {
-        return (type.isAnnotationPresent(ApiResponse.class)) //
-                ? type.getAnnotation(ApiResponse.class).status() //
+        return (type.isAnnotationPresent(ApiResponse.class))
+                ? type.getAnnotation(ApiResponse.class).status()
                 : ApiResponse.DEFAULT_STATUS;
     }
 
@@ -290,8 +287,8 @@ public class ProblemDetail implements Cloneable {
 
     public ResponseBuilder toResponseBuilder() {
         log();
-        return Response.status(status) //
-                .entity(this) //
+        return Response.status(status)
+                .entity(this)
                 .type(APPLICATION_PROBLEM_JSON_TYPE) // TODO support xml/yaml/etc.
                 ;
     }
@@ -363,12 +360,12 @@ public class ProblemDetail implements Cloneable {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName() + ":" //
-                + ((type == null) ? "" : type) //
-                + ((title == null) ? "" : (" \"" + title + "\"")) //
-                + ((status == null) ? "" : (" " + status.getStatusCode() + " " + status.getReasonPhrase())) //
-                + ((detail == null) ? "" : ": \"" + detail + "\"") //
-                + ((instance == null) ? "" : (" [" + instance + "]")) //
+        return getClass().getSimpleName() + ":"
+                + ((type == null) ? "" : type)
+                + ((title == null) ? "" : (" \"" + title + "\""))
+                + ((status == null) ? "" : (" " + status.getStatusCode() + " " + status.getReasonPhrase()))
+                + ((detail == null) ? "" : ": \"" + detail + "\"")
+                + ((instance == null) ? "" : (" [" + instance + "]"))
                 ;
     }
 }

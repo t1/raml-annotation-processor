@@ -27,10 +27,10 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateString() {
         String json = jsonSchema(String.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"string\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"string\"\n"
                 + "}\n", json);
     }
 
@@ -38,15 +38,15 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateEnum() {
         String json = jsonSchema(AccessMode.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"string\",\n" //
-                + "    \"enum\":[\n" //
-                + "        \"READ\",\n" //
-                + "        \"WRITE\",\n" //
-                + "        \"EXECUTE\"\n" //
-                + "    ]\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"string\",\n"
+                + "    \"enum\":[\n"
+                + "        \"READ\",\n"
+                + "        \"WRITE\",\n"
+                + "        \"EXECUTE\"\n"
+                + "    ]\n"
                 + "}\n", json);
     }
 
@@ -54,10 +54,10 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateInteger() {
         String json = jsonSchema(Integer.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"integer\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"integer\"\n"
                 + "}\n", json);
     }
 
@@ -65,10 +65,10 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateDouble() {
         String json = jsonSchema(Double.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"number\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"number\"\n"
                 + "}\n", json);
     }
 
@@ -76,10 +76,10 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateBoolean() {
         String json = jsonSchema(boolean.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"boolean\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"boolean\"\n"
                 + "}\n", json);
     }
 
@@ -87,13 +87,13 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateStringArray() {
         String json = jsonSchema(String[].class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"array\",\n" //
-                + "    \"items\":{\n" //
-                + "        \"type\":\"string\"\n" //
-                + "    }\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"array\",\n"
+                + "    \"items\":{\n"
+                + "        \"type\":\"string\"\n"
+                + "    }\n"
                 + "}\n", json);
     }
 
@@ -101,13 +101,13 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateIntegerArray() {
         String json = jsonSchema(Integer[].class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"array\",\n" //
-                + "    \"items\":{\n" //
-                + "        \"type\":\"integer\"\n" //
-                + "    }\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"array\",\n"
+                + "    \"items\":{\n"
+                + "        \"type\":\"integer\"\n"
+                + "    }\n"
                 + "}\n", json);
     }
 
@@ -121,22 +121,22 @@ public class SchemaGeneratorJsonTest {
     public void shouldGeneratePojo() {
         String json = jsonSchema(Pojo.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:Pojo\",\n" //
-                + "    \"properties\":{\n" //
-                + "        \"value\":{\n" //
-                + "            \"type\":\"string\"\n" //
-                + "        },\n" //
-                + "        \"integer\":{\n" //
-                + "            \"type\":\"integer\"\n" //
-                + "        },\n" //
-                + "        \"bool\":{\n" //
-                + "            \"type\":\"boolean\"\n" //
-                + "        }\n" //
-                + "    }\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"object\",\n"
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:Pojo\",\n"
+                + "    \"properties\":{\n"
+                + "        \"value\":{\n"
+                + "            \"type\":\"string\"\n"
+                + "        },\n"
+                + "        \"integer\":{\n"
+                + "            \"type\":\"integer\"\n"
+                + "        },\n"
+                + "        \"bool\":{\n"
+                + "            \"type\":\"boolean\"\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n", json);
     }
 
@@ -154,26 +154,26 @@ public class SchemaGeneratorJsonTest {
     public void shouldGeneratePojoWithJavaDoc() {
         String json = jsonSchema(PojoWithJavaDoc.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithJavaDoc\",\n" //
-                + "    \"description\":\"type-doc\",\n" //
-                + "    \"properties\":{\n" //
-                + "        \"s\":{\n" //
-                + "            \"type\":\"string\",\n" //
-                + "            \"description\":\"s-doc\"\n" //
-                + "        },\n" //
-                + "        \"i\":{\n" //
-                + "            \"type\":\"integer\",\n" //
-                + "            \"description\":\"i-doc\"\n" //
-                + "        },\n" //
-                + "        \"b\":{\n" //
-                + "            \"type\":\"boolean\",\n" //
-                + "            \"description\":\"b-doc\"\n" //
-                + "        }\n" //
-                + "    }\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"object\",\n"
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithJavaDoc\",\n"
+                + "    \"description\":\"type-doc\",\n"
+                + "    \"properties\":{\n"
+                + "        \"s\":{\n"
+                + "            \"type\":\"string\",\n"
+                + "            \"description\":\"s-doc\"\n"
+                + "        },\n"
+                + "        \"i\":{\n"
+                + "            \"type\":\"integer\",\n"
+                + "            \"description\":\"i-doc\"\n"
+                + "        },\n"
+                + "        \"b\":{\n"
+                + "            \"type\":\"boolean\",\n"
+                + "            \"description\":\"b-doc\"\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n", json);
     }
 
@@ -186,17 +186,17 @@ public class SchemaGeneratorJsonTest {
     public void shouldGeneratePojoWithApiModelPropertyDescription() {
         String json = jsonSchema(PojoWithApiModelProperty.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithApiModelProperty\",\n" //
-                + "    \"properties\":{\n" //
-                + "        \"value\":{\n" //
-                + "            \"type\":\"string\",\n" //
-                + "            \"description\":\"value-description\"\n" //
-                + "        }\n" //
-                + "    }\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"object\",\n"
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithApiModelProperty\",\n"
+                + "    \"properties\":{\n"
+                + "        \"value\":{\n"
+                + "            \"type\":\"string\",\n"
+                + "            \"description\":\"value-description\"\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n", json);
     }
 
@@ -209,34 +209,34 @@ public class SchemaGeneratorJsonTest {
     public void shouldGeneratePojoWithList() {
         String json = jsonSchema(PojoWithList.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithList\",\n" //
-                + "    \"properties\":{\n" //
-                + "        \"pojo\":{\n" //
-                + "            \"type\":\"object\",\n" //
-                + "            \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:Pojo\",\n" //
-                + "            \"properties\":{\n" //
-                + "                \"value\":{\n" //
-                + "                    \"type\":\"string\"\n" //
-                + "                },\n" //
-                + "                \"integer\":{\n" //
-                + "                    \"type\":\"integer\"\n" //
-                + "                },\n" //
-                + "                \"bool\":{\n" //
-                + "                    \"type\":\"boolean\"\n" //
-                + "                }\n" //
-                + "            }\n" //
-                + "        },\n" //
-                + "        \"list\":{\n" //
-                + "            \"type\":\"array\",\n" //
-                + "            \"items\":{\n" //
-                + "                \"type\":\"string\"\n" //
-                + "            }\n" //
-                + "        }\n" //
-                + "    }\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"object\",\n"
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithList\",\n"
+                + "    \"properties\":{\n"
+                + "        \"pojo\":{\n"
+                + "            \"type\":\"object\",\n"
+                + "            \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:Pojo\",\n"
+                + "            \"properties\":{\n"
+                + "                \"value\":{\n"
+                + "                    \"type\":\"string\"\n"
+                + "                },\n"
+                + "                \"integer\":{\n"
+                + "                    \"type\":\"integer\"\n"
+                + "                },\n"
+                + "                \"bool\":{\n"
+                + "                    \"type\":\"boolean\"\n"
+                + "                }\n"
+                + "            }\n"
+                + "        },\n"
+                + "        \"list\":{\n"
+                + "            \"type\":\"array\",\n"
+                + "            \"items\":{\n"
+                + "                \"type\":\"string\"\n"
+                + "            }\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n", json);
     }
 
@@ -248,31 +248,31 @@ public class SchemaGeneratorJsonTest {
     public void shouldGeneratePojoWithSet() {
         String json = jsonSchema(PojoWithSet.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithSet\",\n" //
-                + "    \"properties\":{\n" //
-                + "        \"set\":{\n" //
-                + "            \"type\":\"array\",\n" //
-                + "            \"items\":{\n" //
-                + "                \"type\":\"object\",\n" //
-                + "                \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:Pojo\",\n" //
-                + "                \"properties\":{\n" //
-                + "                    \"value\":{\n" //
-                + "                        \"type\":\"string\"\n" //
-                + "                    },\n" //
-                + "                    \"integer\":{\n" //
-                + "                        \"type\":\"integer\"\n" //
-                + "                    },\n" //
-                + "                    \"bool\":{\n" //
-                + "                        \"type\":\"boolean\"\n" //
-                + "                    }\n" //
-                + "                }\n" //
-                + "            }\n" //
-                + "        }\n" //
-                + "    }\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"object\",\n"
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithSet\",\n"
+                + "    \"properties\":{\n"
+                + "        \"set\":{\n"
+                + "            \"type\":\"array\",\n"
+                + "            \"items\":{\n"
+                + "                \"type\":\"object\",\n"
+                + "                \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:Pojo\",\n"
+                + "                \"properties\":{\n"
+                + "                    \"value\":{\n"
+                + "                        \"type\":\"string\"\n"
+                + "                    },\n"
+                + "                    \"integer\":{\n"
+                + "                        \"type\":\"integer\"\n"
+                + "                    },\n"
+                + "                    \"bool\":{\n"
+                + "                        \"type\":\"boolean\"\n"
+                + "                    }\n"
+                + "                }\n"
+                + "            }\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n", json);
     }
 
@@ -285,11 +285,11 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateCodehausToStringPojo() {
         String json = jsonSchema(CodehausToStringPojo.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"string\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:CodehausToStringPojo\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"string\",\n"
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:CodehausToStringPojo\"\n"
                 + "}\n", json);
     }
 
@@ -303,11 +303,11 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateFasterXmlToStringPojo() {
         String json = jsonSchema(FasterXmlToStringPojo.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"string\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:FasterXmlToStringPojo\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"string\",\n"
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:FasterXmlToStringPojo\"\n"
                 + "}\n", json);
     }
 
@@ -320,21 +320,21 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateRecursivePojo() {
         String json = jsonSchema(RecursivePojo.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:RecursivePojo\",\n" //
-                + "    \"properties\":{\n" //
-                + "        \"pojo\":{\n" //
-                + "            \"type\":\"object\",\n" //
-                + "            \"properties\":{\n" //
-                + "                \"value\":{\n" //
-                + "                    \"type\":\"string\"\n" //
-                + "                }\n" //
-                + "            }\n" //
-                + "        }\n" //
-                + "    }\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"object\",\n"
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:RecursivePojo\",\n"
+                + "    \"properties\":{\n"
+                + "        \"pojo\":{\n"
+                + "            \"type\":\"object\",\n"
+                + "            \"properties\":{\n"
+                + "                \"value\":{\n"
+                + "                    \"type\":\"string\"\n"
+                + "                }\n"
+                + "            }\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n", json);
     }
 
@@ -342,11 +342,11 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateSchemaForClassWithToStringAndFromString() {
         String json = jsonSchema(UUID.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"string\",\n" //
-                + "    \"id\":\"urn:jsonschema:java:util:UUID\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"string\",\n"
+                + "    \"id\":\"urn:jsonschema:java:util:UUID\"\n"
                 + "}\n", json);
     }
 
@@ -364,16 +364,16 @@ public class SchemaGeneratorJsonTest {
     public void shouldGeneratePojoSchemaForClassWithFromStringButNoToString() {
         String json = jsonSchema(PojoWithFromString.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"object\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithFromString\",\n" //
-                + "    \"properties\":{\n" //
-                + "        \"value\":{\n" //
-                + "            \"type\":\"string\"\n" //
-                + "        }\n" //
-                + "    }\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"object\",\n"
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithFromString\",\n"
+                + "    \"properties\":{\n"
+                + "        \"value\":{\n"
+                + "            \"type\":\"string\"\n"
+                + "        }\n"
+                + "    }\n"
                 + "}\n", json);
     }
 
@@ -398,11 +398,11 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateSchemaForClassWithFromStringAndInheritedToString() {
         String json = jsonSchema(PojoWithInheritedToString.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"string\",\n" //
-                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithInheritedToString\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"string\",\n"
+                + "    \"id\":\"urn:jsonschema:com:github:t1:ramlap:scanner:SchemaGeneratorJsonTest:PojoWithInheritedToString\"\n"
                 + "}\n", json);
     }
 
@@ -410,11 +410,11 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateSchemaForPath() {
         String json = jsonSchema(Path.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"string\",\n" //
-                + "    \"id\":\"urn:jsonschema:java:nio:file:Path\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"string\",\n"
+                + "    \"id\":\"urn:jsonschema:java:nio:file:Path\"\n"
                 + "}\n", json);
     }
 
@@ -422,11 +422,11 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateSchemaForUri() {
         String json = jsonSchema(URI.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"string\",\n" //
-                + "    \"id\":\"urn:jsonschema:java:net:URI\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"string\",\n"
+                + "    \"id\":\"urn:jsonschema:java:net:URI\"\n"
                 + "}\n", json);
     }
 
@@ -434,11 +434,11 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateSchemaForStatus() {
         String json = jsonSchema(Status.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"integer\",\n" //
-                + "    \"id\":\"urn:jsonschema:javax:ws:rs:core:Response:Status\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"integer\",\n"
+                + "    \"id\":\"urn:jsonschema:javax:ws:rs:core:Response:Status\"\n"
                 + "}\n", json);
     }
 
@@ -446,11 +446,11 @@ public class SchemaGeneratorJsonTest {
     public void shouldGenerateSchemaForStatusType() {
         String json = jsonSchema(StatusType.class);
 
-        assertEquals("" //
-                + "{\n" //
-                + SCHEMA //
-                + "    \"type\":\"integer\",\n" //
-                + "    \"id\":\"urn:jsonschema:javax:ws:rs:core:Response:StatusType\"\n" //
+        assertEquals(""
+                + "{\n"
+                + SCHEMA
+                + "    \"type\":\"integer\",\n"
+                + "    \"id\":\"urn:jsonschema:javax:ws:rs:core:Response:StatusType\"\n"
                 + "}\n", json);
     }
 

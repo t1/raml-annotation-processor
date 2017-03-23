@@ -1,5 +1,22 @@
 package com.github.t1.ramlap.scanner;
 
+import com.github.t1.ramlap.*;
+import com.github.t1.ramlap.annotations.*;
+import com.github.t1.ramlap.tools.*;
+import com.github.t1.ramlap.tools.ProblemDetail.*;
+import io.swagger.annotations.ResponseHeader;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.raml.model.*;
+
+import javax.ws.rs.GET;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response.StatusType;
+import java.math.BigInteger;
+import java.net.URI;
+
 import static com.github.t1.exap.reflection.ReflectionProcessingEnvironment.*;
 import static com.github.t1.ramlap.Pojo.*;
 import static com.github.t1.ramlap.tools.ProblemDetail.*;
@@ -11,24 +28,6 @@ import static org.assertj.core.api.Assertions.*;
 import static org.raml.model.ActionType.*;
 import static org.raml.model.BddAssertions.*;
 import static org.raml.model.ParamType.*;
-
-import java.math.BigInteger;
-import java.net.URI;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response.StatusType;
-
-import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.raml.model.*;
-
-import com.github.t1.ramlap.*;
-import com.github.t1.ramlap.annotations.*;
-import com.github.t1.ramlap.tools.ProblemDetail.BadRequest;
-
-import io.swagger.annotations.ResponseHeader;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResponseTest extends AbstractTest {
@@ -62,9 +61,9 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(null) //
+        then(response.getBody().get(APPLICATION_JSON))
+                .hasType(null)
+                .hasSchema(null)
                 ;
     }
 
@@ -83,9 +82,9 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
+        then(response.getBody().get(APPLICATION_JSON))
+                .hasType(null)
+                .hasSchema(POJO_JSON_SCHEMA)
                 ;
     }
 
@@ -105,9 +104,9 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
+        then(response.getBody().get(APPLICATION_JSON))
+                .hasType(null)
+                .hasSchema(POJO_JSON_SCHEMA)
                 ;
     }
 
@@ -145,9 +144,9 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         assertThat(action.getResponses().size()).isEqualTo(1);
         Response notFoundResponse = action.getResponses().get("404");
-        then(notFoundResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
-                .hasType(null) //
-                .hasSchema(jsonSchema(FooNotFound.class)) //
+        then(notFoundResponse.getBody().get(APPLICATION_PROBLEM_JSON))
+                .hasType(null)
+                .hasSchema(jsonSchema(FooNotFound.class))
                 ;
     }
 
@@ -159,7 +158,7 @@ public class ResponseTest extends AbstractTest {
             @ApiResponse(type = FooBadRequest.class)
             @ApiResponse(type = FooNotFound.class)
             public javax.ws.rs.core.Response getMethod(boolean b) {
-                return b //
+                return b
                         ? new FooBadRequest().toResponse() : new FooNotFound().detail("detail-text").toResponse();
             }
         }
@@ -174,16 +173,16 @@ public class ResponseTest extends AbstractTest {
         assertThat(action.getResponses().size()).isEqualTo(2);
         Response badRequestResponse = action.getResponses().get("400");
         assertThat(badRequestResponse.getBody()).hasSize(1);
-        then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
-                .hasType(null) //
-                .hasSchema(jsonSchema(FooBadRequest.class)) //
+        then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON))
+                .hasType(null)
+                .hasSchema(jsonSchema(FooBadRequest.class))
                 ;
 
         Response notFoundResponse = action.getResponses().get("404");
         assertThat(notFoundResponse.getBody()).hasSize(1);
-        then(notFoundResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
-                .hasType(null) //
-                .hasSchema(jsonSchema(FooNotFound.class)) //
+        then(notFoundResponse.getBody().get(APPLICATION_PROBLEM_JSON))
+                .hasType(null)
+                .hasSchema(jsonSchema(FooNotFound.class))
                 ;
     }
 
@@ -205,9 +204,9 @@ public class ResponseTest extends AbstractTest {
         Response badRequestResponse = action.getResponses().get("400");
         assertThat(badRequestResponse.getBody()).hasSize(1);
         then(badRequestResponse).hasDescription("bar");
-        then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
-                .hasType(null) //
-                .hasSchema(jsonSchema(BadRequest.class)) //
+        then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON))
+                .hasType(null)
+                .hasSchema(jsonSchema(BadRequest.class))
                 ;
     }
 
@@ -430,9 +429,9 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
+        then(response.getBody().get(APPLICATION_JSON))
+                .hasType(null)
+                .hasSchema(POJO_JSON_SCHEMA)
                 ;
     }
 
@@ -454,16 +453,16 @@ public class ResponseTest extends AbstractTest {
 
         Response okResponse = action.getResponses().get("200");
         assertThat(okResponse.getBody()).hasSize(1);
-        then(okResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
-                .hasType(null) //
-                .hasSchema(jsonSchema(FooBadRequest.class)) //
+        then(okResponse.getBody().get(APPLICATION_PROBLEM_JSON))
+                .hasType(null)
+                .hasSchema(jsonSchema(FooBadRequest.class))
                 ;
 
         Response badRequestResponse = action.getResponses().get("400");
         assertThat(badRequestResponse.getBody()).hasSize(1);
-        then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON)) //
-                .hasType(null) //
-                .hasSchema(jsonSchema(FooBadRequest.class)) //
+        then(badRequestResponse.getBody().get(APPLICATION_PROBLEM_JSON))
+                .hasType(null)
+                .hasSchema(jsonSchema(FooBadRequest.class))
                 ;
     }
 
@@ -472,9 +471,9 @@ public class ResponseTest extends AbstractTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @io.swagger.annotations.ApiResponses({ //
+            @io.swagger.annotations.ApiResponses({
                     @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr"),
-                    @io.swagger.annotations.ApiResponse(code = 400, message = "bad-request-descr") //
+                    @io.swagger.annotations.ApiResponse(code = 400, message = "bad-request-descr")
             })
             @Produces(APPLICATION_JSON)
             public Pojo getMethod() {
@@ -488,16 +487,16 @@ public class ResponseTest extends AbstractTest {
 
         Response okResponse = action.getResponses().get("200");
         assertThat(okResponse.getBody()).hasSize(1);
-        then(okResponse.getBody().get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
+        then(okResponse.getBody().get(APPLICATION_JSON))
+                .hasType(null)
+                .hasSchema(POJO_JSON_SCHEMA)
                 ;
 
         Response badRequestResponse = action.getResponses().get("400");
         assertThat(badRequestResponse.getBody()).hasSize(1);
-        then(badRequestResponse.getBody().get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
+        then(badRequestResponse.getBody().get(APPLICATION_JSON))
+                .hasType(null)
+                .hasSchema(POJO_JSON_SCHEMA)
                 ;
     }
 
@@ -518,9 +517,9 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType("integer") //
-                .hasSchema(null) //
+        then(response.getBody().get(APPLICATION_JSON))
+                .hasType("integer")
+                .hasSchema(null)
                 ;
     }
 
@@ -541,9 +540,9 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType("integer") //
-                .hasSchema(null) //
+        then(response.getBody().get(APPLICATION_JSON))
+                .hasType("integer")
+                .hasSchema(null)
                 ;
     }
 
@@ -564,13 +563,13 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(2);
-        then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
+        then(response.getBody().get(APPLICATION_JSON))
+                .hasType(null)
+                .hasSchema(POJO_JSON_SCHEMA)
                 ;
-        then(response.getBody().get(APPLICATION_XML)) //
-                .hasType(null) //
-                .hasSchema(POJO_XML_SCHEMA) //
+        then(response.getBody().get(APPLICATION_XML))
+                .hasType(null)
+                .hasSchema(POJO_XML_SCHEMA)
                 ;
     }
 
@@ -591,13 +590,13 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(2);
-        then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
+        then(response.getBody().get(APPLICATION_JSON))
+                .hasType(null)
+                .hasSchema(POJO_JSON_SCHEMA)
                 ;
-        then(response.getBody().get(APPLICATION_XML)) //
-                .hasType(null) //
-                .hasSchema(POJO_XML_SCHEMA) //
+        then(response.getBody().get(APPLICATION_XML))
+                .hasType(null)
+                .hasSchema(POJO_XML_SCHEMA)
                 ;
     }
 
@@ -618,9 +617,9 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_XML)) //
-                .hasType(null) //
-                .hasSchema(POJO_XML_SCHEMA) //
+        then(response.getBody().get(APPLICATION_XML))
+                .hasType(null)
+                .hasSchema(POJO_XML_SCHEMA)
                 ;
     }
 
@@ -641,9 +640,9 @@ public class ResponseTest extends AbstractTest {
         Action action = action(raml, "/foo", GET);
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_XML)) //
-                .hasType(null) //
-                .hasSchema(POJO_XML_SCHEMA) //
+        then(response.getBody().get(APPLICATION_XML))
+                .hasType(null)
+                .hasSchema(POJO_XML_SCHEMA)
                 ;
     }
 
@@ -665,9 +664,9 @@ public class ResponseTest extends AbstractTest {
 
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType("integer") //
-                .hasSchema(null) //
+        then(response.getBody().get(APPLICATION_JSON))
+                .hasType("integer")
+                .hasSchema(null)
                 ;
     }
 
@@ -689,9 +688,9 @@ public class ResponseTest extends AbstractTest {
 
         Response response = action.getResponses().get("200");
         assertThat(response.getBody()).hasSize(1);
-        then(response.getBody().get(APPLICATION_JSON)) //
-                .hasType("integer") //
-                .hasSchema(null) //
+        then(response.getBody().get(APPLICATION_JSON))
+                .hasType("integer")
+                .hasSchema(null)
                 ;
     }
 
@@ -700,8 +699,8 @@ public class ResponseTest extends AbstractTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @ApiResponse(status = OK, responseHeaders = { //
-                    @ApiResponseHeader(name = "resp-header", description = "r-h-desc", type = Integer.class) //
+            @ApiResponse(status = OK, responseHeaders = {
+                    @ApiResponseHeader(name = "resp-header", description = "r-h-desc", type = Integer.class)
             })
             public String getMethod() {
                 return null;
@@ -716,10 +715,10 @@ public class ResponseTest extends AbstractTest {
 
         Response response = action.getResponses().get("200");
         assertThat(response.getHeaders()).containsOnlyKeys("resp-header");
-        then(response.getHeaders().get("resp-header")) //
-                .hasDisplayName("resp-header") //
-                .hasDescription("r-h-desc") //
-                .hasType(INTEGER) //
+        then(response.getHeaders().get("resp-header"))
+                .hasDisplayName("resp-header")
+                .hasDescription("r-h-desc")
+                .hasType(INTEGER)
                 ;
     }
 
@@ -728,8 +727,8 @@ public class ResponseTest extends AbstractTest {
         @Path("/foo")
         class Dummy {
             @GET
-            @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr", responseHeaders = { //
-                    @ResponseHeader(name = "resp-header", description = "r-h-desc", response = Integer.class) //
+            @io.swagger.annotations.ApiResponse(code = 200, message = "ok-descr", responseHeaders = {
+                    @ResponseHeader(name = "resp-header", description = "r-h-desc", response = Integer.class)
             })
             public String getMethod() {
                 return null;
@@ -744,10 +743,10 @@ public class ResponseTest extends AbstractTest {
 
         Response response = action.getResponses().get("200");
         assertThat(response.getHeaders()).containsOnlyKeys("resp-header");
-        then(response.getHeaders().get("resp-header")) //
-                .hasDisplayName("resp-header") //
-                .hasDescription("r-h-desc") //
-                .hasType(INTEGER) //
+        then(response.getHeaders().get("resp-header"))
+                .hasDisplayName("resp-header")
+                .hasDescription("r-h-desc")
+                .hasType(INTEGER)
                 ;
     }
 

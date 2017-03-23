@@ -56,22 +56,22 @@ public class ParameterTest extends AbstractTest {
             @GET
             @Path("/{s}/{i}-{d}-{e}")
             @SuppressWarnings("unused")
-            public void getMethod( //
-                    @PathParam("s") String s, //
-                    @JavaDoc(value = "i-name. i-desc") @PathParam("i") int i, //
-                    @JavaDoc(value = "d-name. d-desc") @PathParam("d") double d, //
-                    @PathParam("e") AccessMode e //
+            public void getMethod(
+                    @PathParam("s") String s,
+                    @JavaDoc(value = "i-name. i-desc") @PathParam("i") int i,
+                    @JavaDoc(value = "d-name. d-desc") @PathParam("d") double d,
+                    @PathParam("e") AccessMode e
             ) {}
         }
 
         Raml raml = scanTypes(Dummy.class);
 
         Action action = action(raml, "/foo/{s}/{i}-{d}-{e}", GET);
-        then(raml.getResource("/foo/{s}").getUriParameters().get("s")) //
-                .hasDisplayName("s") //
-                .hasDescription(null) //
-                .hasType(STRING) //
-                .isRequired() //
+        then(raml.getResource("/foo/{s}").getUriParameters().get("s"))
+                .hasDisplayName("s")
+                .hasDescription(null)
+                .hasType(STRING)
+                .isRequired()
         // TODO required=false : boolean
         // TODO repeat : boolean
         // TODO pattern : String
@@ -83,24 +83,24 @@ public class ParameterTest extends AbstractTest {
         ;
         Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
         assertThat(pathParams.size()).isEqualTo(3);
-        then(pathParams.get("i")) //
-                .hasDisplayName("i-name") //
-                .hasDescription("i-name. i-desc") //
-                .hasType(INTEGER) //
-                .isRequired() //
+        then(pathParams.get("i"))
+                .hasDisplayName("i-name")
+                .hasDescription("i-name. i-desc")
+                .hasType(INTEGER)
+                .isRequired()
                 ;
-        then(pathParams.get("d")) //
-                .hasDisplayName("d-name") //
-                .hasDescription("d-name. d-desc") //
-                .hasType(NUMBER) //
-                .isRequired() //
+        then(pathParams.get("d"))
+                .hasDisplayName("d-name")
+                .hasDescription("d-name. d-desc")
+                .hasType(NUMBER)
+                .isRequired()
                 ;
-        then(pathParams.get("e")) //
-                .hasDisplayName("e") //
-                .hasDescription(null) //
-                .hasType(STRING) //
-                .hasEnumeration("EXECUTE", "READ", "WRITE") //
-                .isRequired() //
+        then(pathParams.get("e"))
+                .hasDisplayName("e")
+                .hasDescription(null)
+                .hasType(STRING)
+                .hasEnumeration("EXECUTE", "READ", "WRITE")
+                .isRequired()
                 ;
         // TODO Type: DATE
         // TODO Type: FILE
@@ -122,9 +122,9 @@ public class ParameterTest extends AbstractTest {
         Action action = action(raml, "/{p}", GET);
         Map<String, UriParameter> pathParams = action.getResource().getUriParameters();
         assertThat(pathParams.size()).isEqualTo(1);
-        then(pathParams.get("p")) //
-                .hasDisplayName("p") //
-                .hasType(STRING) //
+        then(pathParams.get("p"))
+                .hasDisplayName("p")
+                .hasType(STRING)
                 ;
     }
 
@@ -143,10 +143,10 @@ public class ParameterTest extends AbstractTest {
         Action action = action(raml, "/{p}", GET);
         Map<String, UriParameter> params = action.getResource().getUriParameters();
         assertThat(params.size()).isEqualTo(1);
-        then(params.get("p")) //
-                .hasDisplayName("p") //
-                .hasType(STRING) //
-                .hasDescription("p-desc") //
+        then(params.get("p"))
+                .hasDisplayName("p")
+                .hasType(STRING)
+                .hasDescription("p-desc")
         // TODO name?
         // TODO defaultValue
         // TODO allowableValues
@@ -179,10 +179,10 @@ public class ParameterTest extends AbstractTest {
         Action action = action(raml, "/{p}", GET);
         Map<String, UriParameter> params = action.getResource().getUriParameters();
         assertThat(params.size()).isEqualTo(1);
-        then(params.get("p")) //
-                .hasType(STRING) //
-                .hasDisplayName("foo-num") //
-                .hasDescription("foo-num-desc") //
+        then(params.get("p"))
+                .hasType(STRING)
+                .hasDisplayName("foo-num")
+                .hasDescription("foo-num-desc")
         // TODO parent
         // TODO discriminator
         // TODO subTypes
@@ -197,9 +197,9 @@ public class ParameterTest extends AbstractTest {
             @GET
             @Path("/{bar}")
             @SuppressWarnings("unused")
-            public void getMethod( //
-                    @PathParam("foo") String foo, //
-                    @PathParam("bar") String bar //
+            public void getMethod(
+                    @PathParam("foo") String foo,
+                    @PathParam("bar") String bar
             ) {}
         }
 
@@ -217,9 +217,9 @@ public class ParameterTest extends AbstractTest {
         class Dummy {
             @GET
             @SuppressWarnings("unused")
-            public void getMethod( //
-                    @PathParam("foo") String foo, //
-                    @PathParam("bar") String bar //
+            public void getMethod(
+                    @PathParam("foo") String foo,
+                    @PathParam("bar") String bar
             ) {}
         }
 
@@ -274,10 +274,10 @@ public class ParameterTest extends AbstractTest {
         class Dummy {
             @GET
             @SuppressWarnings("unused")
-            public void getMethod( //
-                    @QueryParam("q0") String q0, //
-                    @JavaDoc(value = "q-name. q-desc") @QueryParam("q1") long q1, //
-                    @QueryParam("q2") AccessMode q2 //
+            public void getMethod(
+                    @QueryParam("q0") String q0,
+                    @JavaDoc(value = "q-name. q-desc") @QueryParam("q1") long q1,
+                    @QueryParam("q2") AccessMode q2
             ) {}
         }
 
@@ -286,24 +286,24 @@ public class ParameterTest extends AbstractTest {
         Action action = action(raml, "/p", GET);
         Map<String, QueryParameter> queryParams = action.getQueryParameters();
         assertThat(queryParams.size()).isEqualTo(3);
-        then(queryParams.get("q0")) //
-                .hasDisplayName("q0") //
-                .hasDescription(null) //
-                .hasType(STRING) //
-                .isNotRequired() //
+        then(queryParams.get("q0"))
+                .hasDisplayName("q0")
+                .hasDescription(null)
+                .hasType(STRING)
+                .isNotRequired()
                 ;
-        then(queryParams.get("q1")) //
-                .hasDisplayName("q-name") //
-                .hasDescription("q-name. q-desc") //
-                .hasType(INTEGER) //
-                .isNotRequired() //
+        then(queryParams.get("q1"))
+                .hasDisplayName("q-name")
+                .hasDescription("q-name. q-desc")
+                .hasType(INTEGER)
+                .isNotRequired()
                 ;
-        then(queryParams.get("q2")) //
-                .hasDisplayName("q2") //
-                .hasDescription(null) //
-                .hasType(STRING) //
-                .hasEnumeration("EXECUTE", "READ", "WRITE") //
-                .isNotRequired() //
+        then(queryParams.get("q2"))
+                .hasDisplayName("q2")
+                .hasDescription(null)
+                .hasType(STRING)
+                .hasEnumeration("EXECUTE", "READ", "WRITE")
+                .isNotRequired()
                 ;
     }
 
@@ -314,9 +314,9 @@ public class ParameterTest extends AbstractTest {
         class Dummy {
             @GET
             @SuppressWarnings("unused")
-            public void getMethod( //
-                    @HeaderParam("h0") String h0, //
-                    @JavaDoc(value = "h-name. h-desc") @HeaderParam("h1") long h1 //
+            public void getMethod(
+                    @HeaderParam("h0") String h0,
+                    @JavaDoc(value = "h-name. h-desc") @HeaderParam("h1") long h1
             ) {}
         }
 
@@ -325,17 +325,17 @@ public class ParameterTest extends AbstractTest {
         Action action = action(raml, "/p", GET);
         Map<String, Header> headerParams = action.getHeaders();
         assertThat(headerParams.size()).isEqualTo(2);
-        then(headerParams.get("h0")) //
-                .hasDisplayName("h0") //
-                .hasDescription(null) //
-                .hasType(STRING) //
-                .isNotRequired() //
+        then(headerParams.get("h0"))
+                .hasDisplayName("h0")
+                .hasDescription(null)
+                .hasType(STRING)
+                .isNotRequired()
                 ;
-        then(headerParams.get("h1")) //
-                .hasDisplayName("h-name") //
-                .hasDescription("h-name. h-desc") //
-                .hasType(INTEGER) //
-                .isNotRequired() //
+        then(headerParams.get("h1"))
+                .hasDisplayName("h-name")
+                .hasDescription("h-name. h-desc")
+                .hasType(INTEGER)
+                .isNotRequired()
                 ;
     }
 
@@ -355,10 +355,10 @@ public class ParameterTest extends AbstractTest {
         Action action = action(raml, "/p", GET);
         Map<String, MimeType> body = action.getBody();
         assertThat(body.size()).isEqualTo(1);
-        then(body.get(APPLICATION_JSON)) //
-                .hasType("string") //
-                .hasSchema(null) //
-                .hasExample(null) //
+        then(body.get(APPLICATION_JSON))
+                .hasType("string")
+                .hasSchema(null)
+                .hasExample(null)
                 ;
         // TODO form params
     }
@@ -380,10 +380,10 @@ public class ParameterTest extends AbstractTest {
         Action action = action(raml, "/p", GET);
         Map<String, MimeType> body = action.getBody();
         assertThat(body.size()).isEqualTo(1);
-        then(body.get(APPLICATION_JSON)) //
-                .hasType("string") //
-                .hasSchema(null) //
-                .hasExample("sample") //
+        then(body.get(APPLICATION_JSON))
+                .hasType("string")
+                .hasSchema(null)
+                .hasExample("sample")
                 ;
         // TODO form params
     }
@@ -465,16 +465,16 @@ public class ParameterTest extends AbstractTest {
         Action action = action(raml, "/p", GET);
         Map<String, MimeType> body = action.getBody();
         assertThat(body.size()).isEqualTo(2);
-        then(body.get(APPLICATION_JSON)) //
-                .hasType(null) //
-                .hasSchema(POJO_JSON_SCHEMA) //
-                .hasExample("{" //
-                        + "\n    \"value\":\"example-value\"\n" //
-                        + "}\n") //
+        then(body.get(APPLICATION_JSON))
+                .hasType(null)
+                .hasSchema(POJO_JSON_SCHEMA)
+                .hasExample("{"
+                        + "\n    \"value\":\"example-value\"\n"
+                        + "}\n")
                         ;
-        then(body.get(APPLICATION_XML)) //
-                .hasType(null) //
-                .hasSchema(POJO_XML_SCHEMA) //
+        then(body.get(APPLICATION_XML))
+                .hasType(null)
+                .hasSchema(POJO_XML_SCHEMA)
                 .hasExample(null) // TODO xml example
                 ;
         // TODO form params
@@ -502,8 +502,8 @@ public class ParameterTest extends AbstractTest {
         assertThat(action.getResource().getUriParameters().size()).isEqualTo(1);
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
 
-        assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getParameter(0), //
-                "method parameters can be only be annotated as one of " //
+        assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getParameter(0),
+                "method parameters can be only be annotated as one of "
                         + "path, query, header, cookie, bean, form, or matrix parameter");
     }
 
@@ -524,7 +524,7 @@ public class ParameterTest extends AbstractTest {
         assertThat(action.getQueryParameters().size()).isEqualTo(1);
 
         assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getParameter(0),
-                "method parameters can be only be annotated as one of " //
+                "method parameters can be only be annotated as one of "
                         + "path, query, header, cookie, bean, form, or matrix parameter");
     }
 
@@ -547,7 +547,7 @@ public class ParameterTest extends AbstractTest {
         assertThat(action.getHeaders().size()).isEqualTo(1);
 
         assertMessage(WARNING, ENV.type(Dummy.class).getMethod("getMethod").getParameter(0),
-                "method parameters can be only be annotated as one of " //
+                "method parameters can be only be annotated as one of "
                         + "path, query, header, cookie, bean, form, or matrix parameter");
     }
 

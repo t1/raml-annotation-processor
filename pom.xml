@@ -71,11 +71,6 @@
         </dependency>
 
         <!-- libraries -->
-        <dependency>
-            <groupId>com.github.t1</groupId>
-            <artifactId>problem-detail</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
 
         <!-- test scope -->
         <dependency>
